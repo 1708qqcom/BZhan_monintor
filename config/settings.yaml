@@ -1,0 +1,18 @@
+# B站UP主监控配置
+
+feishu:
+  webhook_url: ""  # 飞书群机器人Webhook地址（后续填入）
+
+monitor:
+  check_interval_minutes: 30  # 检查间隔（分钟）
+  max_follows_to_check: 50    # 最多监控UP主数量
+
+logging:
+  level: INFO
+  file: logs/monitor.log
+  max_size_mb: 10
+  backup_count: 5
+
+bilibili:
+  cookie_file: config/bilibili_cookies.json
+  qrcode_timeout_seconds: 180  # 扫码超时时间
