@@ -1,5 +1,6 @@
 # 日志文件
 *.log
+logs/
 
 # Python
 __pycache__/
@@ -16,5 +17,15 @@ ENV/
 *.swp
 *.swo
 
-# 敏感配置（可选，如果不想上传Cookie）
-# config/bilibili_cookies.json
+# 敏感配置
+config/bilibili_cookies.json
+config/settings.yaml
+
+# 数据文件
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# 备份文件
+*.backup_*

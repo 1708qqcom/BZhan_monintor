@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}B站登录管理 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">B站登录管理</h1>
+        <p class="mt-1 text-sm text-gray-500">管理B站账号登录状态</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 登录状态 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">当前登录状态</h2>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <!-- 登录状态信息 -->
+                <div id="login-status-container">
+                    <div class="flex items-center justify-center py-8">
+                        <svg class="animate-spin w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.042.784 3.87 2.058 5.244L6 17.291z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 扫码登录 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">扫码登录</h2>
+            </div>
+
+            <div class="p-6">
+                <div class="text-center">
+                    <!-- 二维码显示区域 -->
+                    <div id="qrcode-container" class="mb-4">
+                        <div class="inline-block p-4 bg-white border-2 border-gray-200 rounded-lg">
+                            <div id="qrcode-image" class="w-48 h-48 flex items-center justify-center bg-gray-100">
+                                <span class="text-gray-400 text-sm">点击下方按钮获取二维码</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 状态提示 -->
+                    <div id="qrcode-status" class="text-sm text-gray-500 mb-4">
+                        准备就绪
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <button
+                        id="btn-get-qrcode"
+                        class="bg-bilibili-pink text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+                    >
+                        获取二维码
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 轮询定时器
+    let pollTimer = null;
+
+    // 页面加载时获取登录状态
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('[BilibiliLogin] 开始加载登录状态');
+        await loadLoginStatus();
+        bindEvents();
+    });
+
+    /**
+     * 加载登录状态
+     */
+    async function loadLoginStatus() {
+        try {
+            const status = await fetchAPI('/api/login/status');
+
+            console.log('[BilibiliLogin] 登录状态:', status);
+
+            renderLoginStatus(status);
+
+        } catch (error) {
+            console.error('[BilibiliLogin] 加载登录状态失败:', error);
+
+            document.getElementById('login-status-container').innerHTML = `
+                <div class="text-center py-8 text-red-500">
+                    加载失败: ${escapeHtml(error.message)}
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * 渲染登录状态
+     */
+    function renderLoginStatus(status) {
+        const container = document.getElementById('login-status-container');
+
+        if (status.is_logged_in) {
+            // 已登录
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">已登录</p>
+                            <p class="text-xs text-gray-500">${escapeHtml(status.username || 'B站用户')}</p>
+                        </div>
+                    </div>
+
+                    ${status.expires_at ? `
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Cookie 过期时间</span>
+                            <span class="text-xs font-medium text-gray-900">${status.expires_at}</span>
+                        </div>
+                        ${status.days_remaining !== null ? `
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs text-gray-500">剩余天数</span>
+                            <span class="text-xs font-medium ${status.days_remaining > 7 ? 'text-green-600' : 'text-red-600'}">
+                                ${status.days_remaining} 天
+                            </span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+
+                    <div class="pt-2">
+                        <p class="text-xs text-gray-500">${escapeHtml(status.message || '登录状态正常')}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            // 未登录
+            container.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900 mb-1">未登录</p>
+                    <p class="text-xs text-gray-500">${escapeHtml(status.message || '请使用右侧二维码扫码登录')}</p>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * 获取二维码
+     */
+    async function getQrcode() {
+        console.log('[BilibiliLogin] 获取二维码');
+
+        try {
+            const qrcode = await fetchAPI('/api/login/qrcode');
+
+            console.log('[BilibiliLogin] 二维码获取成功:', qrcode);
+
+            // 显示二维码
+            document.getElementById('qrcode-image').innerHTML = `
+                <img src="${qrcode.image_url}" alt="B站登录二维码" class="w-48 h-48">
+            `;
+
+            document.getElementById('qrcode-status').textContent = '请使用B站App扫描二维码登录';
+
+            // 开始轮询状态
+            startPolling();
+
+        } catch (error) {
+            console.error('[BilibiliLogin] 获取二维码失败:', error);
+
+            document.getElementById('qrcode-image').innerHTML = `
+                <div class="text-center text-red-500 text-xs p-4">
+                    获取失败: ${escapeHtml(error.message)}
+                </div>
+            `;
+
+            document.getElementById('qrcode-status').textContent = '获取二维码失败，请重试';
+        }
+    }
+
+    /**
+     * 开始轮询登录状态
+     */
+    function startPolling() {
+        // 清除之前的轮询
+        if (pollTimer) {
+            clearInterval(pollTimer);
+        }
+
+        console.log('[BilibiliLogin] 开始轮询扫码结果');
+
+        // 每2秒调用后端轮询接口
+        pollTimer = setInterval(async function() {
+            try {
+                const result = await fetchAPI('/api/login/poll', { method: 'POST' });
+
+                console.log('[BilibiliLogin] 轮询结果:', result);
+
+                if (result.data && result.data.status === 'success') {
+                    // 登录成功
+                    console.log('[BilibiliLogin] 登录成功，停止轮询');
+
+                    clearInterval(pollTimer);
+                    pollTimer = null;
+
+                    document.getElementById('qrcode-status').textContent = '✓ 登录成功';
+
+                    showSuccess('登录成功');
+
+                    // 重新加载登录状态
+                    await loadLoginStatus();
+
+                } else if (result.data && result.data.status === 'expired') {
+                    // 二维码已过期
+                    console.log('[BilibiliLogin] 二维码已过期');
+
+                    clearInterval(pollTimer);
+                    pollTimer = null;
+
+                    document.getElementById('qrcode-status').textContent = '二维码已过期，请重新获取';
+                }
+                // 其他情况继续轮询（waiting）
+
+            } catch (error) {
+                console.error('[BilibiliLogin] 轮询失败:', error);
+            }
+        }, 2000);
+
+        // 3分钟后自动停止轮询
+        setTimeout(function() {
+            if (pollTimer) {
+                console.log('[BilibiliLogin] 轮询超时，停止');
+                clearInterval(pollTimer);
+                pollTimer = null;
+
+                document.getElementById('qrcode-status').textContent = '二维码已过期，请重新获取';
+            }
+        }, 180000);
+    }
+
+    /**
+     * 绑定事件
+     */
+    function bindEvents() {
+        // 获取二维码按钮
+        document.getElementById('btn-get-qrcode').addEventListener('click', function() {
+            getQrcode();
+        });
+    }
+</script>
+{% endblock %}

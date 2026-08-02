@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="B站UP主视频监控系统">
+    <title>{% block title %}B站监控{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bilibili: {
+                            pink: '#FB7299',
+                            blue: '#00A1D6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- 左侧Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-bilibili-pink rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1zM4 8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H4zm.5 3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">B站监控</span>
+                    </a>
+
+                    <!-- 桌面端菜单 -->
+                    <div class="hidden md:flex md:ml-10 md:space-x-8">
+                        <a href="/" class="text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            仪表盘
+                        </a>
+                        <a href="/ups" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            UP主管理
+                        </a>
+                        <a href="/videos" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            推送历史
+                        </a>
+                        <a href="/config" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            配置管理
+                        </a>
+                        <a href="/bilibili-login" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            B站登录
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 右侧用户菜单 -->
+                <div class="hidden md:flex md:items-center md:space-x-4">
+                    <form action="/auth/logout" method="POST" class="inline">
+                        <button type="submit" class="text-gray-500 hover:text-red-600 text-sm font-medium transition-colors">
+                            登出
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 移动端汉堡菜单按钮 -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-button" type="button" class="text-gray-500 hover:text-gray-700 p-2 rounded-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动端菜单（默认隐藏） -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="/" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-bilibili-pink">
+                    仪表盘
+                </a>
+                <a href="/ups" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                    UP主管理
+                </a>
+                <a href="/videos" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                    推送历史
+                </a>
+                <a href="/config" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                    配置管理
+                </a>
+                <a href="/bilibili-login" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                    B站登录
+                </a>
+                <div class="pt-4 pb-2 border-t border-gray-200">
+                    <form action="/auth/logout" method="POST">
+                        <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50">
+                            登出
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <p class="text-center text-sm text-gray-500">
+                B站UP主视频监控系统 v2.1.0
+            </p>
+        </div>
+    </footer>
+
+    <!-- 全局错误提示组件 -->
+    <div id="global-error" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <span id="global-error-message"></span>
+    </div>
+
+    <!-- 全局成功提示组件 -->
+    <div id="global-success" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        <span id="global-success-message"></span>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

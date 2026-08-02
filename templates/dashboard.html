@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">仪表盘</h1>
+        <p class="mt-1 text-sm text-gray-500">监控状态概览</p>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 监控UP主数 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bilibili-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">监控UP主</p>
+                    <p class="text-2xl font-bold text-gray-900" id="stat-ups">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今日推送数 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-bilibili-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">今日推送</p>
+                    <p class="text-2xl font-bold text-gray-900" id="stat-pushes">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务运行时间 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">服务状态</p>
+                    <p class="text-2xl font-bold text-green-600" id="stat-status">运行中</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近推送记录 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">最近推送</h2>
+        </div>
+        <div class="p-6">
+            <div id="recent-videos" class="space-y-4">
+                <!-- 加载中 -->
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="animate-spin w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.042.784 3.87 2.058 5.244L6 17.291z"></path>
+                    </svg>
+                    <p>加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 页面加载时获取数据
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('[Dashboard] 开始加载仪表盘数据');
+
+        try {
+            // 1. 加载健康状态
+            const health = await fetchAPI('/api/health');
+            console.log('[Dashboard] 健康状态:', health);
+
+            // 2. 加载UP主统计
+            const ups = await fetchAPI('/api/ups?is_monitoring=true');
+            document.getElementById('stat-ups').textContent = ups.total || 0;
+            console.log('[Dashboard] UP主数:', ups.total);
+
+            // 3. 加载今日推送统计
+            const today = new Date().toISOString().split('T')[0];
+            const videos = await fetchAPI(`/api/videos?page_size=1&date_from=${today}&date_to=${today}`);
+            document.getElementById('stat-pushes').textContent = videos.total || 0;
+            console.log('[Dashboard] 今日推送数:', videos.total);
+
+            // 4. 加载最近推送记录
+            const recentVideos = await fetchAPI('/api/videos?page_size=5');
+            renderRecentVideos(recentVideos.items || []);
+            console.log('[Dashboard] 最近推送加载完成');
+
+        } catch (error) {
+            console.error('[Dashboard] 加载数据失败:', error);
+            showError('加载数据失败: ' + error.message);
+        }
+    });
+
+    /**
+     * 渲染最近推送列表
+     */
+    function renderRecentVideos(videos) {
+        const container = document.getElementById('recent-videos');
+
+        if (videos.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <p>暂无推送记录</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = videos.map(video => `
+            <div class="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-bilibili-pink rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                        <a href="${video.url || '#'}" target="_blank" class="hover:text-bilibili-pink">
+                            ${escapeHtml(video.title)}
+                        </a>
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        ${escapeHtml(video.up_name || '未知UP主')} · ${formatDateTime(video.pushed_at)}
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        已推送
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+</script>
+{% endblock %}

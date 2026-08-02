@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}推送历史 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">推送历史</h1>
+        <p class="mt-1 text-sm text-gray-500">查看历史推送记录</p>
+    </div>
+
+    <!-- 筛选条件 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- UP主筛选 -->
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">UP主</label>
+                <select
+                    id="filter-up"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                >
+                    <option value="">全部UP主</option>
+                </select>
+            </div>
+
+            <!-- 开始日期 -->
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
+                <input
+                    type="date"
+                    id="filter-date-from"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                >
+            </div>
+
+            <!-- 结束日期 -->
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
+                <input
+                    type="date"
+                    id="filter-date-to"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                >
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex items-end space-x-2">
+                <button
+                    id="btn-filter"
+                    class="flex-1 bg-bilibili-pink text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+                >
+                    筛选
+                </button>
+                <button
+                    id="btn-reset"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                    重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 推送历史列表 -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <!-- 统计信息 -->
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <span class="text-sm text-gray-500">
+                共 <span id="total-count" class="font-bold text-gray-900">0</span> 条记录
+            </span>
+        </div>
+
+        <!-- 桌面端表格 -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            视频标题
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            UP主
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            播放量
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            推送时间
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="videos-table-body" class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            加载中...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 移动端卡片列表 -->
+        <div id="videos-mobile-list" class="md:hidden divide-y divide-gray-200">
+            <div class="text-center py-12 text-gray-500">
+                加载中...
+            </div>
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <button
+                id="btn-prev"
+                disabled
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+                上一页
+            </button>
+
+            <span class="text-sm text-gray-500">
+                第 <span id="current-page">1</span> 页 / 共 <span id="total-pages">1</span> 页
+            </span>
+
+            <button
+                id="btn-next"
+                disabled
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+                下一页
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 分页状态
+    let currentPage = 1;
+    let pageSize = 20;
+    let totalPages = 1;
+    let total = 0;
+
+    // 页面加载时获取数据
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('[Videos] 开始加载推送历史');
+
+        // 加载UP主列表（用于筛选）
+        await loadUpsOptions();
+
+        // 加载推送历史
+        await loadVideos();
+
+        // 绑定事件
+        bindEvents();
+    });
+
+    /**
+     * 加载UP主选项
+     */
+    async function loadUpsOptions() {
+        try {
+            const response = await fetchAPI('/api/ups');
+            const ups = response.items || [];
+
+            const select = document.getElementById('filter-up');
+
+            ups.forEach(up => {
+                const option = document.createElement('option');
+                option.value = up.id;
+                option.textContent = up.name;
+                select.appendChild(option);
+            });
+
+            console.log('[Videos] UP主选项加载完成:', ups.length);
+
+        } catch (error) {
+            console.error('[Videos] 加载UP主选项失败:', error);
+        }
+    }
+
+    /**
+     * 加载推送历史
+     */
+    async function loadVideos(page = 1) {
+        console.log('[Videos] 加载第', page, '页');
+
+        try {
+            // 获取筛选条件
+            const upId = document.getElementById('filter-up').value;
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+
+            // 构造查询参数
+            const params = new URLSearchParams({
+                page: page,
+                page_size: pageSize
+            });
+
+            if (upId) params.append('up_id', upId);
+            if (dateFrom) params.append('date_from', dateFrom);
+            if (dateTo) params.append('date_to', dateTo);
+
+            const response = await fetchAPI(`/api/videos?${params.toString()}`);
+
+            const videos = response.items || [];
+            total = response.total || 0;
+            totalPages = Math.ceil(total / pageSize);
+            currentPage = page;
+
+            console.log('[Videos] 加载完成:', videos.length, '条，总计', total, '条');
+
+            renderVideosList(videos);
+            updatePagination();
+
+        } catch (error) {
+            console.error('[Videos] 加载失败:', error);
+            showError('加载推送历史失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 渲染视频列表
+     */
+    function renderVideosList(videos) {
+        // 更新总数
+        document.getElementById('total-count').textContent = total;
+
+        // 桌面端表格
+        const tableBody = document.getElementById('videos-table-body');
+
+        if (videos.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                        暂无推送记录
+                    </td>
+                </tr>
+            `;
+        } else {
+            tableBody.innerHTML = videos.map(video => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">
+                            <a href="${video.url || '#'}" target="_blank" class="hover:text-bilibili-pink">
+                                ${escapeHtml(video.title)}
+                            </a>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">${video.bvid}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${escapeHtml(video.up_name || '未知')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${formatNumber(video.view_count)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${formatDateTime(video.pushed_at)}</div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 移动端卡片
+        const mobileList = document.getElementById('videos-mobile-list');
+
+        if (videos.length === 0) {
+            mobileList.innerHTML = `
+                <div class="text-center py-12 text-gray-500">
+                    暂无推送记录
+                </div>
+            `;
+        } else {
+            mobileList.innerHTML = videos.map(video => `
+                <div class="p-4 hover:bg-gray-50 transition-colors">
+                    <div class="mb-2">
+                        <a href="${video.url || '#'}" target="_blank" class="text-sm font-medium text-gray-900 hover:text-bilibili-pink">
+                            ${escapeHtml(video.title)}
+                        </a>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>${escapeHtml(video.up_name || '未知')}</span>
+                        <span>${formatDateTime(video.pushed_at)}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
+                        <span>${video.bvid}</span>
+                        <span>${formatNumber(video.view_count)} 播放</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    /**
+     * 更新分页控件
+     */
+    function updatePagination() {
+        document.getElementById('current-page').textContent = currentPage;
+        document.getElementById('total-pages').textContent = totalPages;
+
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    /**
+     * 格式化数字
+     */
+    function formatNumber(num) {
+        if (!num) return '0';
+        if (num >= 10000) {
+            return (num / 10000).toFixed(1) + '万';
+        }
+        return num.toLocaleString();
+    }
+
+    /**
+     * 绑定事件
+     */
+    function bindEvents() {
+        // 筛选按钮
+        document.getElementById('btn-filter').addEventListener('click', function() {
+            console.log('[Videos] 执行筛选');
+            loadVideos(1);
+        });
+
+        // 重置按钮
+        document.getElementById('btn-reset').addEventListener('click', function() {
+            console.log('[Videos] 重置筛选');
+
+            document.getElementById('filter-up').value = '';
+            document.getElementById('filter-date-from').value = '';
+            document.getElementById('filter-date-to').value = '';
+
+            loadVideos(1);
+        });
+
+        // 分页按钮
+        document.getElementById('btn-prev').addEventListener('click', function() {
+            if (currentPage > 1) {
+                loadVideos(currentPage - 1);
+            }
+        });
+
+        document.getElementById('btn-next').addEventListener('click', function() {
+            if (currentPage < totalPages) {
+                loadVideos(currentPage + 1);
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,4 +1,15 @@
 requests>=2.31.0
 pyyaml>=6.0
-qrcode>=7.4
-pillow>=10.0
+segno>=1.5.0
+
+# Web 后端依赖
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+aiosqlite>=0.19.0
+
+# 模板引擎
+Jinja2>=3.1.0
+
+# Session 管理
+itsdangerous>=2.0.0
