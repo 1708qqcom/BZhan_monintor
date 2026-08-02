@@ -219,12 +219,33 @@
                     clearInterval(pollTimer);
                     pollTimer = null;
 
-                    document.getElementById('qrcode-status').textContent = '✓ 登录成功';
+                    // 显示同步结果
+                    const syncResult = result.data.sync_result;
+                    let syncMessage = '登录成功';
 
-                    showSuccess('登录成功');
+                    if (syncResult) {
+                        if (syncResult.success) {
+                            syncMessage = `登录成功！已同步 ${syncResult.added} 个UP主`;
+                            if (syncResult.skipped > 0) {
+                                syncMessage += `，跳过 ${syncResult.skipped} 个已存在`;
+                            }
+                        } else {
+                            syncMessage = `登录成功，但同步失败: ${syncResult.message}`;
+                        }
+                    }
+
+                    document.getElementById('qrcode-status').textContent = '✓ ' + syncMessage;
+
+                    showSuccess(syncMessage);
 
                     // 重新加载登录状态
                     await loadLoginStatus();
+
+                    // 2秒后自动跳转到UP主管理页面
+                    setTimeout(function() {
+                        console.log('[BilibiliLogin] 自动跳转到 /ups');
+                        window.location.href = '/ups';
+                    }, 2000);
 
                 } else if (result.data && result.data.status === 'expired') {
                     // 二维码已过期

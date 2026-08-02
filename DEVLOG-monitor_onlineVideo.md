@@ -6,6 +6,38 @@
 
 ## 2026-08-02
 
+### 实现：完成初步功能开发（v2.2）
+
+**做了什么**
+- 完成Web管理后台开发（FastAPI + Jinja2）
+- 实现所有Web后端API（UP主、视频、配置、登录）
+- 实现所有前端页面（仪表盘、UP主管理、推送历史、配置管理、登录管理）
+- 集成SQLite数据库（WAL模式）
+- 编写数据库迁移脚本（JSON → SQLite）
+- 编写数据更新脚本（头像、播放量）
+- 编写单元测试（feishu、scheduler）
+
+**为什么这样做**
+- 个人工具无需React复杂前端，Jinja2模板足够
+- SQLite轻量级数据库，WAL模式支持并发读写
+- Swagger UI提供API文档，无需单独维护
+- 数据迁移脚本确保历史数据不丢失
+
+**技术决策**
+- 选择Jinja2而非React：开发速度快、无需构建、个人使用足够
+- 选择SQLite WAL模式：支持并发读写、性能优秀
+- 选择Tailwind CSS CDN：无需构建、快速开发
+
+**关键文件**
+- `src/web.py` — FastAPI应用主文件
+- `src/api/*.py` — API路由模块
+- `src/database.py` — 数据库管理模块
+- `templates/*.html` — Jinja2模板文件
+- `static/js/main.js` — 前端交互脚本
+- `scripts/migrate_json_to_sqlite.py` — 数据迁移脚本
+
+---
+
 ### 实现：扫码登录功能（v2.1）
 
 **做了什么**

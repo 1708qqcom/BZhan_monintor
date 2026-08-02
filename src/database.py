@@ -27,13 +27,18 @@ logger = logging.getLogger("monitor.database")
 class Database:
     """SQLite 数据库管理类"""
 
-    def __init__(self, db_path: str = "data/monitor.db"):
+    def __init__(self, db_path: str = None):
         """
         初始化数据库管理器
 
         Args:
-            db_path: 数据库文件路径
+            db_path: 数据库文件路径，默认为项目根目录下的 data/monitor.db
         """
+        if db_path is None:
+            # 默认使用项目根目录下的 data/monitor.db
+            # src/database.py 的父目录的父目录就是项目根目录
+            project_root = Path(__file__).parent.parent
+            db_path = project_root / "data" / "monitor.db"
         self.db_path = Path(db_path)
         self._connection: Optional[sqlite3.Connection] = None
 

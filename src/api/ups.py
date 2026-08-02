@@ -20,6 +20,7 @@ from src.models import (
     SuccessResponse,
 )
 from src.bilibili import BilibiliClient
+from src.sync_service import sync_followed_ups
 
 logger = logging.getLogger("monitor.api.ups")
 
@@ -156,6 +157,73 @@ async def add_up(
         raise
     except Exception as e:
         logger.error(f"添加UP主失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/sync",
+    response_model=SuccessResponse,
+    responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+    summary="同步关注列表",
+    description="从B站账号同步关注列表到数据库（最多50个）"
+)
+async def sync_ups(
+    db: Database = Depends(get_db),
+):
+    """
+    同步B站关注列表
+
+    流程：
+    1. 从数据库获取Cookie
+    2. 调用B站API获取关注列表
+    3. 写入数据库（跳过已存在）
+    4. 返回同步结果
+
+    Returns:
+        同步结果统计
+    """
+    logger.info("API调用: POST /api/ups/sync")
+
+    try:
+        # 1. 从数据库获取Cookie
+        auth = db.get_auth()
+
+        if not auth or not auth.get("cookies"):
+            logger.warning("未登录B站账号")
+            raise HTTPException(
+                status_code=400,
+                detail="未登录B站账号，请先登录"
+            )
+
+        cookies = auth["cookies"]
+        username = cookies.get("uname", "未知用户")
+        logger.info(f"开始同步关注列表，当前用户: {username}")
+
+        # 2. 调用同步服务
+        sync_result = sync_followed_ups(
+            db=db,
+            cookies=cookies,
+            max_count=50,
+        )
+
+        logger.info(f"同步结果: {sync_result['message']}")
+
+        # 3. 返回结果
+        if sync_result["success"]:
+            return SuccessResponse(
+                message=sync_result["message"],
+                data=sync_result
+            )
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=sync_result["message"]
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"同步关注列表失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

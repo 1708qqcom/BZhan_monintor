@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.database import Database
 from src.models import LoginStatusResponse, QrCodeResponse, SuccessResponse
 from src.login import BilibiliLogin
+from src.sync_service import sync_followed_ups
 
 logger = logging.getLogger("monitor.api.login")
 
@@ -196,9 +197,37 @@ async def poll_scan_result(db: Database = Depends(get_db)):
 
             logger.info("登录信息已保存到数据库")
 
+            # ========== 自动同步关注列表 ==========
+            sync_result = None
+            try:
+                logger.info("开始自动同步关注列表...")
+
+                sync_result = sync_followed_ups(
+                    db=db,
+                    cookies=cookies,
+                    max_count=50,
+                )
+
+                logger.info(f"自动同步完成: {sync_result['message']}")
+
+            except Exception as e:
+                # 同步失败不影响登录成功
+                logger.error(f"自动同步失败（不影响登录）: {e}", exc_info=True)
+                sync_result = {
+                    "success": False,
+                    "message": f"同步失败: {str(e)}",
+                }
+
+            # 构造响应（包含同步结果）
+            response_data = {
+                "status": "success",
+                "cookies": list(cookies.keys()),
+                "sync_result": sync_result,
+            }
+
             return SuccessResponse(
                 message="登录成功",
-                data={"status": "success", "cookies": list(cookies.keys())}
+                data=response_data,
             )
         else:
             # 未扫码或扫码中

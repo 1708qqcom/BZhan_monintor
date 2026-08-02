@@ -7,3 +7,5 @@
 | feishu_notification | archived |
 | scheduler_implementation | archived |
 | web_backend | archived |
+| auto_sync_follows | archived |
+| simple_web_pages | archived |

@@ -17,6 +17,14 @@
 
 ## 已完成
 
+- [x] ✅ 登录后自动同步关注列表（2026-08-02）
+  - [x] 创建同步服务模块 sync_service.py
+  - [x] 新增 POST /api/ups/sync API端点
+  - [x] 登录成功后自动同步关注列表
+  - [x] 优化前端交互，显示同步结果并自动跳转
+  - [x] 更新认证白名单（/api/login、/api/ups/sync）
+  - [x] 手动测试完整流程通过
+
 - [x] ✅ 简易Web页面开发（2026-08-02）
   - [x] Jinja2模板配置
   - [x] Tailwind CSS CDN引入

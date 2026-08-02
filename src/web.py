@@ -97,6 +97,8 @@ AUTH_WHITELIST = [
     "/auth/login",
     "/static",
     "/api/health",
+    "/api/login",      # B站登录相关API不需要Web后台登录
+    "/api/ups/sync",   # 同步API只需B站登录
     "/docs",
     "/redoc",
     "/openapi.json",
@@ -225,7 +227,7 @@ async def login_submit(request: Request, password: str = Form(...)):
     logger.info("收到登录请求")
 
     # 验证密码
-    correct_password = "123456"
+    correct_password = "Huisec@123"
 
     if password == correct_password:
         # 设置 Session
