@@ -153,4 +153,46 @@ monitor_onlineVideo/
 
 ## 部署到服务器
 
-详见 PRD 文档中的部署章节。
+### 快速部署（推荐）
+
+使用一键部署脚本：
+
+```bash
+# 下载部署脚本
+curl -O https://your-domain.com/deploy.sh
+
+# 执行部署
+sudo bash deploy.sh
+```
+
+### 手动部署
+
+详细部署步骤请参考：[部署指南](deploy/DEPLOY.md)
+
+### 部署后配置
+
+1. **B站账号登录**
+   - 访问 Web 管理后台
+   - 进入"登录管理"页面
+   - 扫码登录B站账号
+
+2. **配置飞书推送**
+   - 在飞书群添加群机器人
+   - 复制 Webhook 地址
+   - 在"配置管理"页面填入并测试
+
+3. **同步关注列表**
+   - 在"UP主管理"页面点击"同步关注"
+
+### 服务管理
+
+```bash
+# 查看服务状态
+sudo systemctl status bilibili-monitor
+
+# 查看日志
+sudo journalctl -u bilibili-monitor -f
+
+# 重启服务
+sudo systemctl restart bilibili-monitor
+```

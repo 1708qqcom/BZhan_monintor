@@ -1,0 +1,17 @@
+[Unit]
+Description=Bilibili UP Monitor Service (Web + Monitor)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/monitor_onlineVideo
+Environment="PATH=/opt/monitor_onlineVideo/venv/bin:$PATH"
+ExecStart=/opt/monitor_onlineVideo/venv/bin/python main.py --web
+Restart=always
+RestartSec=10
+StandardOutput=append:/opt/monitor_onlineVideo/logs/monitor.log
+StandardError=append:/opt/monitor_onlineVideo/logs/monitor.log
+
+[Install]
+WantedBy=multi-user.target
