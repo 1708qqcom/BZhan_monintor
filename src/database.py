@@ -138,6 +138,30 @@ class Database:
                 VALUES (1, NULL, NULL, NULL)
             """)
 
+            # 5. 推送历史表
+            logger.debug("创建 push_history 表...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS push_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    video_id INTEGER NOT NULL,
+                    pushed_at TEXT NOT NULL,
+                    push_type TEXT NOT NULL DEFAULT 'manual',
+                    success INTEGER NOT NULL DEFAULT 0,
+                    error_message TEXT,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (video_id) REFERENCES videos(id)
+                )
+            """)
+            # 创建索引
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_push_history_video_id
+                ON push_history(video_id)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_push_history_pushed_at
+                ON push_history(pushed_at)
+            """)
+
             conn.commit()
             logger.info("数据库表结构初始化完成")
 
@@ -516,6 +540,132 @@ class Database:
             else:
                 logger.warning(f"未找到视频: bvid={bvid}")
                 return False
+
+    def update_video(self, bvid: str, video_data: dict) -> bool:
+        """
+        更新视频信息
+
+        Args:
+            bvid: 视频BV号
+            video_data: 要更新的字段字典，可包含：
+                - title: 标题
+                - url: 链接
+                - pub_time: 发布时间
+                - view_count: 播放量
+
+        Returns:
+            成功返回 True
+        """
+        logger.info(f"更新视频信息: bvid={bvid}, fields={list(video_data.keys())}")
+
+        if not video_data:
+            logger.warning("更新字段为空，跳过")
+            return False
+
+        # 构造动态更新语句
+        set_clauses = []
+        params = []
+        allowed_fields = {"title", "url", "pub_time", "view_count"}
+
+        for field, value in video_data.items():
+            if field in allowed_fields:
+                set_clauses.append(f"{field} = ?")
+                params.append(value)
+
+        if not set_clauses:
+            logger.warning("无有效更新字段")
+            return False
+
+        params.append(bvid)
+        sql = f"UPDATE videos SET {', '.join(set_clauses)} WHERE bvid = ?"
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, params)
+            conn.commit()
+            affected = cursor.rowcount
+
+            if affected > 0:
+                logger.info(f"视频信息已更新: bvid={bvid}")
+                return True
+            else:
+                logger.warning(f"未找到视频: bvid={bvid}")
+                return False
+
+    # ==================== 推送历史 CRUD ====================
+
+    def add_push_history(
+        self,
+        video_id: int,
+        push_type: str = "manual",
+        success: bool = False,
+        error_message: str = None,
+    ) -> int:
+        """
+        添加推送历史记录
+
+        Args:
+            video_id: 视频ID
+            push_type: 推送类型（manual/auto）
+            success: 是否成功
+            error_message: 错误信息（失败时记录）
+
+        Returns:
+            新记录的 id
+        """
+        logger.info(
+            f"添加推送历史: video_id={video_id}, "
+            f"type={push_type}, success={success}"
+        )
+
+        now = datetime.now().isoformat()
+        pushed_at = now
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO push_history
+                (video_id, pushed_at, push_type, success, error_message, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                video_id, pushed_at, push_type,
+                1 if success else 0, error_message, now
+            ))
+
+            conn.commit()
+            history_id = cursor.lastrowid
+
+            logger.info(f"推送历史记录添加成功: id={history_id}")
+            return history_id
+
+    def get_push_history(self, video_id: int, limit: int = 10) -> list[dict]:
+        """
+        获取视频的推送历史
+
+        Args:
+            video_id: 视频ID
+            limit: 返回数量限制
+
+        Returns:
+            推送历史列表
+        """
+        logger.debug(f"查询推送历史: video_id={video_id}, limit={limit}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, video_id, pushed_at, push_type, success, error_message, created_at
+                FROM push_history
+                WHERE video_id = ?
+                ORDER BY pushed_at DESC
+                LIMIT ?
+            """, (video_id, limit))
+
+            rows = cursor.fetchall()
+            result = [dict(row) for row in rows]
+
+            logger.debug(f"查询到 {len(result)} 条推送历史")
+            return result
 
     # ==================== 配置管理 ====================
 

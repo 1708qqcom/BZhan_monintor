@@ -9,13 +9,25 @@
         <div>
             <h1 class="text-2xl font-bold text-gray-900">UP主管理</h1>
             <p class="mt-1 text-sm text-gray-500">管理监控的UP主列表</p>
+            <p id="monitor-status-text" class="mt-1 text-sm text-blue-600 font-medium">加载中...</p>
         </div>
-        <button
-            id="btn-add-up"
-            class="bg-bilibili-pink text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
-        >
-            添加UP主
-        </button>
+        <div class="flex items-center space-x-3">
+            <button
+                id="btn-refresh"
+                class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center"
+            >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span id="btn-refresh-text">立即刷新</span>
+            </button>
+            <button
+                id="btn-add-up"
+                class="bg-bilibili-pink text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+            >
+                添加UP主
+            </button>
+        </div>
     </div>
 
     <!-- 搜索筛选 -->
@@ -125,15 +137,114 @@
 <script>
     // 全局状态
     let allUps = [];
+    let monitorStatusInterval = null;
 
     // 页面加载时获取数据
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('[Ups] 开始加载UP主列表');
         await loadUps();
+        await loadMonitorStatus();
 
         // 绑定事件
         bindEvents();
+
+        // 每30秒刷新监控状态
+        monitorStatusInterval = setInterval(loadMonitorStatus, 30000);
     });
+
+    /**
+     * 加载监控状态
+     */
+    async function loadMonitorStatus() {
+        try {
+            const response = await fetchAPI('/api/monitor/status');
+            updateMonitorStatusText(response);
+        } catch (error) {
+            console.error('[Ups] 加载监控状态失败:', error);
+            document.getElementById('monitor-status-text').textContent = '监控状态未知';
+        }
+    }
+
+    /**
+     * 更新监控状态文本
+     */
+    function updateMonitorStatusText(status) {
+        const textEl = document.getElementById('monitor-status-text');
+
+        if (!status.is_running) {
+            textEl.textContent = '监控未启动';
+            textEl.className = 'mt-1 text-sm text-red-600 font-medium';
+            return;
+        }
+
+        if (status.is_checking) {
+            textEl.textContent = '正在检查中...';
+            textEl.className = 'mt-1 text-sm text-yellow-600 font-medium';
+            return;
+        }
+
+        if (!status.next_check_time) {
+            textEl.textContent = '监控运行中';
+            textEl.className = 'mt-1 text-sm text-green-600 font-medium';
+            return;
+        }
+
+        // 计算剩余分钟数
+        const nextCheck = new Date(status.next_check_time);
+        const now = new Date();
+        const diffMs = nextCheck - now;
+        const diffMinutes = Math.max(0, Math.floor(diffMs / 60000));
+
+        if (diffMinutes < 1) {
+            textEl.textContent = '即将刷新...';
+        } else {
+            textEl.textContent = `下次刷新: ${diffMinutes}分钟后`;
+        }
+        textEl.className = 'mt-1 text-sm text-blue-600 font-medium';
+    }
+
+    /**
+     * 触发手动刷新
+     */
+    async function triggerRefresh() {
+        const btn = document.getElementById('btn-refresh');
+        const btnText = document.getElementById('btn-refresh-text');
+
+        // 禁用按钮
+        btn.disabled = true;
+        btnText.textContent = '刷新中...';
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        try {
+            const response = await fetchAPI('/api/monitor/refresh', {
+                method: 'POST'
+            });
+
+            showSuccess('已触发刷新，请稍后查看结果');
+
+            // 5秒后重新加载状态
+            setTimeout(async () => {
+                await loadMonitorStatus();
+                await loadUps();
+            }, 5000);
+
+        } catch (error) {
+            console.error('[Ups] 触发刷新失败:', error);
+
+            if (error.message.includes('409') || error.message.includes('正在检查中')) {
+                showError('正在检查中，请稍后');
+            } else if (error.message.includes('400') || error.message.includes('未运行')) {
+                showError('监控调度器未运行');
+            } else {
+                showError('刷新失败: ' + error.message);
+            }
+        } finally {
+            // 恢复按钮
+            btn.disabled = false;
+            btnText.textContent = '立即刷新';
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
 
     /**
      * 加载UP主列表
@@ -171,7 +282,7 @@
             `;
         } else {
             tableBody.innerHTML = ups.map(up => `
-                <tr class="hover:bg-gray-50 transition-colors">
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="toggleVideos(${up.id})">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10">
@@ -193,11 +304,17 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                            onclick="removeUp(${up.id}, '${escapeHtml(up.name)}')"
+                            onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
                             class="text-red-600 hover:text-red-900 transition-colors"
                         >
                             移除
                         </button>
+                    </td>
+                </tr>
+                <tr id="videos-${up.id}" class="hidden bg-gray-50">
+                    <td colspan="4" class="px-6 py-4">
+                        <div class="text-sm text-gray-600 mb-2 font-medium">最新视频</div>
+                        ${renderLatestVideos(up.latest_videos)}
                     </td>
                 </tr>
             `).join('');
@@ -214,7 +331,7 @@
             `;
         } else {
             mobileList.innerHTML = ups.map(up => `
-                <div class="p-4 hover:bg-gray-50 transition-colors">
+                <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer" onclick="toggleVideos(${up.id})">
                     <div class="flex items-start space-x-3">
                         <img class="h-10 w-10 rounded-full flex-shrink-0" src="${up.face || 'https://via.placeholder.com/40'}" alt="${escapeHtml(up.name)}" referrerpolicy="no-referrer">
                         <div class="flex-1 min-w-0">
@@ -228,9 +345,13 @@
                             </span>
                         </div>
                     </div>
+                    <div id="videos-mobile-${up.id}" class="hidden mt-3 pl-13">
+                        <div class="text-xs text-gray-600 mb-1 font-medium">最新视频</div>
+                        ${renderLatestVideos(up.latest_videos)}
+                    </div>
                     <div class="mt-3 flex justify-end">
                         <button
-                            onclick="removeUp(${up.id}, '${escapeHtml(up.name)}')"
+                            onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
                             class="text-xs text-red-600 hover:text-red-900 transition-colors"
                         >
                             移除
@@ -238,6 +359,48 @@
                     </div>
                 </div>
             `).join('');
+        }
+    }
+
+    /**
+     * 渲染最新视频卡片
+     */
+    function renderLatestVideos(videos) {
+        if (!videos || videos.length === 0) {
+            return '<p class="text-xs text-gray-400">暂无视频记录</p>';
+        }
+
+        return `<div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+            ${videos.map(video => `
+                <div class="relative p-2 bg-white rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+                    <a href="${video.url || '#'}" target="_blank" class="block">
+                        <p class="text-xs text-gray-900 font-medium truncate" title="${escapeHtml(video.title)}">${escapeHtml(video.title)}</p>
+                        <p class="text-xs text-gray-400 mt-1">${formatDateTime(video.pushed_at || video.created_at)}</p>
+                    </a>
+                    <button
+                        onclick="event.stopPropagation(); pushVideoToFeishu('${video.bvid}', '${escapeHtml(video.title).replace(/'/g, "\\'")}')"
+                        class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 text-xs text-bilibili-pink hover:text-pink-600 hover:bg-pink-50 rounded"
+                        title="推送到飞书"
+                    >
+                        推送
+                    </button>
+                </div>
+            `).join('')}
+        </div>`;
+    }
+
+    /**
+     * 切换视频显示
+     */
+    function toggleVideos(upId) {
+        const desktopRow = document.getElementById(`videos-${upId}`);
+        const mobileRow = document.getElementById(`videos-mobile-${upId}`);
+
+        if (desktopRow) {
+            desktopRow.classList.toggle('hidden');
+        }
+        if (mobileRow) {
+            mobileRow.classList.toggle('hidden');
         }
     }
 
@@ -252,6 +415,9 @@
      * 绑定事件
      */
     function bindEvents() {
+        // 刷新按钮
+        document.getElementById('btn-refresh').addEventListener('click', triggerRefresh);
+
         // 添加UP主按钮
         document.getElementById('btn-add-up').addEventListener('click', function() {
             document.getElementById('add-up-modal').classList.remove('hidden');
@@ -346,6 +512,31 @@
         } catch (error) {
             console.error('[Ups] 移除失败:', error);
             showError('移除失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 推送视频到飞书
+     */
+    async function pushVideoToFeishu(bvid, title) {
+        const confirmed = confirm(`确定推送视频 "${title}" 到飞书？`);
+
+        if (!confirmed) {
+            return;
+        }
+
+        console.log('[Ups] 推送视频:', bvid, title);
+
+        try {
+            const response = await fetchAPI(`/api/videos/${bvid}/push`, {
+                method: 'POST'
+            });
+
+            showSuccess('推送成功: ' + (response.message || ''));
+
+        } catch (error) {
+            console.error('[Ups] 推送失败:', error);
+            showError('推送失败: ' + error.message);
         }
     }
 </script>

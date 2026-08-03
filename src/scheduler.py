@@ -11,6 +11,7 @@ import json
 import logging
 import signal
 import sys
+import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -56,9 +57,20 @@ class MonitorScheduler:
         self.video_history: dict = {"videos": {}, "updated_at": None}
         self._running = True
 
+        # 手动触发机制（线程安全）
+        self._trigger_event = threading.Event()
+        self._is_checking = False
+        self._check_lock = threading.Lock()
+
         # 数据库支持（优先使用数据库）
         self.db = database
         self.use_database = database is not None
+
+        # 状态回调函数（用于通知外部状态变化）
+        self._state_callback = None
+
+        # 推送器更新锁（保护 feishu 实例的并发更新）
+        self._feishu_lock = threading.Lock()
 
         logger.info(
             f"调度器初始化完成: "
@@ -306,6 +318,148 @@ class MonitorScheduler:
 
         logger.debug(f"记录视频: {bvid} - {record['title']}")
 
+    def set_state_callback(self, callback) -> None:
+        """
+        设置状态回调函数
+
+        Args:
+            callback: 回调函数，签名为 callback(**kwargs)
+                      支持的参数：last_check_time, next_check_time, is_running
+        """
+        self._state_callback = callback
+        logger.debug("状态回调函数已设置")
+
+    def update_feishu_notifier(self, webhook_url: str) -> bool:
+        """
+        动态更新飞书推送器（线程安全）
+
+        Args:
+            webhook_url: 飞书 Webhook URL，空字符串表示禁用推送
+
+        Returns:
+            更新成功返回 True
+        """
+        with self._feishu_lock:
+            if webhook_url:
+                try:
+                    from src.feishu import FeishuNotifier
+                    self.feishu = FeishuNotifier(webhook_url)
+                    logger.info(f"飞书推送器已更新: {webhook_url[:50]}...")
+                    return True
+                except Exception as e:
+                    logger.error(f"更新飞书推送器失败: {e}")
+                    return False
+            else:
+                self.feishu = None
+                logger.info("飞书推送器已禁用")
+                return True
+
+    def _notify_state_change(self, **kwargs) -> None:
+        """
+        通知状态变化
+
+        Args:
+            **kwargs: 状态参数
+        """
+        if self._state_callback:
+            try:
+                self._state_callback(**kwargs)
+            except Exception as e:
+                logger.warning(f"状态回调执行失败: {e}")
+
+    def trigger_refresh(self) -> bool:
+        """
+        手动触发刷新
+
+        线程安全地触发一次立即检查。
+        如果当前正在检查中，则返回 False。
+
+        Returns:
+            True 表示触发成功，False 表示正在检查中
+        """
+        with self._check_lock:
+            if self._is_checking:
+                logger.info("手动触发刷新失败：正在检查中")
+                return False
+
+        logger.info("手动触发刷新")
+        self._trigger_event.set()
+        return True
+
+    def _fetch_and_record_latest_videos(self, up_mid: int, up_name: str, up_db_id: int) -> None:
+        """
+        获取并记录UP主最新的5个视频
+
+        用于新添加的UP主，确保数据库中有最新视频记录
+
+        Args:
+            up_mid: UP主的B站ID
+            up_name: UP主名称
+            up_db_id: UP主在数据库中的ID
+        """
+        try:
+            logger.debug(f"获取UP主最新视频: {up_name} (mid={up_mid})")
+
+            # 获取最近5个视频
+            videos = self.bilibili.get_up_videos(up_mid, page=1, page_size=5)
+
+            if not videos:
+                logger.info(f"UP主 {up_name} 暂无视频")
+                return
+
+            # 记录到数据库
+            for video in videos:
+                bvid = video.get("bvid")
+                if not bvid:
+                    continue
+
+                # 检查是否已存在（避免重复）
+                if bvid in self.video_history["videos"]:
+                    continue
+
+                # 构造视频URL
+                video_url = f"https://www.bilibili.com/video/{bvid}"
+
+                # 格式化发布时间
+                pubdate = video.get("pubdate")
+                pub_time = None
+                if pubdate:
+                    try:
+                        pub_time = datetime.fromtimestamp(pubdate).isoformat()
+                    except (TypeError, ValueError):
+                        pass
+
+                # 写入数据库（标记为已推送，避免重复推送）
+                now = datetime.now().isoformat()
+                self.db.add_video(
+                    up_id=up_db_id,
+                    bvid=bvid,
+                    title=video.get("title", ""),
+                    url=video_url,
+                    pub_time=pub_time,
+                    view_count=video.get("play", 0),
+                    pushed=True,  # 标记为已推送，避免后续推送
+                    pushed_at=now,
+                )
+
+                # 更新内存缓存
+                self.video_history["videos"][bvid] = {
+                    "title": video.get("title", ""),
+                    "up_id": up_mid,
+                    "up_name": up_name,
+                    "pubdate": pubdate,
+                    "pushed": True,
+                    "pushed_at": now,
+                    "created_at": now,
+                }
+
+                logger.debug(f"记录视频: {bvid} - {video.get('title')}")
+
+            logger.info(f"UP主 {up_name} 已记录 {len(videos)} 个最新视频")
+
+        except Exception as e:
+            logger.error(f"获取UP主 {up_name} 最新视频失败: {e}")
+
     def load_config_from_db(self) -> None:
         """
         从数据库加载配置（热更新）
@@ -359,7 +513,11 @@ class MonitorScheduler:
         Returns:
             推送成功返回 True
         """
-        if not self.feishu:
+        # 使用锁保护读取，确保获取最新的推送器实例
+        with self._feishu_lock:
+            feishu = self.feishu
+
+        if not feishu:
             logger.warning("飞书推送器未初始化，跳过推送")
             return False
 
@@ -383,7 +541,7 @@ class MonitorScheduler:
         logger.info(f"正在推送视频: {video_info.get('title')}")
 
         try:
-            success = self.feishu.send_new_video_notification(
+            success = feishu.send_new_video_notification(
                 up_name=up_name,
                 video_title=video_info.get("title", "未知标题"),
                 video_url=video_url,
@@ -466,8 +624,22 @@ class MonitorScheduler:
         6. 更新历史记录
         7. 清理过期记录
         """
+        # 检查状态锁，防止并发执行
+        with self._check_lock:
+            if self._is_checking:
+                logger.warning("监控循环正在执行，跳过本次触发")
+                return
+            self._is_checking = True
+
         logger.info("========== 开始监控循环 ==========")
         cycle_start = time.time()
+
+        # 通知开始检查
+        self._notify_state_change(
+            is_running=True,
+            is_checking=True,
+            last_check_time=datetime.now().isoformat()
+        )
 
         try:
             # 1. 热更新配置（如果启用数据库）
@@ -480,10 +652,19 @@ class MonitorScheduler:
                 logger.error("Cookie已过期")
                 raise CookieExpiredError()
 
-            # 3. 获取关注列表
-            logger.info("获取关注列表...")
-            ups = self.bilibili.get_followed_ups(max_count=self.max_ups)
-            logger.info(f"获取到 {len(ups)} 个UP主")
+            # 3. 获取监控列表
+            if self.use_database:
+                # 从数据库获取正在监控的UP主列表
+                logger.info("从数据库获取监控列表...")
+                ups = self.db.get_ups(is_monitoring=True)
+                # 转换为统一格式（兼容B站API返回格式）
+                ups = [{"mid": up["mid"], "uname": up["name"], "face": up.get("face", "")} for up in ups]
+                logger.info(f"获取到 {len(ups)} 个正在监控的UP主")
+            else:
+                # 兼容模式：从B站API获取关注列表
+                logger.info("获取B站关注列表...")
+                ups = self.bilibili.get_followed_ups(max_count=self.max_ups)
+                logger.info(f"获取到 {len(ups)} 个UP主")
 
             if not ups:
                 logger.warning("关注列表为空，跳过本次循环")
@@ -505,6 +686,16 @@ class MonitorScheduler:
                 logger.debug(f"[{i}/{len(ups)}] 检查: {up_name}")
 
                 try:
+                    # 如果UP主在数据库中但没有视频记录，先获取最新视频
+                    if self.use_database:
+                        up_record = self.db.get_up_by_mid(up_id)
+                        if up_record:
+                            existing_videos = self.db.get_videos(page=1, page_size=1, up_id=up_record["id"])
+                            if existing_videos["total"] == 0:
+                                logger.info(f"UP主 {up_name} 无视频记录，获取最新5个视频")
+                                self._fetch_and_record_latest_videos(up_id, up_name, up_record["id"])
+                                continue  # 跳过本次检查，下次循环会正常检查新视频
+
                     new_videos = self.check_new_videos(up_id, up_name)
 
                     for item in new_videos:
@@ -552,6 +743,17 @@ class MonitorScheduler:
                 f"清理: {cleaned}, 耗时: {cycle_duration:.1f}秒"
             )
 
+            # 通知检查完成，计算下次检查时间
+            from datetime import timedelta
+            next_check = datetime.now() + timedelta(seconds=self.check_interval)
+            self._notify_state_change(
+                is_running=True,
+                is_checking=False,
+                last_check_time=datetime.now().isoformat(),
+                next_check_time=next_check.isoformat(),
+                check_interval_minutes=self.check_interval // 60
+            )
+
         except CookieExpiredError:
             # 向上抛出，由 start() 处理
             logger.error("Cookie已过期，监控终止")
@@ -566,6 +768,11 @@ class MonitorScheduler:
                 except Exception as notify_err:
                     logger.error(f"发送告警失败: {notify_err}")
             raise
+
+        finally:
+            # 清除检查状态
+            with self._check_lock:
+                self._is_checking = False
 
     # ==================== 信号处理和主循环 ====================
 
@@ -590,11 +797,14 @@ class MonitorScheduler:
         logger.info("调度器已停止")
         sys.exit(0)
 
-    def start(self) -> None:
+    def start(self, skip_signals: bool = False) -> None:
         """
         启动定时监控
 
         无限循环执行监控任务，直到收到退出信号或Cookie过期
+
+        Args:
+            skip_signals: 是否跳过信号注册（后台线程模式需要跳过）
         """
         logger.info("=" * 50)
         logger.info("监控调度器启动")
@@ -604,8 +814,13 @@ class MonitorScheduler:
         self.load_history()
 
         # 注册信号处理器（Windows 只支持 SIGINT）
-        signal.signal(signal.SIGINT, self._graceful_shutdown)
-        logger.debug("已注册 SIGINT 信号处理器")
+        # 后台线程模式下跳过，因为 signal.signal() 只能在主线程调用
+        if not skip_signals:
+            try:
+                signal.signal(signal.SIGINT, self._graceful_shutdown)
+                logger.debug("已注册 SIGINT 信号处理器")
+            except ValueError as e:
+                logger.warning(f"无法注册信号处理器: {e}")
 
         logger.info(f"监控间隔: {self.check_interval // 60} 分钟")
         logger.info(f"历史保留: {self.history_retention_days} 天")
@@ -632,9 +847,12 @@ class MonitorScheduler:
                 logger.error(f"监控循环异常: {e}")
                 # 异常后继续运行，等待下一次循环
 
-            # 等待下一次循环
+            # 等待下一次循环（可被手动触发打断）
             if self._running:
                 logger.info(f"等待 {self.check_interval // 60} 分钟后进行下次检查...")
-                time.sleep(self.check_interval)
+                triggered = self._trigger_event.wait(timeout=self.check_interval)
+                if triggered:
+                    logger.info("收到手动触发信号，立即开始检查")
+                    self._trigger_event.clear()
 
         logger.info("调度器已退出")

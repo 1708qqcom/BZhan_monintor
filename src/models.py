@@ -7,7 +7,7 @@ Pydantic 数据模型定义
 - 序列化配置
 """
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Any
 
 from pydantic import BaseModel, Field
 
@@ -23,6 +23,7 @@ class UpResponse(BaseModel):
     is_monitoring: bool
     created_at: str
     updated_at: str
+    latest_videos: Optional[List[Any]] = []
 
     class Config:
         from_attributes = True

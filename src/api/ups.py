@@ -41,7 +41,7 @@ def get_db() -> Database:
     "",
     response_model=UpListResponse,
     summary="获取UP主列表",
-    description="获取所有监控中的UP主列表"
+    description="获取所有监控中的UP主列表，包含每个UP主最新的5个视频"
 )
 async def get_ups(
     is_monitoring: Optional[bool] = None,
@@ -54,15 +54,26 @@ async def get_ups(
         is_monitoring: 是否监控中，不传则返回全部
 
     Returns:
-        UP主列表
+        UP主列表，每个UP主包含 latest_videos 字段
     """
     logger.info(f"API调用: GET /api/ups, is_monitoring={is_monitoring}")
 
     try:
         ups = db.get_ups(is_monitoring=is_monitoring)
 
-        # 转换为响应模型
-        items = [UpResponse(**up) for up in ups]
+        # 为每个UP主查询最新5个视频
+        items = []
+        for up in ups:
+            up_data = UpResponse(**up).model_dump()
+
+            # 查询该UP主最新的5个视频
+            videos_result = db.get_videos(
+                page=1,
+                page_size=5,
+                up_id=up["id"]
+            )
+            up_data["latest_videos"] = videos_result.get("items", [])
+            items.append(up_data)
 
         logger.info(f"返回 {len(items)} 个UP主")
         return UpListResponse(items=items, total=len(items))

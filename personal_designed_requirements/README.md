@@ -9,3 +9,6 @@
 | web_backend | archived |
 | auto_sync_follows | archived |
 | simple_web_pages | archived |
+| web_monitor_scheduler | archived |
+| monitor_refresh_control | archived |
+| manual_video_push | archived |

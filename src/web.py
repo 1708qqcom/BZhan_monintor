@@ -10,23 +10,29 @@ FastAPI Web 应用
 - 挂载静态文件
 - 注册路由
 - 配置 Swagger 文档
+- 启动监控调度器线程
 """
 import logging
+import threading
 import time
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from pathlib import Path
 
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from jinja2 import Environment, FileSystemLoader
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
-from jinja2 import Environment, FileSystemLoader
 
 from src.api import ups_router, videos_router, config_router, login_router
 from src.database import Database
 from src.models import HealthResponse, ErrorResponse
+from src.scheduler import MonitorScheduler
+from src.bilibili import BilibiliClient
+from src.feishu import FeishuNotifier
 
 logger = logging.getLogger("monitor.web")
 
@@ -45,6 +51,115 @@ logger.info(f"Jinja2 模板目录: {TEMPLATES_DIR.absolute()}")
 logger.info(f"静态文件目录: {STATIC_DIR.absolute()}")
 
 
+# ==================== 监控线程状态 ====================
+
+_monitor_state = {
+    "is_running": False,
+    "last_check_time": None,
+    "next_check_time": None,
+    "check_interval_minutes": 10,
+    "scheduler": None,
+    "error_message": None,
+}
+
+
+def _start_monitor_thread(db: Database) -> None:
+    """
+    启动监控调度器线程
+
+    Args:
+        db: 数据库实例
+    """
+    global _monitor_state
+
+    logger.info("准备启动监控调度器线程...")
+
+    try:
+        # 1. 获取B站Cookie
+        auth = db.get_auth()
+        if not auth or not auth.get("cookies"):
+            logger.warning("未登录B站账号，监控调度器不启动")
+            _monitor_state["error_message"] = "未登录B站账号"
+            return
+
+        cookies = auth["cookies"]
+
+        # 2. 验证Cookie有效性
+        bilibili_client = BilibiliClient(cookies)
+        if not bilibili_client.check_cookie_valid():
+            logger.warning("B站Cookie已过期，监控调度器不启动")
+            _monitor_state["error_message"] = "B站Cookie已过期"
+            return
+
+        logger.info("B站Cookie验证通过")
+
+        # 3. 获取飞书Webhook配置
+        webhook_url = db.get_config_value("feishu_webhook_url", default="")
+        feishu_notifier = None
+        if webhook_url:
+            feishu_notifier = FeishuNotifier(webhook_url)
+            logger.info(f"飞书推送器已初始化: {webhook_url[:50]}...")
+        else:
+            logger.warning("未配置飞书Webhook，将不发送推送通知")
+
+        # 4. 获取检查间隔配置
+        check_interval_str = db.get_config_value("check_interval_minutes", default="10")
+        try:
+            check_interval_minutes = int(check_interval_str)
+        except (ValueError, TypeError):
+            check_interval_minutes = 10
+
+        # 5. 初始化调度器
+        scheduler = MonitorScheduler(
+            bilibili_client=bilibili_client,
+            feishu_notifier=feishu_notifier,
+            check_interval_minutes=check_interval_minutes,
+            max_ups=50,
+            database=db,
+        )
+
+        # 6. 设置状态回调
+        def _on_state_change(**kwargs):
+            global _monitor_state
+            _monitor_state.update(kwargs)
+            _monitor_state["error_message"] = None  # 清除错误信息
+            # 确保 is_checking 有默认值
+            if "is_checking" not in kwargs:
+                _monitor_state["is_checking"] = False
+
+        scheduler.set_state_callback(_on_state_change)
+
+        # 7. 更新状态
+        _monitor_state["is_running"] = True
+        _monitor_state["scheduler"] = scheduler
+        _monitor_state["check_interval_minutes"] = check_interval_minutes
+
+        # 8. 启动后台线程
+        def _run_scheduler():
+            """调度器线程入口"""
+            try:
+                logger.info("监控调度器线程开始运行")
+                scheduler.start(skip_signals=True)  # 后台线程模式跳过信号注册
+            except Exception as e:
+                logger.error(f"监控调度器线程异常退出: {e}", exc_info=True)
+                _monitor_state["is_running"] = False
+                _monitor_state["error_message"] = f"调度器异常: {str(e)}"
+
+        thread = threading.Thread(
+            target=_run_scheduler,
+            name="MonitorScheduler",
+            daemon=True,  # 守护线程，主线程退出时自动终止
+        )
+        thread.start()
+
+        logger.info("监控调度器已启动（后台线程）")
+
+    except Exception as e:
+        logger.error(f"启动监控调度器失败: {e}", exc_info=True)
+        _monitor_state["is_running"] = False
+        _monitor_state["error_message"] = f"启动失败: {str(e)}"
+
+
 # ==================== 应用生命周期 ====================
 
 @asynccontextmanager
@@ -52,7 +167,7 @@ async def lifespan(app: FastAPI):
     """
     应用生命周期管理
 
-    启动时：初始化数据库
+    启动时：初始化数据库、启动监控线程
     关闭时：清理资源
     """
     logger.info("=" * 50)
@@ -67,6 +182,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"数据库初始化失败: {e}")
         raise
+
+    # 启动监控调度器线程
+    try:
+        _start_monitor_thread(db)
+    except Exception as e:
+        logger.error(f"启动监控线程失败: {e}", exc_info=True)
+        # 不抛出异常，允许Web服务继续运行
 
     yield
 
@@ -97,6 +219,7 @@ AUTH_WHITELIST = [
     "/auth/login",
     "/static",
     "/api/health",
+    "/api/monitor/status",  # 监控状态API不需要Web后台登录
     "/api/login",      # B站登录相关API不需要Web后台登录
     "/api/ups/sync",   # 同步API只需B站登录
     "/docs",
@@ -324,6 +447,124 @@ async def health_check():
         database="connected",
         version="2.1.0"
     )
+
+
+# ==================== 监控状态端点 ====================
+
+def update_next_check_time() -> None:
+    """
+    更新下次检查时间（配置变更时调用）
+
+    根据当前时间和新的检查间隔重新计算 next_check_time
+    """
+    global _monitor_state
+
+    scheduler = _monitor_state.get("scheduler")
+    if scheduler and _monitor_state.get("is_running"):
+        # 使用调度器中的最新间隔
+        from datetime import timedelta
+        next_check = datetime.now() + timedelta(seconds=scheduler.check_interval)
+        _monitor_state["next_check_time"] = next_check.isoformat()
+        _monitor_state["check_interval_minutes"] = scheduler.check_interval // 60
+        logger.info(f"已更新下次检查时间: {next_check.strftime('%H:%M:%S')}")
+
+
+def update_feishu_notifier(webhook_url: str) -> bool:
+    """
+    更新飞书推送器（配置变更时调用）
+
+    Args:
+        webhook_url: 飞书 Webhook URL，空字符串表示禁用推送
+
+    Returns:
+        更新成功返回 True
+    """
+    global _monitor_state
+
+    scheduler = _monitor_state.get("scheduler")
+    if not scheduler:
+        logger.warning("调度器未运行，无法更新飞书推送器")
+        return False
+
+    success = scheduler.update_feishu_notifier(webhook_url)
+    if success:
+        logger.info(f"飞书推送器热更新成功: {webhook_url[:50] if webhook_url else '(已禁用)'}")
+    else:
+        logger.error("飞书推送器热更新失败")
+
+    return success
+
+
+@app.get(
+    "/api/monitor/status",
+    tags=["监控"],
+    summary="获取监控状态",
+    description="获取监控调度器的运行状态"
+)
+async def get_monitor_status():
+    """
+    获取监控状态
+
+    Returns:
+        监控状态信息：
+        - is_running: 是否运行中
+        - last_check_time: 上次检查时间
+        - next_check_time: 下次检查时间
+        - check_interval_minutes: 检查间隔（分钟）
+        - error_message: 错误信息（如果有）
+    """
+    logger.debug("API调用: GET /api/monitor/status")
+
+    return {
+        "is_running": _monitor_state.get("is_running", False),
+        "is_checking": _monitor_state.get("is_checking", False),
+        "last_check_time": _monitor_state.get("last_check_time"),
+        "next_check_time": _monitor_state.get("next_check_time"),
+        "check_interval_minutes": _monitor_state.get("check_interval_minutes", 30),
+        "error_message": _monitor_state.get("error_message"),
+    }
+
+
+@app.post(
+    "/api/monitor/refresh",
+    tags=["监控"],
+    summary="手动触发刷新",
+    description="触发监控调度器立即执行一次检查"
+)
+async def trigger_monitor_refresh():
+    """
+    手动触发刷新
+
+    Returns:
+        触发结果：
+        - message: 结果消息
+        - triggered: 是否触发成功
+
+    Raises:
+        HTTPException:
+            - 400: 监控调度器未运行
+            - 409: 正在检查中，请稍后
+    """
+    logger.info("API调用: POST /api/monitor/refresh")
+
+    scheduler = _monitor_state.get("scheduler")
+    if not scheduler:
+        logger.warning("触发刷新失败：监控调度器未运行")
+        raise HTTPException(
+            status_code=400,
+            detail="监控调度器未运行"
+        )
+
+    success = scheduler.trigger_refresh()
+    if not success:
+        logger.info("触发刷新失败：正在检查中")
+        raise HTTPException(
+            status_code=409,
+            detail="正在检查中，请稍后"
+        )
+
+    logger.info("触发刷新成功")
+    return {"message": "已触发刷新", "triggered": True}
 
 
 # ==================== 根路径 ====================

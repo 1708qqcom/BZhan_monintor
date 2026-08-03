@@ -67,7 +67,7 @@ async def get_config(db: Database = Depends(get_db)):
     "",
     response_model=SuccessResponse,
     summary="更新配置",
-    description="更新系统配置，配置会在下次监控循环生效"
+    description="更新系统配置，配置会立即生效"
 )
 async def update_config(
     request: ConfigUpdateRequest,
@@ -86,20 +86,37 @@ async def update_config(
 
     try:
         # 更新配置项
+        config_changed = False
+
         if request.check_interval_minutes is not None:
             db.update_config(
                 "check_interval_minutes",
                 str(request.check_interval_minutes)
             )
             logger.info(f"更新检查间隔: {request.check_interval_minutes}分钟")
+            config_changed = True
 
         if request.max_ups is not None:
             db.update_config("max_ups", str(request.max_ups))
             logger.info(f"更新最大UP主数: {request.max_ups}")
+            config_changed = True
 
         if request.feishu_webhook_url is not None:
             db.update_config("feishu_webhook_url", request.feishu_webhook_url)
             logger.info("更新飞书Webhook")
+
+            # 热更新飞书推送器
+            from src.web import update_feishu_notifier
+            success = update_feishu_notifier(request.feishu_webhook_url)
+            if not success:
+                logger.warning("飞书推送器热更新失败，配置已保存但推送功能可能不生效")
+
+            config_changed = True
+
+        # 其他配置变更后，更新下次检查时间
+        if config_changed and request.feishu_webhook_url is None:
+            from src.web import update_next_check_time
+            update_next_check_time()
 
         logger.info("配置更新成功")
         return SuccessResponse(message="配置更新成功")

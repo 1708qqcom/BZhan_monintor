@@ -528,6 +528,52 @@ class BilibiliClient:
             logger.error(f"获取视频信息失败: {e}")
             raise
 
+    def get_video_detail(self, bvid: str) -> dict:
+        """
+        获取视频详情（简化版，用于补全视频信息）
+
+        Args:
+            bvid: 视频BV号
+
+        Returns:
+            包含 title, view_count, pub_date, desc 的字典
+
+        Raises:
+            BilibiliAPIError: API调用失败
+        """
+        logger.info(f"获取视频详情: bvid={bvid}")
+
+        try:
+            # 复用 get_video_info 方法
+            full_info = self.get_video_info(bvid=bvid)
+
+            if not full_info:
+                raise BilibiliAPIError(f"视频不存在: {bvid}")
+
+            # 提取需要的字段
+            stat = full_info.get("stat", {})
+            pubdate_ts = full_info.get("pubdate")
+
+            # 转换发布时间戳为字符串
+            pub_date = None
+            if pubdate_ts:
+                from datetime import datetime
+                pub_date = datetime.fromtimestamp(pubdate_ts).strftime("%Y-%m-%d %H:%M:%S")
+
+            detail = {
+                "title": full_info.get("title", ""),
+                "view_count": stat.get("view", 0) or 0,
+                "pub_date": pub_date,
+                "desc": full_info.get("description", ""),
+            }
+
+            logger.info(f"视频详情获取成功: title={detail['title']}")
+            return detail
+
+        except Exception as e:
+            logger.error(f"获取视频详情失败: {e}")
+            raise
+
     def get_up_info(self, mid: int) -> dict:
         """
         获取UP主详细信息
