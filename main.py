@@ -58,10 +58,43 @@ def setup_logging(config: dict) -> logging.Logger:
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    logging.basicConfig(
-        level=getattr(logging, log_level, logging.INFO),
-        format=log_format,
-    )
+    # 配置根日志器
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level, logging.INFO))
+
+    # 清除已有 handler（避免重复）
+    root_logger.handlers.clear()
+
+    # 控制台 handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(getattr(logging, log_level, logging.INFO))
+    console_handler.setFormatter(logging.Formatter(log_format))
+    root_logger.addHandler(console_handler)
+
+    # 文件 handler（如果配置了日志文件）
+    log_file = log_config.get("file")
+    if log_file:
+        from logging.handlers import RotatingFileHandler
+        from pathlib import Path
+
+        # 确保日志目录存在
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # 从配置读取轮转参数
+        max_size_mb = log_config.get("max_size_mb", 10)
+        backup_count = log_config.get("backup_count", 5)
+
+        file_handler = RotatingFileHandler(
+            log_file,
+            maxBytes=max_size_mb * 1024 * 1024,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+        file_handler.setLevel(getattr(logging, log_level, logging.INFO))
+        file_handler.setFormatter(logging.Formatter(log_format))
+        root_logger.addHandler(file_handler)
+
     return logging.getLogger("monitor")
 
 
