@@ -45,12 +45,12 @@
                         type="number"
                         id="max-ups"
                         min="1"
-                        max="100"
+                        max="250"
                         required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
                     >
                     <p class="text-xs text-gray-500 mt-1">
-                        监控的UP主数量上限，建议不超过 50
+                        监控的UP主数量上限，建议不超过 100
                     </p>
                 </div>
 
@@ -176,8 +176,8 @@
                 return;
             }
 
-            if (maxUps < 1 || maxUps > 100) {
-                showError('UP主数量必须在 1-100 之间');
+            if (maxUps < 1 || maxUps > 250) {
+                showError('UP主数量必须在 1-250 之间');
                 return;
             }
 

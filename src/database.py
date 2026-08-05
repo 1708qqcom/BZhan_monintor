@@ -303,7 +303,7 @@ class Database:
 
     def remove_up(self, up_id: int) -> bool:
         """
-        移除 UP主（软删除，设置 is_monitoring=0）
+        删除 UP主（真删除，一并删除关联的视频记录）
 
         Args:
             up_id: UP主记录 ID
@@ -311,23 +311,23 @@ class Database:
         Returns:
             成功返回 True
         """
-        logger.info(f"移除 UP主: up_id={up_id}")
-
-        now = datetime.now().isoformat()
+        logger.info(f"删除 UP主: up_id={up_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE ups
-                SET is_monitoring = 0, updated_at = ?
-                WHERE id = ?
-            """, (now, up_id))
 
+            # 1. 先删除关联的视频记录
+            cursor.execute("DELETE FROM videos WHERE up_id = ?", (up_id,))
+            videos_deleted = cursor.rowcount
+            logger.info(f"删除关联视频: {videos_deleted} 条")
+
+            # 2. 再删除 UP主记录
+            cursor.execute("DELETE FROM ups WHERE id = ?", (up_id,))
             conn.commit()
             affected = cursor.rowcount
 
             if affected > 0:
-                logger.info(f"UP主已移除: up_id={up_id}")
+                logger.info(f"UP主已删除: up_id={up_id}, 关联视频: {videos_deleted} 条")
                 return True
             else:
                 logger.warning(f"未找到 UP主: up_id={up_id}")
@@ -795,3 +795,20 @@ class Database:
 
             conn.commit()
             logger.info("登录信息已保存")
+
+    def clear_auth(self) -> None:
+        """
+        清除登录信息
+        """
+        logger.info("清除登录信息")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE auth
+                SET cookies = NULL, created_at = NULL, expires_at = NULL
+                WHERE id = 1
+            """)
+
+            conn.commit()
+            logger.info("登录信息已清除")

@@ -5,6 +5,7 @@
 - GET /api/login/status - 查询登录状态
 - GET /api/login/qrcode - 获取登录二维码
 - POST /api/login/poll - 轮询扫码结果并保存登录信息
+- POST /api/login/logout - 退出登录
 """
 import logging
 from datetime import datetime, timedelta
@@ -202,10 +203,20 @@ async def poll_scan_result(db: Database = Depends(get_db)):
             try:
                 logger.info("开始自动同步关注列表...")
 
+                # 从数据库读取配置
+                max_ups_str = db.get_config_value("max_ups", default="50")
+                try:
+                    max_ups = int(max_ups_str)
+                except (ValueError, TypeError):
+                    max_ups = 50
+
+                logger.info(f"同步数量配置: max_ups={max_ups}")
+
                 sync_result = sync_followed_ups(
                     db=db,
                     cookies=cookies,
-                    max_count=50,
+                    max_count=max_ups,
+                    fetch_videos=True,
                 )
 
                 logger.info(f"自动同步完成: {sync_result['message']}")
@@ -238,4 +249,34 @@ async def poll_scan_result(db: Database = Depends(get_db)):
 
     except Exception as e:
         logger.error(f"轮询扫码结果失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/logout",
+    response_model=SuccessResponse,
+    summary="退出登录",
+    description="清除B站账号登录信息"
+)
+async def logout(db: Database = Depends(get_db)):
+    """
+    退出登录
+
+    清除数据库中的登录信息
+
+    Returns:
+        成功消息
+    """
+    logger.info("API调用: POST /api/login/logout")
+
+    try:
+        # 清除数据库中的登录信息
+        db.clear_auth()
+
+        logger.info("B站账号已退出登录")
+
+        return SuccessResponse(message="已退出登录")
+
+    except Exception as e:
+        logger.error(f"退出登录失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))

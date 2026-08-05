@@ -25,6 +25,7 @@ def sync_followed_ups(
     db: Database,
     cookies: dict,
     max_count: int = 50,
+    fetch_videos: bool = True,
 ) -> dict:
     """
     同步B站关注列表到数据库
@@ -33,6 +34,7 @@ def sync_followed_ups(
         db: 数据库实例
         cookies: B站Cookie字典
         max_count: 最多同步数量，默认50
+        fetch_videos: 是否获取视频信息，默认True
 
     Returns:
         同步结果 {
@@ -86,6 +88,53 @@ def sync_followed_ups(
                 up_id = db.add_up(mid=mid, name=uname, face=face)
                 result["added"] += 1
                 logger.debug(f"[SyncService] 添加成功: id={up_id}, mid={mid}")
+
+                # 如果是新添加的UP主且需要获取视频，立即获取最新5个视频
+                if fetch_videos:
+                    try:
+                        logger.debug(f"[SyncService] 获取UP主 {uname} 的最新视频...")
+                        videos = client.get_up_videos(up_id=mid, page=1, page_size=5)
+
+                        # 写入数据库
+                        from datetime import datetime
+                        for video in videos:
+                            bvid = video.get("bvid")
+                            if not bvid:
+                                continue
+
+                            # 构造视频URL
+                            video_url = f"https://www.bilibili.com/video/{bvid}"
+
+                            # 格式化发布时间
+                            pubdate = video.get("pubdate")
+                            pub_time = None
+                            if pubdate:
+                                try:
+                                    pub_time = datetime.fromtimestamp(pubdate).isoformat()
+                                except (TypeError, ValueError):
+                                    pass
+
+                            # 写入数据库（标记为已推送，避免重复推送）
+                            try:
+                                db.add_video(
+                                    up_id=up_id,
+                                    bvid=bvid,
+                                    title=video.get("title", ""),
+                                    url=video_url,
+                                    pub_time=pub_time,
+                                    view_count=video.get("play", 0),
+                                    pushed=True,
+                                    pushed_at=datetime.now().isoformat(),
+                                )
+                            except sqlite3.IntegrityError:
+                                # 视频已存在，跳过
+                                pass
+
+                        logger.debug(f"[SyncService] 已记录 {len(videos)} 个视频")
+
+                    except Exception as e:
+                        logger.warning(f"[SyncService] 获取UP主 {uname} 视频失败: {e}")
+                        # 不影响同步流程，继续处理下一个UP主
 
             except sqlite3.IntegrityError:
                 # UP主已存在，跳过

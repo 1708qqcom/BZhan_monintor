@@ -210,16 +210,26 @@ async def sync_ups(
         username = cookies.get("uname", "未知用户")
         logger.info(f"开始同步关注列表，当前用户: {username}")
 
-        # 2. 调用同步服务
+        # 2. 从数据库读取配置
+        max_ups_str = db.get_config_value("max_ups", default="50")
+        try:
+            max_ups = int(max_ups_str)
+        except (ValueError, TypeError):
+            max_ups = 50
+
+        logger.info(f"同步数量配置: max_ups={max_ups}")
+
+        # 3. 调用同步服务
         sync_result = sync_followed_ups(
             db=db,
             cookies=cookies,
-            max_count=50,
+            max_count=max_ups,
+            fetch_videos=True,
         )
 
         logger.info(f"同步结果: {sync_result['message']}")
 
-        # 3. 返回结果
+        # 4. 返回结果
         if sync_result["success"]:
             return SuccessResponse(
                 message=sync_result["message"],
@@ -242,15 +252,15 @@ async def sync_ups(
     "/{up_id}",
     response_model=SuccessResponse,
     responses={404: {"model": ErrorResponse}},
-    summary="移除UP主",
-    description="从监控列表移除UP主（软删除）"
+    summary="删除UP主",
+    description="从数据库删除UP主及其关联的视频记录"
 )
 async def remove_up(
     up_id: int,
     db: Database = Depends(get_db),
 ):
     """
-    移除UP主
+    删除UP主（真删除）
 
     Args:
         up_id: UP主记录ID
@@ -270,9 +280,9 @@ async def remove_up(
                 detail=f"UP主不存在: id={up_id}"
             )
 
-        logger.info(f"UP主已移除: up_id={up_id}")
+        logger.info(f"UP主已删除: up_id={up_id}")
 
-        return SuccessResponse(message="UP主已移除")
+        return SuccessResponse(message="UP主已删除")
 
     except HTTPException:
         raise

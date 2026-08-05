@@ -167,13 +167,32 @@ class BilibiliLogin:
                         if cookie.name in ["SESSDATA", "bili_jct", "DedeUserID", "DedeUserID__ckMd5"]:
                             cookies_dict[cookie.name] = cookie.value
 
-                    # 如果 cookie jar 中没有，尝试从 URL 参数提取
-                    if "SESSDATA" not in cookies_dict:
+                    # 如果某些必要 cookie 不在 session.cookies 中，尝试从 URL 参数提取
+                    if "SESSDATA" not in cookies_dict or "DedeUserID" not in cookies_dict:
                         query = parse_qs(urlparse(redirect_url).query)
-                        if "SESSDATA" in query:
+
+                        # 提取所有可能的 cookie
+                        if "SESSDATA" in query and "SESSDATA" not in cookies_dict:
                             cookies_dict["SESSDATA"] = query["SESSDATA"][0]
-                        if "bili_jct" in query:
+                        if "bili_jct" in query and "bili_jct" not in cookies_dict:
                             cookies_dict["bili_jct"] = query["bili_jct"][0]
+                        if "DedeUserID" in query and "DedeUserID" not in cookies_dict:
+                            cookies_dict["DedeUserID"] = query["DedeUserID"][0]
+                        if "DedeUserID__ckMd5" in query and "DedeUserID__ckMd5" not in cookies_dict:
+                            cookies_dict["DedeUserID__ckMd5"] = query["DedeUserID__ckMd5"][0]
+
+                    # 验证必要字段
+                    required_cookies = ["SESSDATA", "DedeUserID"]
+                    missing_cookies = []
+                    for cookie_name in required_cookies:
+                        if cookie_name not in cookies_dict:
+                            missing_cookies.append(cookie_name)
+
+                    if missing_cookies:
+                        print(f"警告: 缺少必要的 cookie: {', '.join(missing_cookies)}")
+
+                    if cookies_dict:
+                        print(f"成功提取 Cookie: {list(cookies_dict.keys())}")
 
                     return cookies_dict if cookies_dict else None
 

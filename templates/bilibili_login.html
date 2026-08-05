@@ -142,8 +142,20 @@
                     <div class="pt-2">
                         <p class="text-xs text-gray-500">${escapeHtml(status.message || '登录状态正常')}</p>
                     </div>
+
+                    <div class="pt-3 border-t border-gray-200">
+                        <button
+                            id="btn-logout"
+                            class="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                        >
+                            退出登录
+                        </button>
+                    </div>
                 </div>
             `;
+
+            // 绑定退出登录按钮事件
+            document.getElementById('btn-logout').addEventListener('click', logout);
         } else {
             // 未登录
             container.innerHTML = `
@@ -273,6 +285,33 @@
                 document.getElementById('qrcode-status').textContent = '二维码已过期，请重新获取';
             }
         }, 180000);
+    }
+
+    /**
+     * 退出登录
+     */
+    async function logout() {
+        console.log('[BilibiliLogin] 退出登录');
+
+        if (!confirm('确定要退出登录吗？退出后需要重新扫码登录。')) {
+            return;
+        }
+
+        try {
+            const result = await fetchAPI('/api/login/logout', { method: 'POST' });
+
+            console.log('[BilibiliLogin] 退出登录成功:', result);
+
+            showSuccess('已退出登录');
+
+            // 重新加载登录状态
+            await loadLoginStatus();
+
+        } catch (error) {
+            console.error('[BilibiliLogin] 退出登录失败:', error);
+
+            showError('退出登录失败: ' + error.message);
+        }
     }
 
     /**

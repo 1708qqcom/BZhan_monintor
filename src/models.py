@@ -88,7 +88,7 @@ class ConfigUpdateRequest(BaseModel):
     max_ups: Optional[int] = Field(
         None,
         ge=1,
-        le=100,
+        le=250,
         description="最多监控UP主数量"
     )
     feishu_webhook_url: Optional[str] = Field(
