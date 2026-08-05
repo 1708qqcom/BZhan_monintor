@@ -12,6 +12,43 @@ from typing import Optional, List, Any
 from pydantic import BaseModel, Field
 
 
+# ==================== 用户相关模型 ====================
+
+class UserResponse(BaseModel):
+    """用户响应模型"""
+    id: int
+    username: str
+    is_admin: bool
+    created_at: str
+    updated_at: str
+
+    class Config:
+        from_attributes = True
+
+
+class UserCreateRequest(BaseModel):
+    """用户注册请求模型"""
+    username: str = Field(
+        ...,
+        min_length=2,
+        max_length=32,
+        description="用户名（2-32字符）",
+        examples=["myname"]
+    )
+    password: str = Field(
+        ...,
+        min_length=1,
+        description="密码",
+        examples=["123456"]
+    )
+
+
+class UserListResponse(BaseModel):
+    """用户列表响应模型"""
+    items: list[UserResponse]
+    total: int
+
+
 # ==================== UP主相关模型 ====================
 
 class UpResponse(BaseModel):

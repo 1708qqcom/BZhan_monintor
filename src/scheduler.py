@@ -562,13 +562,14 @@ class MonitorScheduler:
 
     # ==================== 核心业务 ====================
 
-    def check_new_videos(self, up_id: int, up_name: str) -> list[dict]:
+    def check_new_videos(self, up_id: int, up_name: str, bilibili_client) -> list[dict]:
         """
         检查某个UP主的新视频
 
         Args:
             up_id: UP主ID
             up_name: UP主名称
+            bilibili_client: B站客户端实例
 
         Returns:
             新视频列表，每个元素包含 bvid 和 video_info
@@ -577,7 +578,7 @@ class MonitorScheduler:
 
         try:
             # 获取最近5个视频
-            videos = self.bilibili.get_up_videos(up_id, page=1, page_size=5)
+            videos = bilibili_client.get_up_videos(up_id, page=1, page_size=5)
 
             if not videos:
                 logger.debug(f"UP主 {up_name} 暂无视频")
@@ -611,18 +612,326 @@ class MonitorScheduler:
             logger.error(f"检查UP主 {up_name} 视频失败: {e}")
             return []
 
+    def _check_user_videos(self, user_id: int, username: str, cookies: dict) -> dict:
+        """
+        检查单个用户的新视频
+
+        Args:
+            user_id: 用户ID
+            username: 用户名
+            cookies: 用户的B站Cookie
+
+        Returns:
+            检查结果 {"success": bool, "new_count": int, "pushed_count": int, "error": str}
+        """
+        result = {
+            "success": False,
+            "new_count": 0,
+            "pushed_count": 0,
+            "error": None,
+        }
+
+        try:
+            logger.info(f"[用户 {username}] 开始检查...")
+
+            # 1. 创建该用户的B站客户端
+            bilibili_client = type(self.bilibili)(cookies=cookies)
+
+            # 2. 验证Cookie
+            if not bilibili_client.check_cookie_valid():
+                logger.warning(f"[用户 {username}] B站Cookie已过期")
+                result["error"] = "B站Cookie已过期"
+                return result
+
+            # 3. 获取该用户的飞书Webhook
+            webhook_url = self.db.get_config_value("feishu_webhook_url", user_id=user_id)
+            if not webhook_url:
+                # 回退到全局配置
+                webhook_url = self.db.get_config_value("feishu_webhook_url")
+
+            # 创建飞书推送器
+            feishu_notifier = None
+            if webhook_url:
+                from src.feishu import FeishuNotifier
+                feishu_notifier = FeishuNotifier(webhook_url)
+            else:
+                logger.warning(f"[用户 {username}] 未配置飞书Webhook，将不发送推送")
+
+            # 4. 获取该用户的UP主列表
+            ups = self.db.get_ups(user_id=user_id, is_monitoring=True)
+            if not ups:
+                logger.info(f"[用户 {username}] 无监控UP主，跳过")
+                result["success"] = True
+                return result
+
+            logger.info(f"[用户 {username}] 监控 {len(ups)} 个UP主")
+
+            # 5. 遍历检查新视频
+            for i, up in enumerate(ups, 1):
+                up_mid = up["mid"]
+                up_name = up["name"]
+                up_db_id = up["id"]
+
+                logger.debug(f"[用户 {username}] [{i}/{len(ups)}] 检查: {up_name}")
+
+                try:
+                    # 检查该UP主是否有视频记录
+                    existing_videos = self.db.get_videos(page=1, page_size=1, up_id=up_db_id)
+                    if existing_videos["total"] == 0:
+                        # 首次监控，获取最新5个视频（不推送）
+                        logger.info(f"[用户 {username}] UP主 {up_name} 无视频记录，获取最新5个视频")
+                        self._fetch_and_record_latest_videos_for_user(
+                            up_mid, up_name, up_db_id, bilibili_client, user_id
+                        )
+                        continue
+
+                    # 检查新视频
+                    new_videos = self.check_new_videos(up_mid, up_name, bilibili_client)
+
+                    for item in new_videos:
+                        bvid = item["bvid"]
+                        video_info = item["video_info"]
+                        result["new_count"] += 1
+
+                        # 推送视频
+                        pushed = False
+                        if feishu_notifier:
+                            pushed = self._push_video_for_user(
+                                bvid, video_info, up_name, feishu_notifier
+                            )
+                            if pushed:
+                                result["pushed_count"] += 1
+
+                        # 记录到数据库
+                        self._record_video_for_user(
+                            bvid=bvid,
+                            video_info=video_info,
+                            up_mid=up_mid,
+                            up_name=up_name,
+                            up_db_id=up_db_id,
+                            pushed=pushed,
+                        )
+
+                except Exception as e:
+                    logger.error(f"[用户 {username}] 检查UP主 {up_name} 异常: {e}")
+                    continue
+
+            result["success"] = True
+            logger.info(f"[用户 {username}] 检查完成: 新视频{result['new_count']}个, 推送{result['pushed_count']}个")
+
+        except Exception as e:
+            logger.error(f"[用户 {username}] 检查失败: {e}", exc_info=True)
+            result["error"] = str(e)
+
+        return result
+
+    def _push_video_for_user(
+        self,
+        bvid: str,
+        video_info: dict,
+        up_name: str,
+        feishu_notifier,
+    ) -> bool:
+        """
+        为用户推送视频通知
+
+        Args:
+            bvid: 视频BV号
+            video_info: 视频信息
+            up_name: UP主名称
+            feishu_notifier: 飞书推送器实例
+
+        Returns:
+            推送成功返回 True
+        """
+        # 构造视频URL
+        video_url = f"https://www.bilibili.com/video/{bvid}"
+
+        # 格式化发布时间
+        pubdate = video_info.get("pubdate")
+        if pubdate:
+            try:
+                pub_time = datetime.fromtimestamp(pubdate).strftime("%Y-%m-%d %H:%M:%S")
+            except (TypeError, ValueError):
+                pub_time = "未知时间"
+        else:
+            pub_time = "未知时间"
+
+        # 获取播放量
+        view_count = video_info.get("play") or 0
+
+        logger.info(f"正在推送视频: {video_info.get('title')}")
+
+        try:
+            success = feishu_notifier.send_new_video_notification(
+                up_name=up_name,
+                video_title=video_info.get("title", "未知标题"),
+                video_url=video_url,
+                pub_time=pub_time,
+                view_count=view_count,
+            )
+
+            if success:
+                logger.info(f"视频推送成功: {bvid}")
+            else:
+                logger.warning(f"视频推送失败: {bvid}")
+
+            return success
+
+        except Exception as e:
+            logger.error(f"推送视频异常: {e}")
+            return False
+
+    def _record_video_for_user(
+        self,
+        bvid: str,
+        video_info: dict,
+        up_mid: int,
+        up_name: str,
+        up_db_id: int,
+        pushed: bool = False,
+    ) -> None:
+        """
+        为用户记录视频到数据库
+
+        Args:
+            bvid: 视频BV号
+            video_info: 视频信息
+            up_mid: UP主的B站ID
+            up_name: UP主名称
+            up_db_id: UP主在数据库中的ID
+            pushed: 是否已推送
+        """
+        now = datetime.now().isoformat()
+
+        # 更新内存缓存
+        self.video_history["videos"][bvid] = {
+            "title": video_info.get("title", ""),
+            "up_id": up_mid,
+            "up_name": up_name,
+            "pubdate": video_info.get("pubdate"),
+            "pushed": pushed,
+            "pushed_at": now if pushed else None,
+            "created_at": now,
+        }
+
+        # 写入数据库
+        try:
+            video_url = f"https://www.bilibili.com/video/{bvid}"
+
+            # 格式化发布时间
+            pubdate = video_info.get("pubdate")
+            pub_time = None
+            if pubdate:
+                try:
+                    pub_time = datetime.fromtimestamp(pubdate).isoformat()
+                except (TypeError, ValueError):
+                    pass
+
+            self.db.add_video(
+                up_id=up_db_id,
+                bvid=bvid,
+                title=video_info.get("title", ""),
+                url=video_url,
+                pub_time=pub_time,
+                view_count=video_info.get("play", 0),
+                pushed=pushed,
+                pushed_at=now if pushed else None,
+            )
+
+            logger.debug(f"视频已写入数据库: {bvid}")
+
+        except Exception as e:
+            logger.error(f"写入视频到数据库失败: {e}", exc_info=True)
+
+    def _fetch_and_record_latest_videos_for_user(
+        self,
+        up_mid: int,
+        up_name: str,
+        up_db_id: int,
+        bilibili_client,
+        user_id: int,
+    ) -> None:
+        """
+        为用户获取并记录UP主最新的5个视频
+
+        Args:
+            up_mid: UP主的B站ID
+            up_name: UP主名称
+            up_db_id: UP主在数据库中的ID
+            bilibili_client: B站客户端实例
+            user_id: 用户ID
+        """
+        try:
+            logger.debug(f"获取UP主最新视频: {up_name} (mid={up_mid})")
+
+            videos = bilibili_client.get_up_videos(up_mid, page=1, page_size=5)
+
+            if not videos:
+                logger.info(f"UP主 {up_name} 暂无视频")
+                return
+
+            for video in videos:
+                bvid = video.get("bvid")
+                if not bvid:
+                    continue
+
+                # 检查是否已存在
+                if bvid in self.video_history["videos"]:
+                    continue
+
+                # 构造视频URL
+                video_url = f"https://www.bilibili.com/video/{bvid}"
+
+                # 格式化发布时间
+                pubdate = video.get("pubdate")
+                pub_time = None
+                if pubdate:
+                    try:
+                        pub_time = datetime.fromtimestamp(pubdate).isoformat()
+                    except (TypeError, ValueError):
+                        pass
+
+                # 写入数据库（标记为已推送，避免重复推送）
+                now = datetime.now().isoformat()
+                self.db.add_video(
+                    up_id=up_db_id,
+                    bvid=bvid,
+                    title=video.get("title", ""),
+                    url=video_url,
+                    pub_time=pub_time,
+                    view_count=video.get("play", 0),
+                    pushed=True,  # 标记为已推送
+                    pushed_at=now,
+                )
+
+                # 更新内存缓存
+                self.video_history["videos"][bvid] = {
+                    "title": video.get("title", ""),
+                    "up_id": up_mid,
+                    "up_name": up_name,
+                    "pubdate": pubdate,
+                    "pushed": True,
+                    "pushed_at": now,
+                    "created_at": now,
+                }
+
+                logger.debug(f"记录视频: {bvid} - {video.get('title')}")
+
+            logger.info(f"UP主 {up_name} 已记录 {len(videos)} 个最新视频")
+
+        except Exception as e:
+            logger.error(f"获取UP主 {up_name} 最新视频失败: {e}")
+
     def run_monitor_cycle(self) -> None:
         """
-        执行一次监控循环
+        执行一次监控循环（多用户版本）
 
         流程：
-        1. 热更新配置（如果启用数据库）
-        2. 检查Cookie有效性
-        3. 获取关注列表
-        4. 遍历检查新视频
-        5. 推送通知
-        6. 更新历史记录
-        7. 清理过期记录
+        1. 热更新配置
+        2. 获取所有有效B站登录的用户
+        3. 遍历每个用户检查新视频
+        4. 推送通知（使用用户自己的飞书Webhook）
         """
         # 检查状态锁，防止并发执行
         with self._check_lock:
@@ -642,108 +951,67 @@ class MonitorScheduler:
         )
 
         try:
-            # 1. 热更新配置（如果启用数据库）
+            # 1. 热更新配置
             if self.use_database:
                 self.load_config_from_db()
 
-            # 2. 验证Cookie
-            logger.debug("验证Cookie有效性...")
-            if not self.bilibili.check_cookie_valid():
-                logger.error("Cookie已过期")
-                raise CookieExpiredError()
-
-            # 3. 获取监控列表
-            if self.use_database:
-                # 从数据库获取正在监控的UP主列表
-                logger.info("从数据库获取监控列表...")
-                ups = self.db.get_ups(is_monitoring=True)
-                # 转换为统一格式（兼容B站API返回格式）
-                ups = [{"mid": up["mid"], "uname": up["name"], "face": up.get("face", "")} for up in ups]
-                logger.info(f"获取到 {len(ups)} 个正在监控的UP主")
-            else:
-                # 兼容模式：从B站API获取关注列表
-                logger.info("获取B站关注列表...")
-                ups = self.bilibili.get_followed_ups(max_count=self.max_ups)
-                logger.info(f"获取到 {len(ups)} 个UP主")
-
-            if not ups:
-                logger.warning("关注列表为空，跳过本次循环")
+            # 2. 获取所有有效B站登录的用户
+            if not self.use_database:
+                logger.error("未启用数据库，多用户监控无法运行")
                 return
 
-            # 判断是否首次运行
-            is_first_run = len(self.video_history.get("videos", {})) == 0
-            if is_first_run:
-                logger.info("首次运行，只记录视频不推送")
+            users = self.db.get_all_users_with_valid_auth()
 
-            # 3. 遍历UP主检查新视频
+            if not users:
+                logger.warning("无有效B站登录用户，跳过本次循环")
+                return
+
+            logger.info(f"获取到 {len(users)} 个有效用户")
+
+            # 3. 遍历每个用户检查新视频
             total_new = 0
             total_pushed = 0
+            failed_users = []
 
-            for i, up in enumerate(ups, 1):
-                up_id = up.get("mid")
-                up_name = up.get("uname", "未知UP主")
+            for i, user in enumerate(users, 1):
+                user_id = user["id"]
+                username = user["username"]
+                cookies = user.get("cookies", {})
 
-                logger.debug(f"[{i}/{len(ups)}] 检查: {up_name}")
+                logger.info(f"[{i}/{len(users)}] 检查用户: {username}")
 
                 try:
-                    # 如果UP主在数据库中但没有视频记录，先获取最新视频
-                    if self.use_database:
-                        up_record = self.db.get_up_by_mid(up_id)
-                        if up_record:
-                            existing_videos = self.db.get_videos(page=1, page_size=1, up_id=up_record["id"])
-                            if existing_videos["total"] == 0:
-                                logger.info(f"UP主 {up_name} 无视频记录，获取最新5个视频")
-                                self._fetch_and_record_latest_videos(up_id, up_name, up_record["id"])
-                                continue  # 跳过本次检查，下次循环会正常检查新视频
+                    result = self._check_user_videos(user_id, username, cookies)
 
-                    new_videos = self.check_new_videos(up_id, up_name)
-
-                    for item in new_videos:
-                        bvid = item["bvid"]
-                        video_info = item["video_info"]
-                        total_new += 1
-
-                        # 非首次运行才推送
-                        pushed = False
-                        if not is_first_run:
-                            pushed = self._push_video(bvid, video_info, up_name)
-                            if pushed:
-                                total_pushed += 1
-
-                        # 记录到历史
-                        self._record_video(
-                            bvid=bvid,
-                            video_info=video_info,
-                            up_id=up_id,
-                            up_name=up_name,
-                            pushed=pushed,
-                        )
-
-                except CookieExpiredError:
-                    # Cookie过期，向上抛出终止循环
-                    logger.error(f"检查UP主 {up_name} 时Cookie过期")
-                    raise
+                    if result["success"]:
+                        total_new += result["new_count"]
+                        total_pushed += result["pushed_count"]
+                    else:
+                        failed_users.append({
+                            "username": username,
+                            "error": result["error"]
+                        })
 
                 except Exception as e:
-                    # 其他异常，记录日志继续下一个UP主
-                    logger.error(f"检查UP主 {up_name} 异常: {e}")
-                    continue
+                    logger.error(f"[用户 {username}] 检查异常: {e}", exc_info=True)
+                    failed_users.append({
+                        "username": username,
+                        "error": str(e)
+                    })
 
-            # 4. 清理过期记录
-            cleaned = self.cleanup_old_records()
-
-            # 5. 保存历史
-            self.save_history()
-
-            # 统计
+            # 4. 统计
             cycle_duration = time.time() - cycle_start
             logger.info(
                 f"========== 监控循环完成 ========== "
-                f"新视频: {total_new}, 已推送: {total_pushed}, "
-                f"清理: {cleaned}, 耗时: {cycle_duration:.1f}秒"
+                f"用户: {len(users)}, 新视频: {total_new}, 已推送: {total_pushed}, "
+                f"失败: {len(failed_users)}, 耗时: {cycle_duration:.1f}秒"
             )
 
-            # 通知检查完成，计算下次检查时间
+            # 5. 记录失败用户
+            if failed_users:
+                logger.warning(f"失败用户: {[u['username'] for u in failed_users]}")
+
+            # 通知检查完成
             from datetime import timedelta
             next_check = datetime.now() + timedelta(seconds=self.check_interval)
             self._notify_state_change(
@@ -754,19 +1022,8 @@ class MonitorScheduler:
                 check_interval_minutes=self.check_interval // 60
             )
 
-        except CookieExpiredError:
-            # 向上抛出，由 start() 处理
-            logger.error("Cookie已过期，监控终止")
-            raise
-
         except Exception as e:
-            logger.error(f"监控循环异常: {e}")
-            # 发送告警
-            if self.feishu:
-                try:
-                    self.feishu.send_error_notification(f"监控循环异常: {e}")
-                except Exception as notify_err:
-                    logger.error(f"发送告警失败: {notify_err}")
+            logger.error(f"监控循环异常: {e}", exc_info=True)
             raise
 
         finally:

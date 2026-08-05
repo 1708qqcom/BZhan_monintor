@@ -8,7 +8,7 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.bilibili import BilibiliClient
 from src.database import Database
@@ -39,36 +39,54 @@ def get_db() -> Database:
     "",
     response_model=PaginatedVideoResponse,
     summary="获取推送历史",
-    description="分页查询视频推送历史，支持按UP主和日期筛选"
+    description="分页查询视频推送历史，普通用户只能看到自己的，管理员可以查看所有"
 )
 async def get_videos(
+    request: Request,
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
     up_id: Optional[int] = Query(None, description="按UP主筛选"),
     date_from: Optional[str] = Query(None, description="开始日期 (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="结束日期 (YYYY-MM-DD)"),
+    user_id: Optional[int] = Query(None, description="管理员筛选指定用户"),
     db: Database = Depends(get_db),
 ):
     """
     获取推送历史
 
     Args:
+        request: 请求对象
         page: 页码（从1开始）
         page_size: 每页数量（最大100）
         up_id: 按UP主筛选
         date_from: 开始日期
         date_to: 结束日期
+        user_id: 管理员筛选指定用户
 
     Returns:
         分页视频列表
     """
+    # 获取当前用户信息
+    current_user_id = request.session.get("user_id")
+    is_admin = request.session.get("is_admin", False)
+
     logger.info(
-        f"API调用: GET /api/videos, "
+        f"API调用: GET /api/videos, user_id={current_user_id}, "
         f"page={page}, page_size={page_size}, "
         f"up_id={up_id}, date_from={date_from}, date_to={date_to}"
     )
 
     try:
+        # 确定查询的用户ID
+        query_user_id = None
+
+        if is_admin:
+            # 管理员可以查看所有用户，或筛选指定用户
+            query_user_id = user_id  # None 表示所有用户
+        else:
+            # 普通用户只能查看自己的
+            query_user_id = current_user_id
+
         # 查询数据库
         result = db.get_videos(
             page=page,
@@ -76,6 +94,7 @@ async def get_videos(
             up_id=up_id,
             date_from=date_from,
             date_to=date_to,
+            user_id=query_user_id,
         )
 
         # 转换为响应模型
@@ -112,6 +131,7 @@ async def get_videos(
 )
 async def push_video(
     bvid: str,
+    request: Request,
     db: Database = Depends(get_db),
 ):
     """
@@ -119,6 +139,7 @@ async def push_video(
 
     Args:
         bvid: 视频BV号
+        request: 请求对象
 
     Returns:
         推送结果
@@ -128,7 +149,11 @@ async def push_video(
         HTTPException: 400 Webhook未配置
         HTTPException: 500 推送失败
     """
-    logger.info(f"[手动推送] 开始推送视频: bvid={bvid}")
+    # 获取当前用户信息
+    user_id = request.session.get("user_id")
+    is_admin = request.session.get("is_admin", False)
+
+    logger.info(f"[手动推送] 开始推送视频: bvid={bvid}, user_id={user_id}")
 
     push_success = False
     error_msg = None
@@ -143,7 +168,17 @@ async def push_video(
 
         video_id = video["id"]
 
-        # 2. 检查视频信息完整性
+        # 2. 权限检查：普通用户只能推送自己的视频
+        if not is_admin:
+            # 获取视频对应的UP主，检查归属
+            up_id = video.get("up_id")
+            if up_id:
+                up_info = _get_up_by_id(db, up_id)
+                if up_info and up_info.get("user_id") != user_id:
+                    logger.warning(f"[手动推送] 无权推送: bvid={bvid}, user_id={user_id}")
+                    raise HTTPException(status_code=403, detail="无权推送该视频")
+
+        # 3. 检查视频信息完整性
         required_fields = ["title", "url", "pub_time", "view_count"]
         missing_fields = [f for f in required_fields if not video.get(f)]
 
@@ -155,7 +190,7 @@ async def push_video(
 
             try:
                 # 补全视频信息
-                await _supplement_video_info(bvid, video, db)
+                await _supplement_video_info(bvid, video, db, user_id)
             except BilibiliAPIError as e:
                 logger.error(f"[手动推送] 补全视频信息失败: {e}")
                 raise HTTPException(
@@ -163,7 +198,7 @@ async def push_video(
                     detail=f"补全视频信息失败: {e.message}"
                 )
 
-        # 3. 获取UP主信息
+        # 4. 获取UP主信息
         up_id = video.get("up_id")
         if not up_id:
             logger.error(f"[手动推送] 视频缺少up_id: bvid={bvid}")
@@ -176,8 +211,12 @@ async def push_video(
         up_info = _get_up_by_id(db, up_id)
         up_name = up_info.get("name", "未知UP主") if up_info else "未知UP主"
 
-        # 4. 获取飞书 Webhook 配置
-        webhook_url = db.get_config_value("feishu_webhook_url")
+        # 5. 获取飞书 Webhook 配置（优先用户自己的配置）
+        webhook_url = db.get_config_value("feishu_webhook_url", user_id=user_id)
+        if not webhook_url:
+            # 回退到全局配置
+            webhook_url = db.get_config_value("feishu_webhook_url")
+
         if not webhook_url:
             logger.error("[手动推送] 飞书 Webhook 未配置")
             raise HTTPException(
@@ -185,7 +224,7 @@ async def push_video(
                 detail="飞书 Webhook 未配置，请先在设置页面配置"
             )
 
-        # 5. 发送飞书通知
+        # 6. 发送飞书通知
         logger.info(f"[手动推送] 发送飞书通知: {video['title']}")
 
         notifier = FeishuNotifier(webhook_url)
@@ -240,7 +279,7 @@ async def push_video(
                 logger.error(f"[手动推送] 记录推送历史失败: {e}")
 
 
-async def _supplement_video_info(bvid: str, video: dict, db: Database) -> None:
+async def _supplement_video_info(bvid: str, video: dict, db: Database, user_id: int = None) -> None:
     """
     补全视频信息（内部方法）
 
@@ -248,12 +287,13 @@ async def _supplement_video_info(bvid: str, video: dict, db: Database) -> None:
         bvid: 视频BV号
         video: 当前视频记录
         db: 数据库实例
+        user_id: 用户ID（用于获取Cookie）
 
     Raises:
         BilibiliAPIError: API调用失败
     """
-    # 获取登录信息
-    auth = db.get_auth()
+    # 获取登录信息（优先当前用户）
+    auth = db.get_auth(user_id=user_id) if user_id else db.get_auth()
     cookies = auth.get("cookies") if auth else None
 
     # 初始化B站客户端
@@ -298,7 +338,7 @@ def _get_up_by_id(db: Database, up_id: int) -> Optional[dict]:
     with db._get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT id, mid, name, face, is_monitoring, created_at, updated_at
+            SELECT id, mid, name, face, user_id, is_monitoring, created_at, updated_at
             FROM ups
             WHERE id = ?
         """, (up_id,))

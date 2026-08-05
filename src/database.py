@@ -49,6 +49,7 @@ class Database:
         初始化数据库表结构
 
         创建以下表：
+        - users: 用户表
         - ups: UP主表
         - videos: 视频历史表
         - config: 配置表
@@ -63,14 +64,31 @@ class Database:
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
+            # 0. 用户表（新增）
+            logger.debug("创建 users 表...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    is_admin INTEGER DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)
+            """)
+
             # 1. UP主表
             logger.debug("创建 ups 表...")
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS ups (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    mid INTEGER UNIQUE NOT NULL,
+                    mid INTEGER NOT NULL,
                     name TEXT NOT NULL,
                     face TEXT,
+                    user_id INTEGER DEFAULT 1,
                     is_monitoring INTEGER DEFAULT 1,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
@@ -82,6 +100,9 @@ class Database:
             """)
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_ups_is_monitoring ON ups(is_monitoring)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_ups_user_id ON ups(user_id)
             """)
 
             # 2. 视频历史表
@@ -118,24 +139,28 @@ class Database:
                 CREATE TABLE IF NOT EXISTS config (
                     key TEXT PRIMARY KEY,
                     value TEXT,
+                    user_id INTEGER,
                     updated_at TEXT NOT NULL
                 )
             """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_config_user_id ON config(user_id)
+            """)
 
-            # 4. 登录信息表
+            # 4. 登录信息表（支持多用户）
             logger.debug("创建 auth 表...")
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS auth (
-                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
                     cookies TEXT,
                     created_at TEXT,
-                    expires_at TEXT
+                    expires_at TEXT,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """)
-            # 初始化 auth 表的默认记录
             cursor.execute("""
-                INSERT OR IGNORE INTO auth (id, cookies, created_at, expires_at)
-                VALUES (1, NULL, NULL, NULL)
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_user_id ON auth(user_id)
             """)
 
             # 5. 推送历史表
@@ -201,60 +226,77 @@ class Database:
 
     # ==================== UP主 CRUD ====================
 
-    def get_ups(self, is_monitoring: Optional[bool] = None) -> list[dict]:
+    def get_ups(self, user_id: int = None, is_monitoring: Optional[bool] = None) -> list[dict]:
         """
         查询 UP主列表
 
         Args:
+            user_id: 用户 ID，None 表示查询所有（管理员用）
             is_monitoring: 是否监控中，None 表示全部
 
         Returns:
             UP主列表 [{"id": 1, "mid": 123, "name": "名字", ...}, ...]
         """
-        logger.debug(f"查询 UP主列表: is_monitoring={is_monitoring}")
+        logger.debug(f"查询 UP主列表: user_id={user_id}, is_monitoring={is_monitoring}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
-            if is_monitoring is None:
-                cursor.execute("""
-                    SELECT id, mid, name, face, is_monitoring, created_at, updated_at
-                    FROM ups
-                    ORDER BY created_at DESC
-                """)
-            else:
-                cursor.execute("""
-                    SELECT id, mid, name, face, is_monitoring, created_at, updated_at
-                    FROM ups
-                    WHERE is_monitoring = ?
-                    ORDER BY created_at DESC
-                """, (1 if is_monitoring else 0,))
+            conditions = []
+            params = []
 
+            if user_id is not None:
+                conditions.append("user_id = ?")
+                params.append(user_id)
+
+            if is_monitoring is not None:
+                conditions.append("is_monitoring = ?")
+                params.append(1 if is_monitoring else 0)
+
+            where_clause = " AND ".join(conditions) if conditions else "1=1"
+
+            sql = f"""
+                SELECT id, mid, name, face, user_id, is_monitoring, created_at, updated_at
+                FROM ups
+                WHERE {where_clause}
+                ORDER BY created_at DESC
+            """
+
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
             result = [dict(row) for row in rows]
 
             logger.info(f"查询到 {len(result)} 个 UP主")
             return result
 
-    def get_up_by_mid(self, mid: int) -> Optional[dict]:
+    def get_up_by_mid(self, mid: int, user_id: int = None) -> Optional[dict]:
         """
         按 mid 查询 UP主
 
         Args:
             mid: B站 UP主 ID
+            user_id: 用户 ID，None 表示查询所有用户
 
         Returns:
             UP主信息字典，不存在返回 None
         """
-        logger.debug(f"查询 UP主: mid={mid}")
+        logger.debug(f"查询 UP主: mid={mid}, user_id={user_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT id, mid, name, face, is_monitoring, created_at, updated_at
-                FROM ups
-                WHERE mid = ?
-            """, (mid,))
+
+            if user_id is None:
+                cursor.execute("""
+                    SELECT id, mid, name, face, user_id, is_monitoring, created_at, updated_at
+                    FROM ups
+                    WHERE mid = ?
+                """, (mid,))
+            else:
+                cursor.execute("""
+                    SELECT id, mid, name, face, user_id, is_monitoring, created_at, updated_at
+                    FROM ups
+                    WHERE mid = ? AND user_id = ?
+                """, (mid, user_id))
 
             row = cursor.fetchone()
             if row:
@@ -264,7 +306,7 @@ class Database:
                 logger.debug(f"未找到 UP主: mid={mid}")
                 return None
 
-    def add_up(self, mid: int, name: str, face: str = "") -> int:
+    def add_up(self, mid: int, name: str, face: str = "", user_id: int = None) -> int:
         """
         添加 UP主
 
@@ -272,56 +314,73 @@ class Database:
             mid: B站 UP主 ID
             name: UP主名称
             face: 头像 URL
+            user_id: 用户 ID
 
         Returns:
             新记录的 id
 
         Raises:
-            sqlite3.IntegrityError: mid 已存在
+            sqlite3.IntegrityError: mid 已存在（同一用户）
         """
-        logger.info(f"添加 UP主: mid={mid}, name={name}")
+        logger.info(f"添加 UP主: mid={mid}, name={name}, user_id={user_id}")
 
         now = datetime.now().isoformat()
+
+        # 如果未指定 user_id，使用默认用户（id=1）
+        if user_id is None:
+            user_id = 1
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
             try:
                 cursor.execute("""
-                    INSERT INTO ups (mid, name, face, is_monitoring, created_at, updated_at)
-                    VALUES (?, ?, ?, 1, ?, ?)
-                """, (mid, name, face, now, now))
+                    INSERT INTO ups (mid, name, face, user_id, is_monitoring, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, 1, ?, ?)
+                """, (mid, name, face, user_id, now, now))
 
                 conn.commit()
                 up_id = cursor.lastrowid
 
-                logger.info(f"UP主添加成功: id={up_id}, mid={mid}, name={name}")
+                logger.info(f"UP主添加成功: id={up_id}, mid={mid}, name={name}, user_id={user_id}")
                 return up_id
 
             except sqlite3.IntegrityError:
-                logger.warning(f"UP主已存在: mid={mid}")
+                logger.warning(f"UP主已存在: mid={mid}, user_id={user_id}")
                 raise
 
-    def remove_up(self, up_id: int) -> bool:
+    def remove_up(self, up_id: int, user_id: int = None) -> bool:
         """
-        删除 UP主（真删除，一并删除关联的视频记录）
+        删除 UP主（验证归属）
 
         Args:
             up_id: UP主记录 ID
+            user_id: 用户 ID，用于验证归属（None 表示管理员删除）
 
         Returns:
             成功返回 True
         """
-        logger.info(f"删除 UP主: up_id={up_id}")
+        logger.info(f"删除 UP主: up_id={up_id}, user_id={user_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
-            # 1. 先删除关联的视频记录
+            # 1. 验证归属（如果指定了 user_id）
+            if user_id is not None:
+                cursor.execute("SELECT user_id FROM ups WHERE id = ?", (up_id,))
+                row = cursor.fetchone()
+                if not row:
+                    logger.warning(f"UP主不存在: up_id={up_id}")
+                    return False
+                if row["user_id"] != user_id:
+                    logger.warning(f"无权删除 UP主: up_id={up_id}, user_id={user_id}")
+                    return False
+
+            # 2. 删除关联的视频记录
             cursor.execute("DELETE FROM videos WHERE up_id = ?", (up_id,))
             videos_deleted = cursor.rowcount
             logger.info(f"删除关联视频: {videos_deleted} 条")
 
-            # 2. 再删除 UP主记录
+            # 3. 删除 UP主记录
             cursor.execute("DELETE FROM ups WHERE id = ?", (up_id,))
             conn.commit()
             affected = cursor.rowcount
@@ -342,6 +401,7 @@ class Database:
         up_id: Optional[int] = None,
         date_from: Optional[str] = None,
         date_to: Optional[str] = None,
+        user_id: Optional[int] = None,
     ) -> dict:
         """
         分页查询视频历史
@@ -352,6 +412,7 @@ class Database:
             up_id: 按 UP主筛选
             date_from: 开始日期 (YYYY-MM-DD)
             date_to: 结束日期 (YYYY-MM-DD)
+            user_id: 用户 ID，用于筛选用户的视频（管理员用）
 
         Returns:
             {
@@ -363,7 +424,7 @@ class Database:
         """
         logger.debug(
             f"查询视频历史: page={page}, page_size={page_size}, "
-            f"up_id={up_id}, date_from={date_from}, date_to={date_to}"
+            f"up_id={up_id}, date_from={date_from}, date_to={date_to}, user_id={user_id}"
         )
 
         with self._get_connection() as conn:
@@ -376,6 +437,11 @@ class Database:
             if up_id is not None:
                 conditions.append("v.up_id = ?")
                 params.append(up_id)
+
+            if user_id is not None:
+                # 通过 ups 表关联过滤用户
+                conditions.append("u.user_id = ?")
+                params.append(user_id)
 
             if date_from:
                 conditions.append("DATE(v.pushed_at) >= ?")
@@ -391,6 +457,7 @@ class Database:
             count_sql = f"""
                 SELECT COUNT(*)
                 FROM videos v
+                LEFT JOIN ups u ON v.up_id = u.id
                 WHERE {where_clause}
             """
             cursor.execute(count_sql, params)
@@ -402,7 +469,7 @@ class Database:
                 SELECT
                     v.id, v.up_id, v.bvid, v.title, v.url, v.pub_time,
                     v.view_count, v.pushed, v.pushed_at, v.created_at,
-                    u.name as up_name, u.face as up_face
+                    u.name as up_name, u.face as up_face, u.user_id
                 FROM videos v
                 LEFT JOIN ups u ON v.up_id = u.id
                 WHERE {where_clause}
@@ -669,99 +736,148 @@ class Database:
 
     # ==================== 配置管理 ====================
 
-    def get_config(self) -> dict:
+    def get_config(self, user_id: int = None) -> dict:
         """
-        获取所有配置
+        获取配置（合并全局配置和用户配置）
+
+        Args:
+            user_id: 用户ID，用于获取用户级别的配置
 
         Returns:
             配置字典 {"key": "value", ...}
         """
-        logger.debug("查询所有配置")
+        logger.debug(f"查询配置: user_id={user_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT key, value FROM config
-            """)
 
-            rows = cursor.fetchall()
-            config = {row["key"]: row["value"] for row in rows}
+            # 1. 获取全局配置（user_id 为 NULL）
+            cursor.execute("""
+                SELECT key, value FROM config WHERE user_id IS NULL
+            """)
+            global_rows = cursor.fetchall()
+            config = {row["key"]: row["value"] for row in global_rows}
+
+            # 2. 获取用户配置（如果有 user_id）
+            if user_id is not None:
+                cursor.execute("""
+                    SELECT key, value FROM config WHERE user_id = ?
+                """, (user_id,))
+                user_rows = cursor.fetchall()
+                # 用户配置覆盖全局配置
+                for row in user_rows:
+                    config[row["key"]] = row["value"]
 
             logger.debug(f"查询到 {len(config)} 项配置")
             return config
 
-    def get_config_value(self, key: str, default: str = None) -> Optional[str]:
+    def get_config_value(self, key: str, default: str = None, user_id: int = None) -> Optional[str]:
         """
         获取单个配置值
 
         Args:
             key: 配置键
             default: 默认值
+            user_id: 用户ID（优先获取用户配置，回退到全局配置）
 
         Returns:
             配置值，不存在返回 default
         """
-        logger.debug(f"查询配置: key={key}")
+        logger.debug(f"查询配置: key={key}, user_id={user_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT value FROM config WHERE key = ?
-            """, (key,))
 
+            # 优先查询用户配置
+            if user_id is not None:
+                cursor.execute("""
+                    SELECT value FROM config WHERE key = ? AND user_id = ?
+                """, (key, user_id))
+                row = cursor.fetchone()
+                if row:
+                    logger.debug(f"配置值(用户): {key}={row['value']}")
+                    return row["value"]
+
+            # 回退到全局配置
+            cursor.execute("""
+                SELECT value FROM config WHERE key = ? AND user_id IS NULL
+            """, (key,))
             row = cursor.fetchone()
             if row:
-                logger.debug(f"配置值: {key}={row['value']}")
+                logger.debug(f"配置值(全局): {key}={row['value']}")
                 return row["value"]
-            else:
-                logger.debug(f"配置不存在: key={key}, 使用默认值={default}")
-                return default
 
-    def update_config(self, key: str, value: str) -> None:
+            logger.debug(f"配置不存在: key={key}, 使用默认值={default}")
+            return default
+
+    def update_config(self, key: str, value: str, user_id: int = None) -> None:
         """
         更新配置
 
         Args:
             key: 配置键
             value: 配置值
+            user_id: 用户ID（None 表示全局配置）
         """
-        logger.info(f"更新配置: {key}={value}")
+        logger.info(f"更新配置: key={key}, user_id={user_id}")
 
         now = datetime.now().isoformat()
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                INSERT OR REPLACE INTO config (key, value, updated_at)
-                VALUES (?, ?, ?)
-            """, (key, value, now))
+
+            if user_id is None:
+                # 更新全局配置
+                cursor.execute("""
+                    INSERT OR REPLACE INTO config (key, value, user_id, updated_at)
+                    VALUES (?, ?, NULL, ?)
+                """, (key, value, now))
+            else:
+                # 更新用户配置
+                cursor.execute("""
+                    INSERT OR REPLACE INTO config (key, value, user_id, updated_at)
+                    VALUES (?, ?, ?, ?)
+                """, (key, value, user_id, now))
 
             conn.commit()
-            logger.info(f"配置已更新: {key}={value}")
+            logger.info(f"配置已更新: key={key}, user_id={user_id}")
 
     # ==================== 登录信息管理 ====================
 
-    def get_auth(self) -> Optional[dict]:
+    def get_auth(self, user_id: int = None) -> Optional[dict]:
         """
         获取登录信息
+
+        Args:
+            user_id: 用户 ID，None 表示获取第一条记录（兼容旧逻辑）
 
         Returns:
             {"cookies": dict, "created_at": str, "expires_at": str} 或 None
         """
-        logger.debug("查询登录信息")
+        logger.debug(f"查询登录信息: user_id={user_id}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                SELECT cookies, created_at, expires_at
-                FROM auth
-                WHERE id = 1
-            """)
+
+            if user_id is None:
+                # 兼容旧逻辑：获取第一条记录
+                cursor.execute("""
+                    SELECT user_id, cookies, created_at, expires_at
+                    FROM auth
+                    LIMIT 1
+                """)
+            else:
+                cursor.execute("""
+                    SELECT user_id, cookies, created_at, expires_at
+                    FROM auth
+                    WHERE user_id = ?
+                """, (user_id,))
 
             row = cursor.fetchone()
             if row and row["cookies"]:
                 cookies_dict = json.loads(row["cookies"])
                 result = {
+                    "user_id": row["user_id"],
                     "cookies": cookies_dict,
                     "created_at": row["created_at"],
                     "expires_at": row["expires_at"],
@@ -772,43 +888,275 @@ class Database:
                 logger.debug("未找到登录信息")
                 return None
 
-    def save_auth(self, cookies: dict, expires_at: Optional[str] = None) -> None:
+    def save_auth(self, cookies: dict, expires_at: Optional[str] = None, user_id: int = None) -> None:
         """
         保存登录信息
 
         Args:
             cookies: Cookie 字典
             expires_at: 过期时间
+            user_id: 用户 ID
         """
-        logger.info("保存登录信息")
+        logger.info(f"保存登录信息: user_id={user_id}")
 
         now = datetime.now().isoformat()
         cookies_json = json.dumps(cookies, ensure_ascii=False)
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE auth
-                SET cookies = ?, created_at = ?, expires_at = ?
-                WHERE id = 1
-            """, (cookies_json, now, expires_at))
+
+            if user_id is None:
+                # 兼容旧逻辑：更新第一条记录
+                cursor.execute("""
+                    UPDATE auth
+                    SET cookies = ?, created_at = ?, expires_at = ?
+                    WHERE id = (SELECT MIN(id) FROM auth)
+                """, (cookies_json, now, expires_at))
+            else:
+                # 插入或更新用户登录信息
+                cursor.execute("""
+                    INSERT OR REPLACE INTO auth (user_id, cookies, created_at, expires_at)
+                    VALUES (?, ?, ?, ?)
+                """, (user_id, cookies_json, now, expires_at))
 
             conn.commit()
-            logger.info("登录信息已保存")
+            logger.info(f"登录信息已保存: user_id={user_id}")
 
-    def clear_auth(self) -> None:
+    def clear_auth(self, user_id: int = None) -> None:
         """
         清除登录信息
+
+        Args:
+            user_id: 用户 ID，None 表示清除第一条记录（兼容旧逻辑）
         """
-        logger.info("清除登录信息")
+        logger.info(f"清除登录信息: user_id={user_id}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            if user_id is None:
+                # 兼容旧逻辑：清除第一条记录
+                cursor.execute("""
+                    DELETE FROM auth WHERE id = (SELECT MIN(id) FROM auth)
+                """)
+            else:
+                cursor.execute("DELETE FROM auth WHERE user_id = ?", (user_id,))
+
+            conn.commit()
+            logger.info(f"登录信息已清除: user_id={user_id}")
+
+    # ==================== 用户管理 ====================
+
+    def create_users_table(self) -> None:
+        """
+        创建 users 表（新用户首次启动时自动创建）
+        """
+        logger.debug("创建 users 表...")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            # 创建 users 表
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    is_admin INTEGER DEFAULT 0,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+            """)
+
+            # 创建索引
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)
+            """)
+
+            conn.commit()
+            logger.debug("users 表创建完成")
+
+    def add_user(self, username: str, password: str, is_admin: bool = False) -> int:
+        """
+        添加用户
+
+        Args:
+            username: 用户名
+            password: 密码
+            is_admin: 是否管理员
+
+        Returns:
+            新用户的 id
+
+        Raises:
+            sqlite3.IntegrityError: 用户名已存在
+        """
+        logger.info(f"添加用户: username={username}, is_admin={is_admin}")
+
+        now = datetime.now().isoformat()
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute("""
+                    INSERT INTO users (username, password, is_admin, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (username, password, 1 if is_admin else 0, now, now))
+
+                conn.commit()
+                user_id = cursor.lastrowid
+
+                logger.info(f"用户添加成功: id={user_id}, username={username}")
+                return user_id
+
+            except sqlite3.IntegrityError:
+                logger.warning(f"用户名已存在: username={username}")
+                raise
+
+    def get_user_by_username(self, username: str) -> Optional[dict]:
+        """
+        按用户名查询用户
+
+        Args:
+            username: 用户名
+
+        Returns:
+            用户信息字典，不存在返回 None
+        """
+        logger.debug(f"查询用户: username={username}")
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                UPDATE auth
-                SET cookies = NULL, created_at = NULL, expires_at = NULL
-                WHERE id = 1
+                SELECT id, username, password, is_admin, created_at, updated_at
+                FROM users
+                WHERE username = ?
+            """, (username,))
+
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            else:
+                logger.debug(f"用户不存在: username={username}")
+                return None
+
+    def get_user_by_id(self, user_id: int) -> Optional[dict]:
+        """
+        按 ID 查询用户
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            用户信息字典，不存在返回 None
+        """
+        logger.debug(f"查询用户: user_id={user_id}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, username, password, is_admin, created_at, updated_at
+                FROM users
+                WHERE id = ?
+            """, (user_id,))
+
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            else:
+                logger.debug(f"用户不存在: user_id={user_id}")
+                return None
+
+    def get_all_users(self) -> list[dict]:
+        """
+        获取所有用户列表（管理员用）
+
+        Returns:
+            用户列表
+        """
+        logger.debug("查询所有用户")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, username, is_admin, created_at, updated_at
+                FROM users
+                ORDER BY created_at DESC
             """)
 
+            rows = cursor.fetchall()
+            result = [dict(row) for row in rows]
+
+            logger.info(f"查询到 {len(result)} 个用户")
+            return result
+
+    def delete_user(self, user_id: int) -> bool:
+        """
+        删除用户（级联删除关联数据）
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            成功返回 True
+        """
+        logger.info(f"删除用户: user_id={user_id}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            # SQLite 外键级联会自动删除关联数据
+            cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
             conn.commit()
-            logger.info("登录信息已清除")
+            affected = cursor.rowcount
+
+            if affected > 0:
+                logger.info(f"用户已删除: user_id={user_id}")
+                return True
+            else:
+                logger.warning(f"用户不存在: user_id={user_id}")
+                return False
+
+    def get_all_users_with_valid_auth(self) -> list[dict]:
+        """
+        获取所有有效 B站登录的用户（监控线程用）
+
+        Returns:
+            用户列表，包含 id, username, cookies, expires_at
+        """
+        logger.debug("查询所有有效 B站登录的用户")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT
+                    u.id, u.username, u.is_admin,
+                    a.cookies, a.expires_at
+                FROM users u
+                INNER JOIN auth a ON u.id = a.user_id
+                WHERE a.cookies IS NOT NULL
+            """)
+
+            rows = cursor.fetchall()
+            result = []
+            for row in rows:
+                user_data = dict(row)
+                if user_data.get("cookies"):
+                    user_data["cookies"] = json.loads(user_data["cookies"])
+                result.append(user_data)
+
+            logger.info(f"查询到 {len(result)} 个有效 B站登录用户")
+            return result
+
+    def user_exists(self) -> bool:
+        """
+        检查是否存在任何用户
+
+        Returns:
+            存在返回 True
+        """
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM users")
+            count = cursor.fetchone()[0]
+            return count > 0

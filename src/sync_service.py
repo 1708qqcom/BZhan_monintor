@@ -3,7 +3,7 @@
 
 功能：
 - 从B站API获取关注列表
-- 同步到数据库
+- 同步到数据库（关联到指定用户）
 - 提供给API和登录流程共用
 
 设计原则：
@@ -26,6 +26,7 @@ def sync_followed_ups(
     cookies: dict,
     max_count: int = 50,
     fetch_videos: bool = True,
+    user_id: int = None,
 ) -> dict:
     """
     同步B站关注列表到数据库
@@ -35,6 +36,7 @@ def sync_followed_ups(
         cookies: B站Cookie字典
         max_count: 最多同步数量，默认50
         fetch_videos: 是否获取视频信息，默认True
+        user_id: 用户ID，关联UP主到该用户
 
     Returns:
         同步结果 {
@@ -46,7 +48,7 @@ def sync_followed_ups(
             "message": str,    # 结果消息
         }
     """
-    logger.info(f"[SyncService] 开始同步关注列表，max_count={max_count}")
+    logger.info(f"[SyncService] 开始同步关注列表: user_id={user_id}, max_count={max_count}")
 
     result = {
         "success": False,
@@ -75,7 +77,7 @@ def sync_followed_ups(
         result["total"] = len(ups)
         logger.info(f"[SyncService] 获取到 {len(ups)} 个UP主，开始写入数据库")
 
-        # 3. 遍历写入数据库
+        # 3. 遍历写入数据库（关联到指定用户）
         for idx, up in enumerate(ups, 1):
             mid = up.get("mid")
             uname = up.get("uname", f"UP主_{mid}")
@@ -84,10 +86,10 @@ def sync_followed_ups(
             logger.debug(f"[SyncService] 处理第 {idx}/{len(ups)} 个: mid={mid}, name={uname}")
 
             try:
-                # 尝试添加到数据库
-                up_id = db.add_up(mid=mid, name=uname, face=face)
+                # 尝试添加到数据库（关联到用户）
+                up_id = db.add_up(mid=mid, name=uname, face=face, user_id=user_id)
                 result["added"] += 1
-                logger.debug(f"[SyncService] 添加成功: id={up_id}, mid={mid}")
+                logger.debug(f"[SyncService] 添加成功: id={up_id}, mid={mid}, user_id={user_id}")
 
                 # 如果是新添加的UP主且需要获取视频，立即获取最新5个视频
                 if fetch_videos:
@@ -137,9 +139,9 @@ def sync_followed_ups(
                         # 不影响同步流程，继续处理下一个UP主
 
             except sqlite3.IntegrityError:
-                # UP主已存在，跳过
+                # UP主已存在（同一用户），跳过
                 result["skipped"] += 1
-                logger.debug(f"[SyncService] UP主已存在，跳过: mid={mid}")
+                logger.debug(f"[SyncService] UP主已存在，跳过: mid={mid}, user_id={user_id}")
 
             except Exception as e:
                 # 其他错误

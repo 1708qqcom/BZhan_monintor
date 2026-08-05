@@ -217,6 +217,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 # 认证白名单
 AUTH_WHITELIST = [
     "/auth/login",
+    "/auth/register",  # 注册不需要登录
     "/static",
     "/api/health",
     "/api/monitor/status",  # 监控状态API不需要Web后台登录
@@ -238,10 +239,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             logger.debug(f"跳过认证: {path}")
             return await call_next(request)
 
-        # 检查 Session 中的认证状态
-        authenticated = request.session.get("authenticated", False)
+        # 检查 Session 中的用户信息
+        user_id = request.session.get("user_id")
 
-        if not authenticated:
+        if not user_id:
             logger.info(f"未认证访问: {path}, 跳转登录页")
             # 如果是 API 请求，返回 401
             if path.startswith("/api/"):
@@ -253,7 +254,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return RedirectResponse(url="/auth/login", status_code=302)
 
         # 已认证，继续处理
-        logger.debug(f"认证通过: {path}")
+        logger.debug(f"认证通过: {path}, user_id={user_id}")
         return await call_next(request)
 
 app.add_middleware(AuthMiddleware)
@@ -339,32 +340,122 @@ async def login_page(request: Request, error: str = None):
 
 
 @app.post("/auth/login", tags=["认证"])
-async def login_submit(request: Request, password: str = Form(...)):
+async def login_submit(request: Request, username: str = Form(...), password: str = Form(...)):
     """
     处理登录表单提交
 
     Args:
         request: 请求对象
+        username: 用户名
         password: 密码
     """
-    logger.info("收到登录请求")
+    logger.info(f"收到登录请求: username={username}")
 
-    # 验证密码
-    correct_password = "Huisec@123"
+    # 从数据库验证用户
+    db = Database()
+    user = db.get_user_by_username(username)
 
-    if password == correct_password:
-        # 设置 Session
-        request.session["authenticated"] = True
-        logger.info("登录成功，跳转首页")
-        return RedirectResponse(url="/", status_code=302)
-    else:
-        logger.warning("登录失败: 密码错误")
-        # 返回登录页并显示错误
+    if not user:
+        logger.warning(f"登录失败: 用户不存在, username={username}")
         template = jinja_env.get_template("login.html")
         return HTMLResponse(
-            content=template.render(error="密码错误，请重试"),
+            content=template.render(error="用户名或密码错误"),
             status_code=401
         )
+
+    # 验证密码
+    if user["password"] != password:
+        logger.warning(f"登录失败: 密码错误, username={username}")
+        template = jinja_env.get_template("login.html")
+        return HTMLResponse(
+            content=template.render(error="用户名或密码错误"),
+            status_code=401
+        )
+
+    # 设置 Session
+    request.session["user_id"] = user["id"]
+    request.session["username"] = user["username"]
+    request.session["is_admin"] = bool(user["is_admin"])
+
+    logger.info(f"登录成功: username={username}, is_admin={user['is_admin']}")
+    return RedirectResponse(url="/", status_code=302)
+
+
+@app.get("/auth/register", response_class=HTMLResponse, tags=["认证"])
+async def register_page(request: Request, error: str = None):
+    """
+    注册页面
+
+    Args:
+        request: 请求对象
+        error: 错误消息
+    """
+    logger.debug("渲染注册页面")
+
+    template = jinja_env.get_template("register.html")
+    return HTMLResponse(
+        content=template.render(error=error)
+    )
+
+
+@app.post("/auth/register", tags=["认证"])
+async def register_submit(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...)
+):
+    """
+    处理注册表单提交
+
+    Args:
+        request: 请求对象
+        username: 用户名
+        password: 密码
+        confirm_password: 确认密码
+    """
+    logger.info(f"收到注册请求: username={username}")
+
+    # 1. 验证密码一致性
+    if password != confirm_password:
+        logger.warning("注册失败: 密码不一致")
+        template = jinja_env.get_template("register.html")
+        return HTMLResponse(
+            content=template.render(error="两次输入的密码不一致"),
+            status_code=400
+        )
+
+    # 2. 检查用户名是否已存在
+    db = Database()
+    existing_user = db.get_user_by_username(username)
+
+    if existing_user:
+        logger.warning(f"注册失败: 用户名已存在, username={username}")
+        template = jinja_env.get_template("register.html")
+        return HTMLResponse(
+            content=template.render(error="用户名已存在，请更换"),
+            status_code=400
+        )
+
+    # 3. 创建用户
+    try:
+        user_id = db.add_user(username, password, is_admin=False)
+        logger.info(f"用户注册成功: id={user_id}, username={username}")
+    except Exception as e:
+        logger.error(f"注册失败: {e}", exc_info=True)
+        template = jinja_env.get_template("register.html")
+        return HTMLResponse(
+            content=template.render(error="注册失败，请稍后重试"),
+            status_code=500
+        )
+
+    # 4. 自动登录
+    request.session["user_id"] = user_id
+    request.session["username"] = username
+    request.session["is_admin"] = False
+
+    logger.info(f"自动登录成功: username={username}")
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.post("/auth/logout", tags=["认证"])
@@ -374,7 +465,8 @@ async def logout(request: Request):
 
     清除 Session 并重定向到登录页
     """
-    logger.info("用户登出")
+    username = request.session.get("username", "unknown")
+    logger.info(f"用户登出: username={username}")
     request.session.clear()
     return RedirectResponse(url="/auth/login", status_code=302)
 
@@ -580,7 +672,10 @@ async def root(request: Request):
     logger.debug("渲染仪表盘页面")
 
     template = jinja_env.get_template("dashboard.html")
-    return HTMLResponse(content=template.render())
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False)
+    ))
 
 
 # ==================== UP主管理页面 ====================
@@ -596,7 +691,10 @@ async def ups_page(request: Request):
     logger.debug("渲染UP主管理页面")
 
     template = jinja_env.get_template("ups.html")
-    return HTMLResponse(content=template.render())
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False)
+    ))
 
 
 # ==================== 推送历史页面 ====================
@@ -612,7 +710,10 @@ async def videos_page(request: Request):
     logger.debug("渲染推送历史页面")
 
     template = jinja_env.get_template("videos.html")
-    return HTMLResponse(content=template.render())
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False)
+    ))
 
 
 # ==================== 配置管理页面 ====================
@@ -628,7 +729,10 @@ async def config_page(request: Request):
     logger.debug("渲染配置管理页面")
 
     template = jinja_env.get_template("config.html")
-    return HTMLResponse(content=template.render())
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False)
+    ))
 
 
 # ==================== B站登录管理页面 ====================
@@ -644,7 +748,118 @@ async def bilibili_login_page(request: Request):
     logger.debug("渲染B站登录管理页面")
 
     template = jinja_env.get_template("bilibili_login.html")
-    return HTMLResponse(content=template.render())
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False)
+    ))
+
+
+# ==================== 用户管理页面（管理员） ====================
+
+@app.get("/users", response_class=HTMLResponse, tags=["页面"])
+async def users_page(request: Request):
+    """
+    用户管理页面（管理员专属）
+
+    Args:
+        request: 请求对象
+    """
+    # 权限检查
+    is_admin = request.session.get("is_admin", False)
+    if not is_admin:
+        return HTMLResponse(
+            content="<h1>403 禁止访问</h1><p>只有管理员可以访问此页面</p>",
+            status_code=403
+        )
+
+    logger.debug("渲染用户管理页面")
+
+    template = jinja_env.get_template("users.html")
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=True
+    ))
+
+
+# ==================== 用户管理 API（管理员） ====================
+
+@app.get("/api/users", tags=["用户管理"])
+async def get_users(request: Request):
+    """
+    获取用户列表（管理员专属）
+
+    Returns:
+        用户列表
+    """
+    # 权限检查
+    is_admin = request.session.get("is_admin", False)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="只有管理员可以访问")
+
+    logger.info("API调用: GET /api/users")
+
+    try:
+        db = Database()
+        users = db.get_all_users()
+
+        # 移除密码字段
+        for user in users:
+            user.pop("password", None)
+
+        logger.info(f"返回 {len(users)} 个用户")
+        return {"items": users, "total": len(users)}
+
+    except Exception as e:
+        logger.error(f"获取用户列表失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/users/{user_id}", tags=["用户管理"])
+async def delete_user(user_id: int, request: Request):
+    """
+    删除用户（管理员专属）
+
+    Args:
+        user_id: 用户ID
+
+    Returns:
+        成功消息
+    """
+    # 权限检查
+    is_admin = request.session.get("is_admin", False)
+    current_user_id = request.session.get("user_id")
+
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="只有管理员可以访问")
+
+    # 禁止删除自己
+    if user_id == current_user_id:
+        raise HTTPException(status_code=400, detail="不能删除自己")
+
+    logger.info(f"API调用: DELETE /api/users/{user_id}")
+
+    try:
+        db = Database()
+
+        # 检查用户是否存在
+        user = db.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+
+        # 删除用户（外键级联删除关联数据）
+        success = db.delete_user(user_id)
+
+        if success:
+            logger.info(f"用户已删除: user_id={user_id}, username={user['username']}")
+            return {"message": "用户已删除", "username": user["username"]}
+        else:
+            raise HTTPException(status_code=500, detail="删除失败")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除用户失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ==================== 启动函数 ====================

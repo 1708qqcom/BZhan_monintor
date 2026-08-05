@@ -10,7 +10,7 @@
 import logging
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.database import Database
 from src.models import LoginStatusResponse, QrCodeResponse, SuccessResponse
@@ -21,7 +21,8 @@ logger = logging.getLogger("monitor.api.login")
 
 router = APIRouter(prefix="/api/login", tags=["登录管理"])
 
-# 临时存储 auth_code（生产环境应使用 Redis 或数据库）
+# 临时存储 auth_code（按用户区分）
+# 结构: {user_id: auth_code}
 _auth_code_store: dict = {}
 
 
@@ -38,9 +39,9 @@ def get_db() -> Database:
     "/status",
     response_model=LoginStatusResponse,
     summary="查询登录状态",
-    description="查询当前B站账号登录状态和Cookie有效期"
+    description="查询当前用户的B站账号登录状态和Cookie有效期"
 )
-async def get_login_status(db: Database = Depends(get_db)):
+async def get_login_status(request: Request, db: Database = Depends(get_db)):
     """
     查询登录状态
 
@@ -49,15 +50,24 @@ async def get_login_status(db: Database = Depends(get_db)):
     """
     logger.info("API调用: GET /api/login/status")
 
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        logger.warning("未找到用户信息")
+        return LoginStatusResponse(
+            is_logged_in=False,
+            message="请先登录系统"
+        )
+
     try:
-        # 从数据库获取登录信息
-        auth = db.get_auth()
+        # 从数据库获取该用户的登录信息
+        auth = db.get_auth(user_id=user_id)
 
         if not auth or not auth.get("cookies"):
-            logger.info("未登录")
+            logger.info(f"用户未绑定B站账号: user_id={user_id}")
             return LoginStatusResponse(
                 is_logged_in=False,
-                message="未登录B站账号"
+                message="未绑定B站账号"
             )
 
         # 计算剩余天数
@@ -77,7 +87,7 @@ async def get_login_status(db: Database = Depends(get_db)):
         # 构造响应
         username = auth["cookies"].get("uname", "未知用户")
 
-        logger.info(f"已登录: username={username}, days_remaining={days_remaining}")
+        logger.info(f"已登录: user_id={user_id}, username={username}, days_remaining={days_remaining}")
 
         return LoginStatusResponse(
             is_logged_in=True,
@@ -98,7 +108,7 @@ async def get_login_status(db: Database = Depends(get_db)):
     summary="获取登录二维码",
     description="获取B站扫码登录二维码"
 )
-async def get_qrcode():
+async def get_qrcode(request: Request):
     """
     获取登录二维码
 
@@ -106,6 +116,11 @@ async def get_qrcode():
         二维码URL和图片URL
     """
     logger.info("API调用: GET /api/login/qrcode")
+
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="请先登录系统")
 
     try:
         # 使用登录模块生成二维码
@@ -121,9 +136,9 @@ async def get_qrcode():
                 detail="生成二维码失败"
             )
 
-        # 临时存储 auth_code 供后续轮询使用
-        _auth_code_store["current"] = auth_code
-        logger.info(f"二维码生成成功，auth_code 已保存")
+        # 临时存储 auth_code（按用户区分）
+        _auth_code_store[user_id] = auth_code
+        logger.info(f"二维码生成成功: user_id={user_id}, auth_code已保存")
 
         # 生成二维码图片URL（使用 Segno 在本地生成 base64 图片）
         import segno
@@ -153,25 +168,30 @@ async def get_qrcode():
     "/poll",
     response_model=SuccessResponse,
     summary="轮询扫码结果",
-    description="轮询B站扫码登录结果，成功则保存Cookie"
+    description="轮询B站扫码登录结果，成功则保存Cookie到当前用户"
 )
-async def poll_scan_result(db: Database = Depends(get_db)):
+async def poll_scan_result(request: Request, db: Database = Depends(get_db)):
     """
     轮询扫码结果
 
-    检查用户是否已扫码确认，如果成功则保存Cookie到数据库
+    检查用户是否已扫码确认，如果成功则保存Cookie到数据库（关联到当前用户）
 
     Returns:
         扫码结果
     """
     logger.info("API调用: POST /api/login/poll")
 
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="请先登录系统")
+
     try:
-        # 获取保存的 auth_code
-        auth_code = _auth_code_store.get("current")
+        # 获取该用户的 auth_code
+        auth_code = _auth_code_store.get(user_id)
 
         if not auth_code:
-            logger.warning("未找到 auth_code，可能二维码已过期")
+            logger.warning(f"未找到 auth_code: user_id={user_id}")
             return SuccessResponse(
                 message="二维码已过期，请重新获取",
                 data={"status": "expired"}
@@ -180,28 +200,28 @@ async def poll_scan_result(db: Database = Depends(get_db)):
         # 使用登录模块轮询扫码结果
         login = BilibiliLogin()
 
-        logger.debug(f"轮询扫码结果: auth_code={auth_code[:20]}...")
+        logger.debug(f"轮询扫码结果: user_id={user_id}, auth_code={auth_code[:20]}...")
         cookies = login.poll_scan_result(auth_code, timeout=10)
 
         if cookies:
-            # 扫码成功，保存 Cookie
-            logger.info(f"扫码成功，获取到 cookies: {list(cookies.keys())}")
+            # 扫码成功，保存 Cookie（关联到当前用户）
+            logger.info(f"扫码成功: user_id={user_id}, cookies={list(cookies.keys())}")
 
             # 计算过期时间（B站 Cookie 一般 30 天有效）
             expires_at = (datetime.now() + timedelta(days=30)).isoformat()
 
-            # 保存到数据库
-            db.save_auth(cookies, expires_at=expires_at)
+            # 保存到数据库（关联用户）
+            db.save_auth(cookies, expires_at=expires_at, user_id=user_id)
 
             # 清除临时存储
-            _auth_code_store.pop("current", None)
+            _auth_code_store.pop(user_id, None)
 
-            logger.info("登录信息已保存到数据库")
+            logger.info(f"登录信息已保存: user_id={user_id}")
 
             # ========== 自动同步关注列表 ==========
             sync_result = None
             try:
-                logger.info("开始自动同步关注列表...")
+                logger.info(f"开始自动同步关注列表: user_id={user_id}")
 
                 # 从数据库读取配置
                 max_ups_str = db.get_config_value("max_ups", default="50")
@@ -217,6 +237,7 @@ async def poll_scan_result(db: Database = Depends(get_db)):
                     cookies=cookies,
                     max_count=max_ups,
                     fetch_videos=True,
+                    user_id=user_id,
                 )
 
                 logger.info(f"自动同步完成: {sync_result['message']}")
@@ -256,24 +277,29 @@ async def poll_scan_result(db: Database = Depends(get_db)):
     "/logout",
     response_model=SuccessResponse,
     summary="退出登录",
-    description="清除B站账号登录信息"
+    description="清除当前用户的B站账号登录信息"
 )
-async def logout(db: Database = Depends(get_db)):
+async def logout(request: Request, db: Database = Depends(get_db)):
     """
     退出登录
 
-    清除数据库中的登录信息
+    清除数据库中当前用户的B站登录信息
 
     Returns:
         成功消息
     """
     logger.info("API调用: POST /api/login/logout")
 
-    try:
-        # 清除数据库中的登录信息
-        db.clear_auth()
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="请先登录系统")
 
-        logger.info("B站账号已退出登录")
+    try:
+        # 清除该用户的B站登录信息
+        db.clear_auth(user_id=user_id)
+
+        logger.info(f"B站账号已退出登录: user_id={user_id}")
 
         return SuccessResponse(message="已退出登录")
 

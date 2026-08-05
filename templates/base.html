@@ -60,14 +60,31 @@
                         <a href="/bilibili-login" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
                             B站登录
                         </a>
+                        {% if is_admin %}
+                        <a href="/users" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                            用户管理
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
 
                 <!-- 右侧用户菜单 -->
                 <div class="hidden md:flex md:items-center md:space-x-4">
+                    <!-- 用户信息 -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+                        {% if is_admin %}
+                        <span class="text-xs bg-bilibili-pink text-white px-2 py-0.5 rounded">管理员</span>
+                        {% endif %}
+                    </div>
                     <form action="/auth/logout" method="POST" class="inline">
                         <button type="submit" class="text-gray-500 hover:text-red-600 text-sm font-medium transition-colors">
-                            登出
+                            退出
                         </button>
                     </form>
                 </div>
@@ -86,6 +103,18 @@
         <!-- 移动端菜单（默认隐藏） -->
         <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
             <div class="pt-2 pb-3 space-y-1">
+                <!-- 用户信息 -->
+                <div class="px-4 py-2 flex items-center space-x-2 border-b border-gray-100 mb-2">
+                    <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">{{ username }}</span>
+                    {% if is_admin %}
+                    <span class="text-xs bg-bilibili-pink text-white px-2 py-0.5 rounded">管理员</span>
+                    {% endif %}
+                </div>
                 <a href="/" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-bilibili-pink">
                     仪表盘
                 </a>
@@ -101,10 +130,15 @@
                 <a href="/bilibili-login" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
                     B站登录
                 </a>
+                {% if is_admin %}
+                <a href="/users" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                    用户管理
+                </a>
+                {% endif %}
                 <div class="pt-4 pb-2 border-t border-gray-200">
                     <form action="/auth/logout" method="POST">
                         <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50">
-                            登出
+                            退出
                         </button>
                     </form>
                 </div>
@@ -121,7 +155,7 @@
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <p class="text-center text-sm text-gray-500">
-                B站UP主视频监控系统 v2.1.0
+                B站UP主视频监控系统 v2.2.0 - 多用户版
             </p>
         </div>
     </footer>

@@ -9,7 +9,7 @@ UP主管理 API
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.database import Database
 from src.models import (
@@ -31,7 +31,6 @@ router = APIRouter(prefix="/api/ups", tags=["UP主管理"])
 
 def get_db() -> Database:
     """获取数据库实例（依赖注入）"""
-    # TODO: 改为全局单例
     return Database()
 
 
@@ -41,25 +40,43 @@ def get_db() -> Database:
     "",
     response_model=UpListResponse,
     summary="获取UP主列表",
-    description="获取所有监控中的UP主列表，包含每个UP主最新的5个视频"
+    description="获取UP主列表，普通用户只能看到自己的，管理员可以查看所有"
 )
 async def get_ups(
+    request: Request,
     is_monitoring: Optional[bool] = None,
+    user_id: Optional[int] = None,
     db: Database = Depends(get_db),
 ):
     """
     获取UP主列表
 
     Args:
+        request: 请求对象（用于获取当前用户信息）
         is_monitoring: 是否监控中，不传则返回全部
+        user_id: 管理员筛选指定用户的UP主
 
     Returns:
         UP主列表，每个UP主包含 latest_videos 字段
     """
-    logger.info(f"API调用: GET /api/ups, is_monitoring={is_monitoring}")
+    # 获取当前用户信息
+    current_user_id = request.session.get("user_id")
+    is_admin = request.session.get("is_admin", False)
+
+    logger.info(f"API调用: GET /api/ups, user_id={current_user_id}, is_admin={is_admin}")
 
     try:
-        ups = db.get_ups(is_monitoring=is_monitoring)
+        # 确定查询的用户ID
+        query_user_id = None
+
+        if is_admin:
+            # 管理员可以查看所有用户，或筛选指定用户
+            query_user_id = user_id  # None 表示所有用户
+        else:
+            # 普通用户只能查看自己的
+            query_user_id = current_user_id
+
+        ups = db.get_ups(user_id=query_user_id, is_monitoring=is_monitoring)
 
         # 为每个UP主查询最新5个视频
         items = []
@@ -91,7 +108,8 @@ async def get_ups(
     description="添加UP主到监控列表，会调用B站API验证有效性"
 )
 async def add_up(
-    request: UpCreateRequest,
+    request: Request,
+    body: UpCreateRequest,
     db: Database = Depends(get_db),
 ):
     """
@@ -100,35 +118,41 @@ async def add_up(
     流程：
     1. 调用B站API验证mid有效性
     2. 获取UP主名称和头像
-    3. 添加到数据库
+    3. 添加到数据库（关联到当前用户）
 
     Args:
-        request: 包含mid的请求体
+        request: 请求对象
+        body: 包含mid的请求体
 
     Returns:
         成功消息
     """
-    logger.info(f"API调用: POST /api/ups, mid={request.mid}")
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="请先登录")
+
+    logger.info(f"API调用: POST /api/ups, mid={body.mid}, user_id={user_id}")
 
     try:
-        # 1. 检查是否已存在
-        existing = db.get_up_by_mid(request.mid)
+        # 1. 检查是否已存在（同一用户）
+        existing = db.get_up_by_mid(body.mid, user_id=user_id)
         if existing:
-            logger.warning(f"UP主已存在: mid={request.mid}")
+            logger.warning(f"UP主已存在: mid={body.mid}, user_id={user_id}")
             raise HTTPException(
                 status_code=409,
                 detail=f"UP主已存在: {existing['name']}"
             )
 
         # 2. 调用B站API获取UP主信息
-        logger.debug(f"调用B站API验证UP主: mid={request.mid}")
+        logger.debug(f"调用B站API验证UP主: mid={body.mid}")
 
-        # 从数据库获取Cookie
-        auth = db.get_auth()
+        # 从数据库获取当前用户的Cookie
+        auth = db.get_auth(user_id=user_id)
         if not auth or not auth.get("cookies"):
             raise HTTPException(
                 status_code=400,
-                detail="未登录B站账号，请先登录"
+                detail="未绑定B站账号，请先扫码登录"
             )
 
         # 创建B站客户端
@@ -136,12 +160,12 @@ async def add_up(
 
         try:
             # 获取UP主详细信息
-            up_info = client.get_up_info(request.mid)
+            up_info = client.get_up_info(body.mid)
 
-            up_name = up_info.get("name", f"UP主_{request.mid}")
+            up_name = up_info.get("name", f"UP主_{body.mid}")
             up_face = up_info.get("face", "")
 
-            logger.info(f"UP主验证通过: mid={request.mid}, name={up_name}")
+            logger.info(f"UP主验证通过: mid={body.mid}, name={up_name}")
 
         except Exception as e:
             logger.error(f"调用B站API失败: {e}")
@@ -150,18 +174,19 @@ async def add_up(
                 detail=f"验证UP主失败: {str(e)}"
             )
 
-        # 3. 添加到数据库
+        # 3. 添加到数据库（关联到当前用户）
         up_id = db.add_up(
-            mid=request.mid,
+            mid=body.mid,
             name=up_name,
-            face=up_face
+            face=up_face,
+            user_id=user_id,
         )
 
-        logger.info(f"UP主添加成功: id={up_id}, mid={request.mid}")
+        logger.info(f"UP主添加成功: id={up_id}, mid={body.mid}, user_id={user_id}")
 
         return SuccessResponse(
             message="UP主添加成功",
-            data={"id": up_id, "mid": request.mid, "name": up_name}
+            data={"id": up_id, "mid": body.mid, "name": up_name}
         )
 
     except HTTPException:
@@ -176,39 +201,45 @@ async def add_up(
     response_model=SuccessResponse,
     responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
     summary="同步关注列表",
-    description="从B站账号同步关注列表到数据库（最多50个）"
+    description="从当前用户的B站账号同步关注列表到数据库"
 )
 async def sync_ups(
+    request: Request,
     db: Database = Depends(get_db),
 ):
     """
     同步B站关注列表
 
     流程：
-    1. 从数据库获取Cookie
+    1. 从数据库获取当前用户的Cookie
     2. 调用B站API获取关注列表
-    3. 写入数据库（跳过已存在）
+    3. 写入数据库（关联到当前用户）
     4. 返回同步结果
 
     Returns:
         同步结果统计
     """
-    logger.info("API调用: POST /api/ups/sync")
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="请先登录")
+
+    logger.info(f"API调用: POST /api/ups/sync, user_id={user_id}")
 
     try:
-        # 1. 从数据库获取Cookie
-        auth = db.get_auth()
+        # 1. 从数据库获取当前用户的Cookie
+        auth = db.get_auth(user_id=user_id)
 
         if not auth or not auth.get("cookies"):
-            logger.warning("未登录B站账号")
+            logger.warning(f"用户未绑定B站账号: user_id={user_id}")
             raise HTTPException(
                 status_code=400,
-                detail="未登录B站账号，请先登录"
+                detail="未绑定B站账号，请先扫码登录"
             )
 
         cookies = auth["cookies"]
         username = cookies.get("uname", "未知用户")
-        logger.info(f"开始同步关注列表，当前用户: {username}")
+        logger.info(f"开始同步关注列表: user_id={user_id}, B站用户={username}")
 
         # 2. 从数据库读取配置
         max_ups_str = db.get_config_value("max_ups", default="50")
@@ -219,12 +250,13 @@ async def sync_ups(
 
         logger.info(f"同步数量配置: max_ups={max_ups}")
 
-        # 3. 调用同步服务
+        # 3. 调用同步服务（关联到当前用户）
         sync_result = sync_followed_ups(
             db=db,
             cookies=cookies,
             max_count=max_ups,
             fetch_videos=True,
+            user_id=user_id,
         )
 
         logger.info(f"同步结果: {sync_result['message']}")
@@ -251,33 +283,43 @@ async def sync_ups(
 @router.delete(
     "/{up_id}",
     response_model=SuccessResponse,
-    responses={404: {"model": ErrorResponse}},
+    responses={403: {"model": ErrorResponse}, 404: {"model": ErrorResponse}},
     summary="删除UP主",
-    description="从数据库删除UP主及其关联的视频记录"
+    description="删除UP主及其关联的视频记录（需验证归属）"
 )
 async def remove_up(
     up_id: int,
+    request: Request,
     db: Database = Depends(get_db),
 ):
     """
-    删除UP主（真删除）
+    删除UP主
 
     Args:
         up_id: UP主记录ID
+        request: 请求对象
 
     Returns:
         成功消息
     """
-    logger.info(f"API调用: DELETE /api/ups/{up_id}")
+    # 获取当前用户信息
+    user_id = request.session.get("user_id")
+    is_admin = request.session.get("is_admin", False)
+
+    logger.info(f"API调用: DELETE /api/ups/{up_id}, user_id={user_id}")
 
     try:
-        success = db.remove_up(up_id)
+        # 管理员可以删除任意UP主，普通用户只能删除自己的
+        success = db.remove_up(
+            up_id=up_id,
+            user_id=None if is_admin else user_id
+        )
 
         if not success:
-            logger.warning(f"UP主不存在: up_id={up_id}")
+            logger.warning(f"UP主不存在或无权删除: up_id={up_id}")
             raise HTTPException(
                 status_code=404,
-                detail=f"UP主不存在: id={up_id}"
+                detail=f"UP主不存在或无权删除"
             )
 
         logger.info(f"UP主已删除: up_id={up_id}")
