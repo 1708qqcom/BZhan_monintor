@@ -35,6 +35,7 @@ class BilibiliClient:
     FOLLOWINGS_API = "https://api.bilibili.com/x/relation/followings"
     SPACE_SEARCH_API = "https://api.bilibili.com/x/space/wbi/arc/search"
     VIDEO_INFO_API = "https://api.bilibili.com/x/web-interface/view"
+    TOVIEW_API = "https://api.bilibili.com/x/v2/history/toview"  # 稍后再看列表接口
 
     # 请求头
     HEADERS = {
@@ -623,3 +624,101 @@ class BilibiliClient:
     def set_cookies(self, cookies: dict) -> None:
         """设置Cookie"""
         self.cookies = cookies
+
+    def get_toview_list(self, page: int = 1, page_size: int = 30) -> list[dict]:
+        """
+        获取稍后再看列表
+
+        Args:
+            page: 页码（从1开始）
+            page_size: 每页数量（最大30）
+
+        Returns:
+            视频列表 [{
+                "bvid": "BV1...",
+                "title": "标题",
+                "author": "UP主",
+                "mid": UP主ID,
+                "pic": "封面URL",
+                "play": 播放量,
+                "duration": "12:34",
+                "pubdate": 时间戳,
+                "added_at": 添加到稍后再看的时间戳
+            }]
+
+        Raises:
+            BilibiliAPIError: API调用失败
+            CookieExpiredError: Cookie过期
+        """
+        logger.info(f"获取稍后再看列表 (page={page}, page_size={page_size})")
+
+        params = {
+            "pn": page,
+            "ps": page_size
+        }
+
+        try:
+            # 不需要 WBI 签名
+            data = self._make_request(self.TOVIEW_API, params, use_wbi=False)
+
+            # 解析返回数据
+            videos = data.get("list", [])
+            result = []
+
+            for item in videos:
+                # B站API返回的数据中，UP主信息在 owner 字段
+                owner = item.get("owner", {})
+                stat = item.get("stat", {})
+
+                # 提取图片URL并转换为HTTPS协议（避免Mixed Content问题）
+                pic_url = item.get("pic", "")
+                if pic_url and pic_url.startswith("http://"):
+                    pic_url = pic_url.replace("http://", "https://", 1)
+                    logger.debug(f"图片URL协议转换: {item.get('pic')} -> {pic_url}")
+
+                video_info = {
+                    "bvid": item.get("bvid"),
+                    "title": item.get("title"),
+                    "author": owner.get("name", ""),  # 从 owner.name 获取
+                    "mid": owner.get("mid"),  # 从 owner.mid 获取
+                    "pic": pic_url,  # 使用转换后的HTTPS URL
+                    "play": stat.get("view", 0),  # 从 stat.view 获取
+                    "duration": self._format_duration(item.get("duration", 0)),
+                    "pubdate": item.get("pubdate", 0),
+                    "added_at": item.get("add_at", 0)  # 添加到稍后再看的时间
+                }
+                result.append(video_info)
+
+            logger.info(f"获取稍后再看列表成功，共 {len(result)} 个视频")
+            return result
+
+        except CookieExpiredError:
+            logger.warning("Cookie已过期，无法获取稍后再看列表")
+            raise
+
+        except Exception as e:
+            logger.error(f"获取稍后再看列表失败: {e}")
+            raise BilibiliAPIError(f"获取稍后再看列表失败: {e}")
+
+    def _format_duration(self, seconds: int) -> str:
+        """
+        格式化视频时长
+
+        Args:
+            seconds: 秒数
+
+        Returns:
+            格式化的时长字符串（如 "12:34"）
+        """
+        if not seconds:
+            return ""
+
+        minutes = seconds // 60
+        secs = seconds % 60
+
+        if minutes >= 60:
+            hours = minutes // 60
+            minutes = minutes % 60
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+
+        return f"{minutes}:{secs:02d}"

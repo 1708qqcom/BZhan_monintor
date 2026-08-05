@@ -4,17 +4,41 @@
 
 {% block content %}
 <div class="space-y-6">
+    <!-- B站绑定状态提示卡片 -->
+    <div id="bilibili-binding-alert" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg animate-fade-in-up">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-medium text-yellow-800">需要绑定B站账号</h3>
+                <p class="mt-1 text-sm text-yellow-700">添加UP主需要使用B站账号验证，请先绑定您的B站账号。</p>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+                <a href="/bilibili-login" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-150">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                    </svg>
+                    扫码绑定
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- 页面标题 -->
-    <div class="flex justify-between items-center">
+    <div class="animate-fade-in-up flex justify-between items-start md:items-center flex-col md:flex-row gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">UP主管理</h1>
+            <h1 class="text-2xl font-bold text-gray-900 font-mono">UP主管理</h1>
             <p class="mt-1 text-sm text-gray-500">管理监控的UP主列表</p>
-            <p id="monitor-status-text" class="mt-1 text-sm text-blue-600 font-medium">加载中...</p>
+            <p id="monitor-status-text" class="mt-1 text-sm text-primary font-medium font-mono">加载中...</p>
         </div>
         <div class="flex items-center space-x-3">
             <button
                 id="btn-refresh"
-                class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center"
+                class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-150 text-sm font-medium flex items-center btn-interactive"
+                aria-label="立即刷新"
             >
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -23,7 +47,8 @@
             </button>
             <button
                 id="btn-add-up"
-                class="bg-bilibili-pink text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+                class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-all duration-150 text-sm font-medium shadow-sm hover:shadow-md btn-interactive"
+                aria-label="添加UP主"
             >
                 添加UP主
             </button>
@@ -31,50 +56,60 @@
     </div>
 
     <!-- 搜索筛选 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 p-4 card-interactive animate-fade-in-up" style="animation-delay: 60ms;">
         <div class="flex items-center space-x-4">
-            <div class="flex-1">
+            <div class="flex-1 relative">
+                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
                 <input
                     type="text"
                     id="search-input"
-                    placeholder="搜索UP主名称..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                    placeholder="搜索UP主名称或ID..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
+                    aria-label="搜索UP主"
                 >
             </div>
-            <div class="flex items-center">
-                <span class="text-sm text-gray-500 mr-2">共</span>
-                <span id="total-count" class="text-sm font-bold text-gray-900">0</span>
-                <span class="text-sm text-gray-500 ml-2">位UP主</span>
+            <div class="flex items-center bg-primary-50 px-4 py-2 rounded-lg">
+                <span class="text-sm text-gray-600">共</span>
+                <span id="total-count" class="text-sm font-bold text-primary font-mono mx-1">0</span>
+                <span class="text-sm text-gray-600">位UP主</span>
             </div>
         </div>
     </div>
 
     <!-- UP主列表 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 overflow-hidden animate-fade-in-up" style="animation-delay: 120ms;">
         <!-- 桌面端表格 -->
-        <div class="hidden md:block overflow-x-auto">
+        <div class="hidden md:block overflow-x-auto ups-list-container" style="max-height: 70vh; overflow-y: auto;">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-primary-50 sticky top-0 z-10">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             UP主
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             监控状态
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             添加时间
                         </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             操作
                         </th>
                     </tr>
                 </thead>
                 <tbody id="ups-table-body" class="bg-white divide-y divide-gray-200">
-                    <!-- 加载中 -->
+                    <!-- 加载中 - 骨架屏 -->
                     <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                            加载中...
+                        <td colspan="4" class="px-6 py-12">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-full skeleton"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-4 w-1/3 rounded skeleton"></div>
+                                    <div class="h-3 w-1/4 rounded skeleton"></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -82,23 +117,64 @@
         </div>
 
         <!-- 移动端卡片列表 -->
-        <div id="ups-mobile-list" class="md:hidden divide-y divide-gray-200">
+        <div id="ups-mobile-list" class="md:hidden divide-y divide-gray-200 ups-list-container" style="max-height: 70vh; overflow-y: auto;">
             <!-- 加载中 -->
-            <div class="text-center py-12 text-gray-500">
-                加载中...
+            <div class="p-4 space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full skeleton"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 w-1/2 rounded skeleton"></div>
+                        <div class="h-3 w-1/3 rounded skeleton"></div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- 分页控件 -->
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+            <button
+                id="btn-prev"
+                disabled
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+            >
+                上一页
+            </button>
+
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600 font-mono">
+                    第 <span id="current-page" class="font-bold text-primary">1</span> 页 / 共 <span id="total-pages" class="font-bold">1</span> 页
+                </span>
+                <span id="load-status" class="text-sm text-gray-500">
+                    加载中...
+                </span>
+            </div>
+
+            <button
+                id="btn-next"
+                disabled
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+            >
+                下一页
+            </button>
         </div>
     </div>
 </div>
 
 <!-- 添加UP主模态框 -->
-<div id="add-up-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">添加UP主</h3>
+<div id="add-up-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-content">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900 font-mono">添加UP主</h3>
+            <button id="btn-close-modal" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="关闭">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
 
         <form id="add-up-form">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="up-mid-input" class="block text-sm font-medium text-gray-700 mb-2">
                     UP主 ID (mid)
                 </label>
                 <input
@@ -106,9 +182,10 @@
                     id="up-mid-input"
                     required
                     placeholder="输入B站UP主ID"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
+                    aria-describedby="up-mid-hint"
                 >
-                <p class="text-xs text-gray-500 mt-1">
+                <p id="up-mid-hint" class="text-xs text-gray-500 mt-1">
                     例如: 12345678 (可在B站UP主主页URL中找到)
                 </p>
             </div>
@@ -117,13 +194,13 @@
                 <button
                     type="button"
                     id="btn-cancel-add"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-150"
                 >
                     取消
                 </button>
                 <button
                     type="submit"
-                    class="px-4 py-2 bg-bilibili-pink text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors"
+                    class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all duration-150 shadow-sm hover:shadow-md"
                 >
                     添加
                 </button>
@@ -135,22 +212,76 @@
 
 {% block scripts %}
 <script>
-    // 全局状态
-    let allUps = [];
+    // ==================== 分页状态 ====================
+    let currentPage = 1;
+    let pageSize = 20;
+    let totalPages = 1;
+    let total = 0;
+    let isLoading = false;
+
+    // ==================== 搜索状态 ====================
+    let searchKeyword = '';
+    let searchDebounceTimer = null;
+    const SEARCH_DEBOUNCE_DELAY = 500; // 500ms 防抖
+
+    // ==================== 监控状态 ====================
     let monitorStatusInterval = null;
 
-    // 页面加载时获取数据
+    // ==================== B站绑定状态 ====================
+    let isBilibiliBound = true;  // 默认已绑定，避免检测失败时影响用户体验
+
+    // 页面加载时初始化
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('[Ups] 开始加载UP主列表');
-        await loadUps();
+
+        // 检测B站绑定状态
+        await checkBilibiliBindingStatus();
+
+        // 初始加载第一页
+        await loadUps(1, false);
+
+        // 加载监控状态
         await loadMonitorStatus();
 
         // 绑定事件
         bindEvents();
 
+        // 设置滚动监听
+        setupScrollListener();
+
         // 每30秒刷新监控状态
         monitorStatusInterval = setInterval(loadMonitorStatus, 30000);
     });
+
+    /**
+     * 检测B站绑定状态
+     */
+    async function checkBilibiliBindingStatus() {
+        try {
+            console.log('[Ups] 检测B站绑定状态...');
+
+            const response = await fetchAPI('/api/login/binding-status');
+            const data = response.data || {};
+
+            isBilibiliBound = data.is_bound !== false;  // 默认已绑定
+
+            console.log('[Ups] B站绑定状态:', isBilibiliBound);
+
+            // 显示/隐藏提示卡片
+            const alertEl = document.getElementById('bilibili-binding-alert');
+            if (!isBilibiliBound && alertEl) {
+                alertEl.classList.remove('hidden');
+                console.log('[Ups] 显示B站绑定提示');
+            } else if (alertEl) {
+                alertEl.classList.add('hidden');
+            }
+
+        } catch (error) {
+            console.error('[Ups] 检测B站绑定状态失败:', error);
+            // 降级策略：检测失败时不影响正常使用
+            isBilibiliBound = true;
+        }
+    }
 
     /**
      * 加载监控状态
@@ -225,7 +356,7 @@
             // 5秒后重新加载状态
             setTimeout(async () => {
                 await loadMonitorStatus();
-                await loadUps();
+                await loadUps(1, false);
             }, 5000);
 
         } catch (error) {
@@ -247,119 +378,213 @@
     }
 
     /**
-     * 加载UP主列表
+     * 加载UP主列表（分页）
+     *
+     * @param {number} page - 页码（从1开始）
+     * @param {boolean} append - 是否追加到现有列表（true=滚动加载更多，false=重新加载）
      */
-    async function loadUps() {
+    async function loadUps(page = 1, append = false) {
+        // 防止重复加载
+        if (isLoading) {
+            console.log('[Ups] 正在加载中，跳过');
+            return;
+        }
+
+        isLoading = true;
+        updateLoadStatus('loading');
+
         try {
-            const response = await fetchAPI('/api/ups');
-            allUps = response.items || [];
+            // 构造查询参数
+            const params = new URLSearchParams({
+                page: page,
+                page_size: pageSize
+            });
 
-            console.log('[Ups] 加载完成:', allUps.length, '个UP主');
+            if (searchKeyword) {
+                params.append('keyword', searchKeyword);
+            }
 
-            renderUpsList(allUps);
-            updateTotalCount(allUps.length);
+            console.log(`[Ups] 加载第 ${page} 页, append=${append}, keyword=${searchKeyword}`);
+
+            const response = await fetchAPI(`/api/ups?${params.toString()}`);
+
+            const ups = response.items || [];
+            total = response.total || 0;
+            totalPages = Math.ceil(total / pageSize);
+            currentPage = page;
+
+            console.log(`[Ups] 加载完成: ${ups.length} 条，总计 ${total} 条，共 ${totalPages} 页`);
+
+            // 渲染列表
+            renderUpsList(ups, append);
+
+            // 更新总数显示
+            updateTotalCount(total);
+
+            // 更新分页控件
+            updatePagination();
+
+            // 更新加载状态
+            if (currentPage >= totalPages) {
+                updateLoadStatus('done');
+            } else {
+                updateLoadStatus('more');
+            }
 
         } catch (error) {
             console.error('[Ups] 加载失败:', error);
+            updateLoadStatus('error');
             showError('加载UP主列表失败: ' + error.message);
+        } finally {
+            isLoading = false;
         }
     }
 
     /**
      * 渲染UP主列表
+     *
+     * @param {Array} ups - UP主数据数组
+     * @param {boolean} append - 是否追加到现有列表
      */
-    function renderUpsList(ups) {
+    function renderUpsList(ups, append = false) {
         // 桌面端表格
         const tableBody = document.getElementById('ups-table-body');
 
-        if (ups.length === 0) {
+        if (!append && ups.length === 0) {
+            // 非追加模式且数据为空，显示空状态
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                        暂无UP主，点击右上角"添加UP主"按钮添加
+                    <td colspan="4" class="px-6 py-16">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            <p class="text-sm font-medium text-gray-600">暂无监控UP主</p>
+                            <p class="text-xs text-gray-400 mt-1">点击右上角"添加UP主"开始监控</p>
+                            <button onclick="document.getElementById('btn-add-up').click()" class="mt-4 inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all duration-150">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                添加第一个UP主
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
+        } else if (append) {
+            // 追加模式：在现有内容后添加新行
+            const startIndex = tableBody.children.length;
+            const newRowsHtml = ups.map((up, index) => createUpsTableRow(up, startIndex + index)).join('');
+            tableBody.insertAdjacentHTML('beforeend', newRowsHtml);
         } else {
-            tableBody.innerHTML = ups.map(up => `
-                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="toggleVideos(${up.id})">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                <img class="h-10 w-10 rounded-full" src="${up.face || 'https://via.placeholder.com/40'}" alt="${escapeHtml(up.name)}" referrerpolicy="no-referrer">
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">${escapeHtml(up.name)}</div>
-                                <div class="text-sm text-gray-500">mid: ${up.mid}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${up.is_monitoring ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
-                            ${up.is_monitoring ? '监控中' : '已停止'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${formatDateTime(up.created_at)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                            onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
-                            class="text-red-600 hover:text-red-900 transition-colors"
-                        >
-                            移除
-                        </button>
-                    </td>
-                </tr>
-                <tr id="videos-${up.id}" class="hidden bg-gray-50">
-                    <td colspan="4" class="px-6 py-4">
-                        <div class="text-sm text-gray-600 mb-2 font-medium">最新视频</div>
-                        ${renderLatestVideos(up.latest_videos)}
-                    </td>
-                </tr>
-            `).join('');
+            // 替换模式：清空后重新渲染
+            tableBody.innerHTML = ups.map((up, index) => createUpsTableRow(up, index)).join('');
         }
 
         // 移动端卡片
         const mobileList = document.getElementById('ups-mobile-list');
 
-        if (ups.length === 0) {
+        if (!append && ups.length === 0) {
             mobileList.innerHTML = `
-                <div class="text-center py-12 text-gray-500">
-                    暂无UP主，点击右上角"添加UP主"按钮添加
+                <div class="p-8 text-center">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    <p class="text-sm font-medium text-gray-600">暂无UP主</p>
                 </div>
             `;
+        } else if (append) {
+            const startIndex = mobileList.children.length;
+            const newCardsHtml = ups.map((up, index) => createUpsMobileCard(up, startIndex + index)).join('');
+            mobileList.insertAdjacentHTML('beforeend', newCardsHtml);
         } else {
-            mobileList.innerHTML = ups.map(up => `
-                <div class="p-4 hover:bg-gray-50 transition-colors cursor-pointer" onclick="toggleVideos(${up.id})">
-                    <div class="flex items-start space-x-3">
-                        <img class="h-10 w-10 rounded-full flex-shrink-0" src="${up.face || 'https://via.placeholder.com/40'}" alt="${escapeHtml(up.name)}" referrerpolicy="no-referrer">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900">${escapeHtml(up.name)}</p>
-                            <p class="text-xs text-gray-500">mid: ${up.mid}</p>
-                            <p class="text-xs text-gray-500 mt-1">${formatDateTime(up.created_at)}</p>
+            mobileList.innerHTML = ups.map((up, index) => createUpsMobileCard(up, index)).join('');
+        }
+    }
+
+    /**
+     * 创建桌面端表格行 HTML
+     */
+    function createUpsTableRow(up, index) {
+        return `
+            <tr class="table-row group hover:bg-primary-50 transition-all duration-200 cursor-pointer" onclick="toggleVideos(${up.id})" style="opacity: 0; animation: fadeInUp 400ms ease forwards; animation-delay: ${index * 60}ms;">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            <img class="h-10 w-10 rounded-full transform group-hover:scale-110 transition-transform duration-200" src="${up.face || 'https://via.placeholder.com/40'}" alt="${escapeHtml(up.name)}" referrerpolicy="no-referrer">
                         </div>
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${up.is_monitoring ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900 group-hover:text-primary transition-colors">${escapeHtml(up.name)}</div>
+                            <div class="text-sm text-gray-500 font-mono">mid: ${up.mid}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="status-indicator ${up.is_monitoring ? 'active' : 'inactive'} inline-flex items-center">
+                        <span class="status-dot"></span>
+                        <span class="status-text text-xs font-medium">
+                            ${up.is_monitoring ? '监控中' : '已停止'}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                    ${formatDateTime(up.created_at)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                        onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
+                        class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded transition-all duration-150"
+                        aria-label="移除UP主 ${up.name}"
+                    >
+                        移除
+                    </button>
+                </td>
+            </tr>
+            <tr id="videos-${up.id}" class="hidden bg-primary-50">
+                <td colspan="4" class="px-6 py-4">
+                    <div class="text-sm text-gray-600 mb-3 font-medium font-mono">最新视频</div>
+                    ${renderLatestVideos(up.latest_videos)}
+                </td>
+            </tr>
+        `;
+    }
+
+    /**
+     * 创建移动端卡片 HTML
+     */
+    function createUpsMobileCard(up, index) {
+        return `
+            <div class="p-4 hover:bg-primary-50 transition-all duration-200 cursor-pointer" onclick="toggleVideos(${up.id})" style="opacity: 0; animation: fadeInUp 400ms ease forwards; animation-delay: ${index * 60}ms;">
+                <div class="flex items-start space-x-3">
+                    <img class="h-10 w-10 rounded-full flex-shrink-0" src="${up.face || 'https://via.placeholder.com/40'}" alt="${escapeHtml(up.name)}" referrerpolicy="no-referrer">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900">${escapeHtml(up.name)}</p>
+                        <p class="text-xs text-gray-500 font-mono">mid: ${up.mid}</p>
+                        <p class="text-xs text-gray-500 mt-1">${formatDateTime(up.created_at)}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="status-indicator ${up.is_monitoring ? 'active' : 'inactive'} inline-flex items-center">
+                            <span class="status-dot"></span>
+                            <span class="status-text text-xs font-medium">
                                 ${up.is_monitoring ? '监控中' : '已停止'}
                             </span>
                         </div>
                     </div>
-                    <div id="videos-mobile-${up.id}" class="hidden mt-3 pl-13">
-                        <div class="text-xs text-gray-600 mb-1 font-medium">最新视频</div>
-                        ${renderLatestVideos(up.latest_videos)}
-                    </div>
-                    <div class="mt-3 flex justify-end">
-                        <button
-                            onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
-                            class="text-xs text-red-600 hover:text-red-900 transition-colors"
-                        >
-                            移除
-                        </button>
-                    </div>
                 </div>
-            `).join('');
-        }
+                <div id="videos-mobile-${up.id}" class="hidden mt-3 pl-13">
+                    <div class="text-xs text-gray-600 mb-2 font-medium font-mono">最新视频</div>
+                    ${renderLatestVideos(up.latest_videos)}
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button
+                        onclick="event.stopPropagation(); removeUp(${up.id}, '${escapeHtml(up.name)}')"
+                        class="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded transition-all duration-150"
+                    >
+                        移除
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     /**
@@ -412,6 +637,82 @@
     }
 
     /**
+     * 设置滚动监听器（已禁用，使用分页按钮）
+     */
+    function setupScrollListener() {
+        // 分页模式下不启用滚动懒加载
+        console.log('[Ups] 使用分页按钮导航，不启用滚动懒加载');
+    }
+
+    /**
+     * 处理滚动事件
+     */
+    function handleScroll(event) {
+        const container = event.target;
+
+        // 判断是否滚动到底部（距底部 < 100px）
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+
+        const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+        if (distanceToBottom < 100 && !isLoading && currentPage < totalPages) {
+            console.log('[Ups] 滚动到底部，加载下一页');
+            loadUps(currentPage + 1, true);
+        }
+    }
+
+    /**
+     * 更新加载状态提示
+     *
+     * @param {string} status - 状态: 'loading' | 'more' | 'done' | 'error'
+     */
+    function updateLoadStatus(status) {
+        const statusEl = document.getElementById('load-status');
+
+        switch (status) {
+            case 'loading':
+                statusEl.innerHTML = `
+                    <span class="flex items-center space-x-1">
+                        <svg class="animate-spin h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.199.724 4.215 1.932 5.811l2.068-1.52z"></path>
+                        </svg>
+                        <span class="text-primary">加载中...</span>
+                    </span>
+                `;
+                break;
+
+            case 'more':
+                statusEl.innerHTML = `<span class="text-gray-500">下拉加载更多</span>`;
+                break;
+
+            case 'done':
+                statusEl.innerHTML = `<span class="text-green-600">✓ 已全部加载</span>`;
+                break;
+
+            case 'error':
+                statusEl.innerHTML = `<span class="text-red-600">✗ 加载失败</span>`;
+                break;
+        }
+    }
+
+    /**
+     * 更新分页控件
+     */
+    function updatePagination() {
+        document.getElementById('current-page').textContent = currentPage;
+        document.getElementById('total-pages').textContent = totalPages;
+
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    /**
      * 绑定事件
      */
     function bindEvents() {
@@ -459,31 +760,76 @@
                 document.getElementById('add-up-modal').classList.add('hidden');
                 midInput.value = '';
 
-                // 重新加载列表
-                await loadUps();
+                // 重新加载列表（从第一页开始）
+                await loadUps(1, false);
 
             } catch (error) {
                 console.error('[Ups] 添加失败:', error);
-                showError('添加失败: ' + error.message);
+
+                // 判断是否为"未绑定B站账号"错误
+                if (error.message && error.message.includes('未绑定B站账号')) {
+                    showError(
+                        '请先绑定B站账号，点击<a href="/bilibili-login" class="underline font-medium">这里</a>扫码登录',
+                        8000  // 显示8秒
+                    );
+
+                    // 更新绑定状态并显示提示卡片
+                    isBilibiliBound = false;
+                    const alertEl = document.getElementById('bilibili-binding-alert');
+                    if (alertEl) {
+                        alertEl.classList.remove('hidden');
+                    }
+                } else {
+                    showError('添加失败: ' + error.message);
+                }
             }
         });
 
-        // 搜索输入
+        // 搜索输入（改为后端搜索 + 防抖）
         document.getElementById('search-input').addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase().trim();
-            console.log('[Ups] 搜索:', keyword);
+            const keyword = e.target.value.trim();
 
-            if (keyword) {
-                const filtered = allUps.filter(up =>
-                    up.name.toLowerCase().includes(keyword) ||
-                    String(up.mid).includes(keyword)
-                );
-                renderUpsList(filtered);
-                updateTotalCount(filtered.length);
-            } else {
-                renderUpsList(allUps);
-                updateTotalCount(allUps.length);
+            console.log('[Ups] 搜索输入:', keyword);
+
+            // 清除之前的定时器
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
             }
+
+            // 设置新的防抖定时器
+            searchDebounceTimer = setTimeout(() => {
+                searchKeyword = keyword;
+                // 重新从第一页开始加载
+                loadUps(1, false);
+            }, SEARCH_DEBOUNCE_DELAY);
+        });
+
+        // 分页按钮 - 上一页
+        document.getElementById('btn-prev').addEventListener('click', function() {
+            if (currentPage > 1) {
+                // 滚动到顶部
+                scrollToTop();
+                loadUps(currentPage - 1, false);
+            }
+        });
+
+        // 分页按钮 - 下一页
+        document.getElementById('btn-next').addEventListener('click', function() {
+            if (currentPage < totalPages) {
+                // 滚动到顶部
+                scrollToTop();
+                loadUps(currentPage + 1, false);
+            }
+        });
+    }
+
+    /**
+     * 滚动到列表顶部
+     */
+    function scrollToTop() {
+        const containers = document.querySelectorAll('.ups-list-container');
+        containers.forEach(container => {
+            container.scrollTop = 0;
         });
     }
 
@@ -506,8 +852,8 @@
 
             showSuccess('UP主已移除');
 
-            // 重新加载列表
-            await loadUps();
+            // 重新加载列表（从第一页开始）
+            await loadUps(1, false);
 
         } catch (error) {
             console.error('[Ups] 移除失败:', error);
@@ -540,4 +886,62 @@
         }
     }
 </script>
+
+<!-- 样式：状态指示器 -->
+<style>
+    .status-indicator {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        gap: 6px;
+    }
+    .status-indicator.active {
+        background: rgba(16, 185, 129, 0.1);
+    }
+    .status-indicator.inactive {
+        background: rgba(156, 163, 175, 0.1);
+    }
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        animation: blink 2s ease-in-out infinite;
+    }
+    .status-indicator.active .status-dot {
+        background: #10B981;
+    }
+    .status-indicator.inactive .status-dot {
+        background: #9CA3AF;
+        animation: none;
+    }
+    .status-indicator.active .status-text {
+        color: #059669;
+    }
+    .status-indicator.inactive .status-text {
+        color: #6B7280;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    /* 模态框动画 */
+    #add-up-modal.show {
+        opacity: 1;
+    }
+    #add-up-modal.show #modal-content {
+        transform: scale(1);
+    }
+
+    /* 按钮交互 */
+    .btn-interactive {
+        transition: all 150ms ease;
+    }
+    .btn-interactive:hover {
+        transform: translateY(-1px);
+    }
+    .btn-interactive:active {
+        transform: translateY(0);
+    }
+</style>
 {% endblock %}

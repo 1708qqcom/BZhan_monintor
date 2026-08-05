@@ -5,67 +5,72 @@
 {% block content %}
 <div class="space-y-6">
     <!-- 页面标题 -->
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900">仪表盘</h1>
+    <div class="animate-fade-in-up">
+        <h1 class="text-2xl font-bold text-gray-900 font-mono">仪表盘</h1>
         <p class="mt-1 text-sm text-gray-500">监控状态概览</p>
     </div>
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <!-- 监控线程状态 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 rounded-lg flex items-center justify-center" id="monitor-status-icon">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
+        <!-- 监控线程状态 - 主卡片 -->
+        <div class="stat-card stat-card--primary md:col-span-1 animate-fade-in-up" style="animation-delay: 0ms;">
+            <div class="bg-gradient-to-br from-primary to-primary-light rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+                <!-- 背景装饰 -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
+
+                <div class="flex items-center relative z-10">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-white bg-opacity-20 backdrop-blur-sm status-pulse relative" id="monitor-status-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">监控线程</p>
-                    <p class="text-lg font-bold" id="monitor-status-text">检测中...</p>
-                    <p class="text-xs text-gray-400 mt-1" id="monitor-next-check">-</p>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-white text-opacity-90">监控线程</p>
+                        <p class="text-lg font-bold font-mono" id="monitor-status-text">检测中...</p>
+                        <p class="text-xs text-white text-opacity-75 mt-1 font-mono" id="monitor-next-check">-</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 监控UP主数 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-primary-200 p-6 card-interactive animate-fade-in-up" style="animation-delay: 60ms;">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-bilibili-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </div>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">监控UP主</p>
-                    <p class="text-2xl font-bold text-gray-900" id="stat-ups">-</p>
+                    <p class="text-2xl font-bold text-gray-900 font-mono" id="stat-ups">-</p>
                 </div>
             </div>
         </div>
 
         <!-- 今日推送数 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-primary-200 p-6 card-interactive animate-fade-in-up" style="animation-delay: 120ms;">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-bilibili-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-accent bg-opacity-10 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
                     </div>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">今日推送</p>
-                    <p class="text-2xl font-bold text-gray-900" id="stat-pushes">-</p>
+                    <p class="text-2xl font-bold text-gray-900 font-mono" id="stat-pushes">-</p>
                 </div>
             </div>
         </div>
 
         <!-- 服务运行时间 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-primary-200 p-6 card-interactive animate-fade-in-up" style="animation-delay: 180ms;">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -76,26 +81,46 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">服务状态</p>
-                    <p class="text-2xl font-bold text-green-600" id="stat-status">运行中</p>
+                    <p class="text-2xl font-bold text-green-600 font-mono" id="stat-status">运行中</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 最近推送记录 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 overflow-hidden animate-fade-in-up" style="animation-delay: 240ms;">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">最近推送</h2>
+            <h2 class="text-lg font-medium text-gray-900 font-mono">最近推送</h2>
         </div>
         <div class="p-6">
             <div id="recent-videos" class="space-y-4">
-                <!-- 加载中 -->
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="animate-spin w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.042.784 3.87 2.058 5.244L6 17.291z"></path>
-                    </svg>
-                    <p>加载中...</p>
+                <!-- 骨架屏加载 -->
+                <div class="skeleton-card">
+                    <div class="flex items-start space-x-4 p-4">
+                        <div class="w-10 h-10 rounded-lg skeleton"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-4 w-3/4 rounded skeleton"></div>
+                            <div class="h-3 w-1/2 rounded skeleton"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="flex items-start space-x-4 p-4">
+                        <div class="w-10 h-10 rounded-lg skeleton"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-4 w-2/3 rounded skeleton"></div>
+                            <div class="h-3 w-2/5 rounded skeleton"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="flex items-start space-x-4 p-4">
+                        <div class="w-10 h-10 rounded-lg skeleton"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-4 w-4/5 rounded skeleton"></div>
+                            <div class="h-3 w-1/3 rounded skeleton"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,12 +179,14 @@
             const textEl = document.getElementById('monitor-status-text');
             const nextCheckEl = document.getElementById('monitor-next-check');
 
+            // 更新父卡片样式
+            const cardEl = iconEl.closest('.stat-card--primary > div');
+
             if (status.is_running) {
-                // 运行中 - 绿色
-                iconEl.className = 'w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center';
-                iconEl.querySelector('svg').className = 'w-6 h-6 text-green-600';
+                // 运行中 - 保持绿色
+                cardEl.className = 'bg-gradient-to-br from-primary to-primary-light rounded-xl shadow-lg p-6 text-white relative overflow-hidden';
+                iconEl.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>';
                 textEl.textContent = '运行中';
-                textEl.className = 'text-lg font-bold text-green-600';
 
                 // 显示下次检查时间
                 if (status.next_check_time) {
@@ -177,25 +204,22 @@
                     nextCheckEl.textContent = '首次检查中...';
                 }
             } else {
-                // 未运行 - 红色/黄色
+                // 未运行 - 改为黄色/红色
                 if (status.error_message) {
-                    iconEl.className = 'w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center';
-                    iconEl.querySelector('svg').className = 'w-6 h-6 text-red-600';
+                    cardEl.className = 'bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden';
+                    iconEl.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>';
                     textEl.textContent = '异常';
-                    textEl.className = 'text-lg font-bold text-red-600';
                     nextCheckEl.textContent = status.error_message;
                 } else {
-                    iconEl.className = 'w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center';
-                    iconEl.querySelector('svg').className = 'w-6 h-6 text-yellow-600';
+                    cardEl.className = 'bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden';
+                    iconEl.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
                     textEl.textContent = '未启动';
-                    textEl.className = 'text-lg font-bold text-yellow-600';
                     nextCheckEl.textContent = '请检查B站登录状态';
                 }
             }
         } catch (error) {
             console.error('[Dashboard] 加载监控状态失败:', error);
             document.getElementById('monitor-status-text').textContent = '获取失败';
-            document.getElementById('monitor-status-icon').className = 'w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center';
         }
     }
 
@@ -207,29 +231,33 @@
 
         if (videos.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <p>暂无推送记录</p>
+                <div class="text-center py-12 text-gray-500">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-sm font-medium">暂无推送记录</p>
+                    <p class="text-xs text-gray-400 mt-1">新视频推送后会显示在这里</p>
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = videos.map(video => `
-            <div class="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+        container.innerHTML = videos.map((video, index) => `
+            <div class="video-list-item flex items-start space-x-4 p-4 rounded-lg hover:bg-primary-50 transition-all duration-200 cursor-pointer group" style="opacity: 0; animation: fadeInUp 400ms ease forwards; animation-delay: ${index * 60}ms;">
                 <div class="flex-shrink-0">
-                    <div class="w-10 h-10 bg-bilibili-pink rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
                         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1z"/>
+                            <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1zM4 8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H4zm.5 3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">
-                        <a href="${video.url || '#'}" target="_blank" class="hover:text-bilibili-pink">
+                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-primary transition-colors">
+                        <a href="${video.url || '#'}" target="_blank" class="hover:underline">
                             ${escapeHtml(video.title)}
                         </a>
                     </p>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 mt-1 font-mono">
                         ${escapeHtml(video.up_name || '未知UP主')} · ${formatDateTime(video.pushed_at)}
                     </p>
                 </div>

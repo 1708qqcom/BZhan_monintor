@@ -5,31 +5,48 @@
 {% block head %}
 <style>
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0D9488 0%, #14B8A6 50%, #0F766E 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    body::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
+<div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-md w-full animate-fade-in-up">
         <!-- 登录卡片 -->
-        <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-sm">
             <!-- Logo -->
             <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-bilibili-pink rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform duration-200 shadow-lg">
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1zM4 8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H4zm.5 3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
                     </svg>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900">B站监控系统</h2>
+                <h2 class="text-2xl font-bold text-gray-900 font-mono">B站监控系统</h2>
                 <p class="text-sm text-gray-500 mt-2">请输入账号密码登录</p>
             </div>
 
             <!-- 错误提示 -->
             {% if error %}
-            <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {{ error }}
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm animate-fade-in-up">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ error }}
+                </div>
             </div>
             {% endif %}
 
@@ -45,7 +62,7 @@
                         name="username"
                         required
                         autocomplete="username"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink transition-colors"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150 text-sm"
                         placeholder="请输入用户名"
                     >
                 </div>
@@ -60,7 +77,7 @@
                         name="password"
                         required
                         autocomplete="current-password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink transition-colors"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150 text-sm"
                         placeholder="请输入密码"
                     >
                 </div>
@@ -68,7 +85,7 @@
                 <div>
                     <button
                         type="submit"
-                        class="w-full bg-bilibili-pink text-white py-3 px-4 rounded-lg hover:bg-pink-600 focus:ring-2 focus:ring-offset-2 focus:ring-bilibili-pink transition-colors font-medium"
+                        class="w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary-dark focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-150 font-medium shadow-md hover:shadow-lg btn-interactive"
                     >
                         登录
                     </button>
@@ -77,7 +94,7 @@
 
             <!-- 注册入口 -->
             <div class="mt-6 text-center text-sm text-gray-500">
-                <p>没有账号？<a href="/auth/register" class="text-bilibili-pink hover:underline font-medium">立即注册</a></p>
+                <p>没有账号？<a href="/auth/register" class="text-primary hover:underline font-medium transition-colors">立即注册</a></p>
             </div>
         </div>
     </div>

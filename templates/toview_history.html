@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}推送历史 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">📋 稍后再看推送历史</h1>
+            <p class="text-sm text-gray-500 mt-1">查看稍后再看推送的历史记录</p>
+        </div>
+        <button onclick="loadHistory()" class="btn-primary bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>刷新</span>
+        </button>
+    </div>
+
+    <!-- 加载状态 -->
+    <div id="loading-state" class="hidden">
+        <div class="bg-white rounded-lg border border-primary-200 p-4">
+            <div class="animate-pulse space-y-4">
+                {% for i in range(5) %}
+                <div class="flex items-center space-x-4">
+                    <div class="h-12 w-24 bg-gray-200 rounded"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                    <div class="h-6 w-16 bg-gray-200 rounded"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <div class="w-24 h-24 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">暂无推送历史</h3>
+        <p class="text-sm text-gray-500">还没有任何稍后再看推送记录</p>
+    </div>
+
+    <!-- 历史列表 -->
+    <div id="history-list" class="bg-white rounded-lg border border-primary-200 overflow-hidden">
+        <!-- 通过JS动态渲染 -->
+    </div>
+</div>
+
+<!-- 详情模态框 -->
+<div id="detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900">推送详情</h3>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="detail-content">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 页面加载时获取数据
+document.addEventListener('DOMContentLoaded', function() {
+    loadHistory();
+});
+
+// 加载推送历史
+async function loadHistory() {
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const historyList = document.getElementById('history-list');
+
+    // 显示加载状态
+    loadingState.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    historyList.innerHTML = '';
+
+    try {
+        const response = await fetch('/api/toview/history?limit=50');
+        const data = await response.json();
+
+        // 隐藏加载状态
+        loadingState.classList.add('hidden');
+
+        if (!response.ok) {
+            throw new Error(data.detail || '获取失败');
+        }
+
+        if (!data.success || !data.data) {
+            throw new Error('数据格式错误');
+        }
+
+        const histories = data.data || [];
+
+        if (histories.length === 0) {
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        // 渲染历史列表
+        historyList.innerHTML = `
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">推送时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">视频数量</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${histories.map(history => createHistoryRow(history)).join('')}
+                </tbody>
+            </table>
+        `;
+
+    } catch (error) {
+        loadingState.classList.add('hidden');
+        showError(error.message);
+    }
+}
+
+// 创建历史记录行
+function createHistoryRow(history) {
+    const pushedAt = formatTimestamp(history.pushed_at);
+    const pushType = history.push_type === 'auto' ? '自动推送' : '手动推送';
+    const videoCount = history.video_count || 0;
+    const success = history.success;
+    const error = history.error_message;
+
+    return `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${pushedAt}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${history.push_type === 'auto' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+                    ${pushType}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${videoCount}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${success
+                    ? '<span class="flex items-center text-green-600"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>成功</span>'
+                    : `<span class="flex items-center text-red-600" title="${error || '推送失败'}"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>失败</span>`
+                }
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${videoCount > 0 ? `<button onclick="showDetail(${JSON.stringify(history).replace(/"/g, '&quot;')})" class="text-primary hover:underline">查看详情</button>` : '<span class="text-gray-400">-</span>'}
+            </td>
+        </tr>
+    `;
+}
+
+// 格式化时间戳
+function formatTimestamp(timestamp) {
+    if (!timestamp) return '-';
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
+// 显示详情
+function showDetail(history) {
+    const modal = document.getElementById('detail-modal');
+    const content = document.getElementById('detail-content');
+
+    const videos = history.video_list || [];
+    const pushedAt = formatTimestamp(history.pushed_at);
+    const pushType = history.push_type === 'auto' ? '自动推送' : '手动推送';
+
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="font-medium text-gray-500">推送时间：</span>
+                    <span class="text-gray-900">${pushedAt}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-500">推送类型：</span>
+                    <span class="text-gray-900">${pushType}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-500">视频数量：</span>
+                    <span class="text-gray-900">${history.video_count}</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-500">推送状态：</span>
+                    <span class="${history.success ? 'text-green-600' : 'text-red-600'}">${history.success ? '成功' : '失败'}</span>
+                </div>
+                ${history.error_message ? `
+                <div class="col-span-2">
+                    <span class="font-medium text-gray-500">错误信息：</span>
+                    <span class="text-red-600">${history.error_message}</span>
+                </div>
+                ` : ''}
+            </div>
+
+            ${videos.length > 0 ? `
+            <div class="border-t pt-4">
+                <h4 class="font-medium text-gray-900 mb-3">推送的视频：</h4>
+                <div class="space-y-2">
+                    ${videos.map((video, index) => `
+                        <div class="flex items-start space-x-3 p-2 bg-gray-50 rounded">
+                            <span class="text-sm font-medium text-gray-500">${index + 1}.</span>
+                            <div class="flex-1">
+                                <a href="https://www.bilibili.com/video/${video.bvid}" target="_blank" class="text-sm font-medium text-primary hover:underline">${video.title || '未知标题'}</a>
+                                <div class="text-xs text-gray-500 mt-1">${video.author || '未知UP主'} | 播放: ${formatPlayCount(video.play || 0)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+}
+
+// 关闭详情模态框
+function closeDetailModal() {
+    document.getElementById('detail-modal').classList.add('hidden');
+}
+
+// 格式化播放量
+function formatPlayCount(count) {
+    if (count >= 10000) {
+        return (count / 10000).toFixed(1) + '万';
+    }
+    return count.toString();
+}
+
+// 显示错误
+function showError(message) {
+    const errorDiv = document.getElementById('global-error');
+    document.getElementById('global-error-message').textContent = message;
+    errorDiv.classList.remove('hidden', 'translate-x-full');
+    setTimeout(() => {
+        errorDiv.classList.add('translate-x-full');
+        setTimeout(() => errorDiv.classList.add('hidden'), 300);
+    }, 5000);
+}
+
+// 点击模态框外部关闭
+document.getElementById('detail-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailModal();
+    }
+});
+</script>
+{% endblock %}

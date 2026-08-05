@@ -5,20 +5,20 @@
 {% block content %}
 <div class="space-y-6">
     <!-- 页面标题 -->
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900">推送历史</h1>
+    <div class="animate-fade-in-up">
+        <h1 class="text-2xl font-bold text-gray-900 font-mono">推送历史</h1>
         <p class="mt-1 text-sm text-gray-500">查看历史推送记录</p>
     </div>
 
     <!-- 筛选条件 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 p-4 card-interactive animate-fade-in-up" style="animation-delay: 60ms;">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <!-- UP主筛选 -->
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">UP主</label>
+                <label for="filter-up" class="block text-xs font-medium text-gray-700 mb-1">UP主</label>
                 <select
                     id="filter-up"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
                 >
                     <option value="">全部UP主</option>
                 </select>
@@ -26,21 +26,21 @@
 
             <!-- 开始日期 -->
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
+                <label for="filter-date-from" class="block text-xs font-medium text-gray-700 mb-1">开始日期</label>
                 <input
                     type="date"
                     id="filter-date-from"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
                 >
             </div>
 
             <!-- 结束日期 -->
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
+                <label for="filter-date-to" class="block text-xs font-medium text-gray-700 mb-1">结束日期</label>
                 <input
                     type="date"
                     id="filter-date-to"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
                 >
             </div>
 
@@ -48,13 +48,13 @@
             <div class="flex items-end space-x-2">
                 <button
                     id="btn-filter"
-                    class="flex-1 bg-bilibili-pink text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+                    class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-all duration-150 text-sm font-medium shadow-sm hover:shadow-md btn-interactive"
                 >
                     筛选
                 </button>
                 <button
                     id="btn-reset"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-150"
                 >
                     重置
                 </button>
@@ -63,37 +63,43 @@
     </div>
 
     <!-- 推送历史列表 -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 overflow-hidden animate-fade-in-up" style="animation-delay: 120ms;">
         <!-- 统计信息 -->
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <span class="text-sm text-gray-500">
-                共 <span id="total-count" class="font-bold text-gray-900">0</span> 条记录
+                共 <span id="total-count" class="font-bold text-primary font-mono">0</span> 条记录
             </span>
         </div>
 
         <!-- 桌面端表格 -->
         <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-primary-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             视频标题
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             UP主
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             播放量
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider font-mono">
                             推送时间
                         </th>
                     </tr>
                 </thead>
                 <tbody id="videos-table-body" class="bg-white divide-y divide-gray-200">
                     <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                            加载中...
+                        <td colspan="4" class="px-6 py-12">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 rounded skeleton"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-4 w-2/3 rounded skeleton"></div>
+                                    <div class="h-3 w-1/3 rounded skeleton"></div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -102,29 +108,35 @@
 
         <!-- 移动端卡片列表 -->
         <div id="videos-mobile-list" class="md:hidden divide-y divide-gray-200">
-            <div class="text-center py-12 text-gray-500">
-                加载中...
+            <div class="p-4 space-y-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded skeleton"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 w-1/2 rounded skeleton"></div>
+                        <div class="h-3 w-1/3 rounded skeleton"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 分页控件 -->
-        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
             <button
                 id="btn-prev"
                 disabled
-                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
             >
                 上一页
             </button>
 
-            <span class="text-sm text-gray-500">
-                第 <span id="current-page">1</span> 页 / 共 <span id="total-pages">1</span> 页
+            <span class="text-sm text-gray-600 font-mono">
+                第 <span id="current-page" class="font-bold text-primary">1</span> 页 / 共 <span id="total-pages" class="font-bold">1</span> 页
             </span>
 
             <button
                 id="btn-next"
                 disabled
-                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
             >
                 下一页
             </button>
@@ -141,9 +153,22 @@
     let totalPages = 1;
     let total = 0;
 
+    /**
+     * 获取今天的日期字符串 (YYYY-MM-DD)
+     */
+    function getTodayDateString() {
+        return new Date().toISOString().split('T')[0];
+    }
+
     // 页面加载时获取数据
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('[Videos] 开始加载推送历史');
+
+        // 设置日期默认值为今天
+        const today = getTodayDateString();
+        document.getElementById('filter-date-from').value = today;
+        document.getElementById('filter-date-to').value = today;
+        console.log('[Videos] 日期默认值设置为:', today);
 
         // 加载UP主列表（用于筛选）
         await loadUpsOptions();
@@ -232,30 +257,36 @@
         if (videos.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                        暂无推送记录
+                    <td colspan="4" class="px-6 py-16">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-sm font-medium text-gray-600">暂无推送记录</p>
+                            <p class="text-xs text-gray-400 mt-1">新视频推送后会显示在这里</p>
+                        </div>
                     </td>
                 </tr>
             `;
         } else {
-            tableBody.innerHTML = videos.map(video => `
-                <tr class="hover:bg-gray-50 transition-colors">
+            tableBody.innerHTML = videos.map((video, index) => `
+                <tr class="table-row group hover:bg-primary-50 transition-all duration-200" style="opacity: 0; animation: fadeInUp 400ms ease forwards; animation-delay: ${index * 60}ms;">
                     <td class="px-6 py-4">
                         <div class="text-sm font-medium text-gray-900">
-                            <a href="${video.url || '#'}" target="_blank" class="hover:text-bilibili-pink">
+                            <a href="${video.url || '#'}" target="_blank" class="hover:text-primary transition-colors">
                                 ${escapeHtml(video.title)}
                             </a>
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">${video.bvid}</div>
+                        <div class="text-xs text-gray-500 mt-1 font-mono">${video.bvid}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${escapeHtml(video.up_name || '未知')}</div>
+                        <div class="text-sm text-gray-900 group-hover:text-primary transition-colors">${escapeHtml(video.up_name || '未知')}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-500">${formatNumber(video.view_count)}</div>
+                        <div class="text-sm text-gray-500 font-mono">${formatNumber(video.view_count)}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-500">${formatDateTime(video.pushed_at)}</div>
+                        <div class="text-sm text-gray-500 font-mono">${formatDateTime(video.pushed_at)}</div>
                     </td>
                 </tr>
             `).join('');
@@ -266,25 +297,28 @@
 
         if (videos.length === 0) {
             mobileList.innerHTML = `
-                <div class="text-center py-12 text-gray-500">
-                    暂无推送记录
+                <div class="p-8 text-center">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-sm font-medium text-gray-600">暂无推送记录</p>
                 </div>
             `;
         } else {
-            mobileList.innerHTML = videos.map(video => `
-                <div class="p-4 hover:bg-gray-50 transition-colors">
+            mobileList.innerHTML = videos.map((video, index) => `
+                <div class="p-4 hover:bg-primary-50 transition-all duration-200" style="opacity: 0; animation: fadeInUp 400ms ease forwards; animation-delay: ${index * 60}ms;">
                     <div class="mb-2">
-                        <a href="${video.url || '#'}" target="_blank" class="text-sm font-medium text-gray-900 hover:text-bilibili-pink">
+                        <a href="${video.url || '#'}" target="_blank" class="text-sm font-medium text-gray-900 hover:text-primary transition-colors">
                             ${escapeHtml(video.title)}
                         </a>
                     </div>
                     <div class="flex items-center justify-between text-xs text-gray-500">
                         <span>${escapeHtml(video.up_name || '未知')}</span>
-                        <span>${formatDateTime(video.pushed_at)}</span>
+                        <span class="font-mono">${formatDateTime(video.pushed_at)}</span>
                     </div>
                     <div class="flex items-center justify-between text-xs text-gray-500 mt-1">
-                        <span>${video.bvid}</span>
-                        <span>${formatNumber(video.view_count)} 播放</span>
+                        <span class="font-mono">${video.bvid}</span>
+                        <span class="font-mono">${formatNumber(video.view_count)} 播放</span>
                     </div>
                 </div>
             `).join('');
@@ -331,8 +365,11 @@
             console.log('[Videos] 重置筛选');
 
             document.getElementById('filter-up').value = '';
-            document.getElementById('filter-date-from').value = '';
-            document.getElementById('filter-date-to').value = '';
+
+            // 重置日期为今天
+            const today = getTodayDateString();
+            document.getElementById('filter-date-from').value = today;
+            document.getElementById('filter-date-to').value = today;
 
             loadVideos(1);
         });

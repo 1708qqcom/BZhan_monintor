@@ -6,6 +6,11 @@
     <meta name="description" content="B站UP主视频监控系统">
     <title>{% block title %}B站监控{% endblock %}</title>
 
+    <!-- Google Fonts - Fira Code & Fira Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -15,11 +20,59 @@
             theme: {
                 extend: {
                     colors: {
+                        primary: {
+                            DEFAULT: '#0D9488',
+                            light: '#14B8A6',
+                            dark: '#0F766E',
+                            50: '#F0FDFA',
+                            100: '#CCFBF1',
+                            200: '#99F6E4',
+                        },
+                        accent: '#EA580C',
                         bilibili: {
                             pink: '#FB7299',
                             blue: '#00A1D6',
                         }
-                    }
+                    },
+                    fontFamily: {
+                        sans: ['Fira Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 400ms ease forwards',
+                        'slide-down': 'slideDown 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+                        'pulse-ring': 'pulseRing 2s ease-out infinite',
+                        'skeleton': 'skeletonLoading 1.5s ease-in-out infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'checkmark': 'checkmark 300ms ease',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(16px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(0)' },
+                        },
+                        pulseRing: {
+                            '0%': { transform: 'scale(0.8)', opacity: '1' },
+                            '100%': { transform: 'scale(1.4)', opacity: '0' },
+                        },
+                        skeletonLoading: {
+                            '0%': { backgroundPosition: '200% 0' },
+                            '100%': { backgroundPosition: '-200% 0' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        checkmark: {
+                            '0%': { transform: 'scale(0)' },
+                            '50%': { transform: 'scale(1.2)' },
+                            '100%': { transform: 'scale(1)' },
+                        },
+                    },
                 }
             }
         }
@@ -27,15 +80,15 @@
 
     {% block head %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-primary-50 min-h-screen font-sans antialiased">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white shadow-sm border-b border-primary-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <!-- 左侧Logo -->
                 <div class="flex items-center">
-                    <a href="/" class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-bilibili-pink rounded-lg flex items-center justify-center">
+                    <a href="/" class="flex items-center space-x-2 group">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
                             <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M6.5 2a.5.5 0 0 0-.5.5v1H4.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1A.5.5 0 0 0 7.5 2h-1zM4 8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H4zm.5 3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
                             </svg>
@@ -45,24 +98,34 @@
 
                     <!-- 桌面端菜单 -->
                     <div class="hidden md:flex md:ml-10 md:space-x-8">
-                        <a href="/" class="text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/" class="nav-link {% if active_page == 'dashboard' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             仪表盘
+                            <span class="nav-underline"></span>
                         </a>
-                        <a href="/ups" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/ups" class="nav-link {% if active_page == 'ups' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             UP主管理
+                            <span class="nav-underline"></span>
                         </a>
-                        <a href="/videos" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/videos" class="nav-link {% if active_page == 'videos' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             推送历史
+                            <span class="nav-underline"></span>
                         </a>
-                        <a href="/config" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/config" class="nav-link {% if active_page == 'config' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             配置管理
+                            <span class="nav-underline"></span>
                         </a>
-                        <a href="/bilibili-login" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/bilibili-login" class="nav-link {% if active_page == 'bilibili_login' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             B站登录
+                            <span class="nav-underline"></span>
+                        </a>
+                        <a href="/toview" class="nav-link {% if active_page == 'toview' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
+                            稍后再看
+                            <span class="nav-underline"></span>
                         </a>
                         {% if is_admin %}
-                        <a href="/users" class="text-gray-500 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-bilibili-pink transition-colors">
+                        <a href="/users" class="nav-link {% if active_page == 'users' %}active{% endif %} inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-150">
                             用户管理
+                            <span class="nav-underline"></span>
                         </a>
                         {% endif %}
                     </div>
@@ -72,18 +135,18 @@
                 <div class="hidden md:flex md:items-center md:space-x-4">
                     <!-- 用户信息 -->
                     <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                             </svg>
                         </div>
                         <span class="text-sm font-medium text-gray-700">{{ username }}</span>
                         {% if is_admin %}
-                        <span class="text-xs bg-bilibili-pink text-white px-2 py-0.5 rounded">管理员</span>
+                        <span class="text-xs bg-accent text-white px-2 py-0.5 rounded-full font-medium">管理员</span>
                         {% endif %}
                     </div>
                     <form action="/auth/logout" method="POST" class="inline">
-                        <button type="submit" class="text-gray-500 hover:text-red-600 text-sm font-medium transition-colors">
+                        <button type="submit" class="text-gray-500 hover:text-red-600 text-sm font-medium transition-colors duration-150">
                             退出
                         </button>
                     </form>
@@ -91,7 +154,7 @@
 
                 <!-- 移动端汉堡菜单按钮 -->
                 <div class="flex items-center md:hidden">
-                    <button id="mobile-menu-button" type="button" class="text-gray-500 hover:text-gray-700 p-2 rounded-md">
+                    <button id="mobile-menu-button" type="button" class="text-gray-500 hover:text-primary p-2 rounded-md transition-colors duration-150" aria-label="打开菜单">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -101,43 +164,46 @@
         </div>
 
         <!-- 移动端菜单（默认隐藏） -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
-            <div class="pt-2 pb-3 space-y-1">
+        <div id="mobile-menu" class="hidden md:hidden border-t border-primary-200 transform -translate-y-full transition-transform duration-400">
+            <div class="pt-2 pb-3 space-y-1 bg-white">
                 <!-- 用户信息 -->
                 <div class="px-4 py-2 flex items-center space-x-2 border-b border-gray-100 mb-2">
-                    <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                        <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                         </svg>
                     </div>
                     <span class="text-sm font-medium text-gray-700">{{ username }}</span>
                     {% if is_admin %}
-                    <span class="text-xs bg-bilibili-pink text-white px-2 py-0.5 rounded">管理员</span>
+                    <span class="text-xs bg-accent text-white px-2 py-0.5 rounded-full font-medium">管理员</span>
                     {% endif %}
                 </div>
-                <a href="/" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'dashboard' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     仪表盘
                 </a>
-                <a href="/ups" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/ups" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'ups' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     UP主管理
                 </a>
-                <a href="/videos" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/videos" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'videos' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     推送历史
                 </a>
-                <a href="/config" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/config" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'config' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     配置管理
                 </a>
-                <a href="/bilibili-login" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/bilibili-login" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'bilibili_login' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     B站登录
                 </a>
+                <a href="/toview" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'toview' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
+                    稍后再看
+                </a>
                 {% if is_admin %}
-                <a href="/users" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-bilibili-pink">
+                <a href="/users" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'users' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     用户管理
                 </a>
                 {% endif %}
                 <div class="pt-4 pb-2 border-t border-gray-200">
                     <form action="/auth/logout" method="POST">
-                        <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50">
+                        <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50 transition-colors duration-150">
                             退出
                         </button>
                     </form>
@@ -152,26 +218,134 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
+    <footer class="bg-white border-t border-primary-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p class="text-center text-sm text-gray-500">
+            <p class="text-center text-sm text-gray-500 font-mono">
                 B站UP主视频监控系统 v2.2.0 - 多用户版
             </p>
         </div>
     </footer>
 
     <!-- 全局错误提示组件 -->
-    <div id="global-error" class="hidden fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+    <div id="global-error" class="hidden fixed top-20 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
         <span id="global-error-message"></span>
     </div>
 
     <!-- 全局成功提示组件 -->
-    <div id="global-success" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+    <div id="global-success" class="hidden fixed top-20 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
         <span id="global-success-message"></span>
     </div>
 
+    <!-- 样式：导航链接 -->
+    <style>
+        .nav-link {
+            position: relative;
+            color: #6B7280;
+        }
+        .nav-link:hover {
+            color: #0D9488;
+        }
+        .nav-link.active {
+            color: #0D9488;
+            font-weight: 600;
+        }
+        .nav-underline {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #0D9488;
+            transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-link:hover .nav-underline,
+        .nav-link.active .nav-underline {
+            width: 100%;
+        }
+
+        /* 按钮微交互 */
+        .btn-primary {
+            transition: all 150ms ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* 卡片微交互 */
+        .card-interactive {
+            transition: all 200ms ease;
+        }
+        .card-interactive:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-color: #99F6E4;
+        }
+
+        /* 骨架屏 */
+        .skeleton {
+            background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+            background-size: 200% 100%;
+            animation: skeletonLoading 1.5s ease-in-out infinite;
+        }
+
+        /* 状态指示器脉冲 */
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid currentColor;
+            border-radius: inherit;
+            animation: pulseRing 2s ease-out infinite;
+            opacity: 0;
+        }
+        .status-pulse:hover::after {
+            opacity: 0.3;
+        }
+
+        /* 无障碍：焦点样式 */
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+
     <!-- JavaScript -->
     <script src="/static/js/main.js"></script>
+    <script>
+        // 移动端菜单动画
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function() {
+            const isHidden = mobileMenu.classList.contains('hidden');
+
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                // 触发重排后添加动画类
+                mobileMenu.offsetHeight;
+                mobileMenu.classList.remove('-translate-y-full');
+                mobileMenu.classList.add('translate-y-0');
+            } else {
+                mobileMenu.classList.remove('translate-y-0');
+                mobileMenu.classList.add('-translate-y-full');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 400);
+            }
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

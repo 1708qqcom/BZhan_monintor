@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}我的稍后再看 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">📺 我的稍后再看</h1>
+            <p class="text-sm text-gray-500 mt-1">查看您在B站标记的稍后再看视频列表</p>
+        </div>
+        <button onclick="refreshToview()" class="btn-primary bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>刷新列表</span>
+        </button>
+    </div>
+
+    <!-- 加载状态 -->
+    <div id="loading-state" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for i in range(6) %}
+            <div class="bg-white rounded-lg border border-primary-200 p-4 animate-pulse">
+                <div class="h-40 bg-gray-200 rounded mb-3"></div>
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <div class="w-24 h-24 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">暂无稍后再看视频</h3>
+        <p class="text-sm text-gray-500">您还没有在B站标记任何稍后再看视频</p>
+    </div>
+
+    <!-- 错误状态 -->
+    <div id="error-state" class="hidden">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-red-500 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <h3 class="text-sm font-medium text-red-800">获取失败</h3>
+                    <p id="error-message" class="text-sm text-red-700 mt-1"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 视频列表 -->
+    <div id="video-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- 通过JS动态渲染 -->
+    </div>
+</div>
+
+<script>
+// 页面加载时获取数据
+document.addEventListener('DOMContentLoaded', function() {
+    loadToview();
+});
+
+// 加载稍后再看列表
+async function loadToview() {
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+    const videoList = document.getElementById('video-list');
+
+    // 显示加载状态
+    loadingState.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    errorState.classList.add('hidden');
+    videoList.innerHTML = '';
+
+    try {
+        const response = await fetch('/api/toview');
+        const data = await response.json();
+
+        // 隐藏加载状态
+        loadingState.classList.add('hidden');
+
+        if (!response.ok) {
+            throw new Error(data.detail || '获取失败');
+        }
+
+        if (!data.success || !data.data) {
+            throw new Error('数据格式错误');
+        }
+
+        const videos = data.data.videos || [];
+
+        if (videos.length === 0) {
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        // 渲染视频列表
+        videoList.innerHTML = videos.map((video, index) => createVideoCard(video, index)).join('');
+
+    } catch (error) {
+        loadingState.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        document.getElementById('error-message').textContent = error.message;
+    }
+}
+
+// 创建视频卡片HTML
+function createVideoCard(video, index) {
+    const title = video.title || '未知标题';
+    const author = video.author || '未知UP主';
+    const play = formatPlayCount(video.play || 0);
+    const pic = video.pic || '';
+    const bvid = video.bvid || '';
+    const duration = video.duration || '';
+
+    return `
+        <div class="bg-white rounded-lg border border-primary-200 overflow-hidden card-interactive animate-fade-in-up" style="animation-delay: ${index * 50}ms">
+            <!-- 封面 -->
+            <div class="relative h-40 bg-gray-100 flex items-center justify-center">
+                ${pic ? `
+                    <img src="${pic}" alt="${title}" class="w-full h-full object-cover"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+                    <div class="hidden w-full h-full items-center justify-center bg-gray-200">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                ` : `
+                    <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                `}
+                ${duration ? `<span class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">${duration}</span>` : ''}
+            </div>
+
+            <!-- 信息 -->
+            <div class="p-4">
+                <h3 class="font-medium text-gray-900 mb-2 line-clamp-2">${title}</h3>
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <span class="truncate max-w-[50%]" title="${author}">${author}</span>
+                    <span>${play}播放</span>
+                </div>
+                <a href="https://www.bilibili.com/video/${bvid}" target="_blank" class="block w-full text-center bg-primary text-white py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors">
+                    前往观看
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+// 格式化播放量
+function formatPlayCount(count) {
+    if (count >= 10000) {
+        return (count / 10000).toFixed(1) + '万';
+    }
+    return count.toString();
+}
+
+// 刷新列表
+function refreshToview() {
+    loadToview();
+}
+</script>
+{% endblock %}

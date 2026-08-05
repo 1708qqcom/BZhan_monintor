@@ -306,3 +306,74 @@ async def logout(request: Request, db: Database = Depends(get_db)):
     except Exception as e:
         logger.error(f"退出登录失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== B站绑定状态检测 ====================
+
+@router.get(
+    "/binding-status",
+    response_model=SuccessResponse,
+    summary="检测B站绑定状态",
+    description="检测当前用户是否已绑定B站账号（用于前端前置检测）"
+)
+async def check_bilibili_binding_status(request: Request, db: Database = Depends(get_db)):
+    """
+    检测B站绑定状态
+
+    用于前端页面加载时检测用户是否已绑定B站账号，
+    未绑定时可提前提示用户，避免操作失败。
+
+    Returns:
+        {
+            "is_bound": bool,  # 是否已绑定
+            "username": str,   # B站用户名（已绑定时）
+            "redirect_url": str  # 未绑定时引导跳转地址
+        }
+    """
+    logger.info("API调用: GET /api/login/binding-status")
+
+    # 获取当前用户ID
+    user_id = request.session.get("user_id")
+    if not user_id:
+        logger.warning("未找到用户信息")
+        return SuccessResponse(
+            message="未登录系统",
+            data={
+                "is_bound": False,
+                "redirect_url": "/auth/login"
+            }
+        )
+
+    try:
+        # 查询该用户的B站登录信息
+        auth = db.get_auth(user_id=user_id)
+
+        if not auth or not auth.get("cookies"):
+            logger.info(f"用户未绑定B站账号: user_id={user_id}")
+            return SuccessResponse(
+                message="未绑定B站账号",
+                data={
+                    "is_bound": False,
+                    "redirect_url": "/bilibili-login"
+                }
+            )
+
+        # 已绑定，返回B站用户名
+        username = auth["cookies"].get("uname", "未知用户")
+        logger.info(f"已绑定B站账号: user_id={user_id}, username={username}")
+
+        return SuccessResponse(
+            message="已绑定B站账号",
+            data={
+                "is_bound": True,
+                "username": username
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"检测B站绑定状态失败: {e}", exc_info=True)
+        # 降级策略：检测失败时不影响正常使用，返回 is_bound=True
+        return SuccessResponse(
+            message="检测失败，请稍后重试",
+            data={"is_bound": True}  # 降级：默认允许操作
+        )

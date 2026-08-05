@@ -203,6 +203,74 @@ class FeishuNotifier:
             return f"{view_count / 10000:.1f}万"
         return str(view_count)
 
+    def send_toview_notification(self, username: str, videos: list[dict]) -> bool:
+        """
+        发送稍后再看推送通知
+
+        Args:
+            username: 用户名
+            videos: 视频列表，每个元素包含 bvid, title, author, play
+
+        Returns:
+            发送成功返回 True
+        """
+        if not videos:
+            self.logger.info("视频列表为空，跳过推送")
+            return False
+
+        self.logger.info(f"准备发送稍后再看通知: username={username}, video_count={len(videos)}")
+
+        # 构造视频列表内容
+        video_items = []
+        for i, video in enumerate(videos, 1):
+            bvid = video.get("bvid", "")
+            title = video.get("title", "未知标题")
+            author = video.get("author", "未知UP主")
+            play = video.get("play", 0)
+
+            video_items.append({
+                "tag": "div",
+                "text": {
+                    "tag": "lark_md",
+                    "content": (
+                        f"**{i}. [{title}](https://www.bilibili.com/video/{bvid})**\n"
+                        f"UP主: {author} | 播放: {self._format_view_count(play)}"
+                    )
+                }
+            })
+
+        # 构造飞书交互式卡片
+        payload = {
+            "msg_type": "interactive",
+            "card": {
+                "header": {
+                    "title": {
+                        "tag": "plain_text",
+                        "content": f"📺 {username}的稍后再看提醒"
+                    },
+                    "template": "blue"
+                },
+                "elements": video_items + [
+                    {
+                        "tag": "note",
+                        "elements": [
+                            {
+                                "tag": "plain_text",
+                                "content": f"共 {len(videos)} 个视频待观看"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+
+        result = self._send_webhook(payload)
+        if result:
+            self.logger.info(f"稍后再看通知发送成功: username={username}")
+        else:
+            self.logger.warning(f"稍后再看通知发送失败: username={username}")
+        return result
+
     def send_message(self, message: str) -> bool:
         """
         发送简单文本消息（用于测试）

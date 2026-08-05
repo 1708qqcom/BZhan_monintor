@@ -12,3 +12,6 @@
 | web_monitor_scheduler | archived |
 | monitor_refresh_control | archived |
 | manual_video_push | archived |
+| multi_user_isolation | archived |
+| toview_integration | archived |
+| ups_pagination_and_videos_default_date | archived |

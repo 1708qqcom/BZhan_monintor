@@ -16,6 +16,7 @@ from src.models import (
     UpResponse,
     UpCreateRequest,
     UpListResponse,
+    PaginatedUpResponse,
     ErrorResponse,
     SuccessResponse,
 )
@@ -38,32 +39,41 @@ def get_db() -> Database:
 
 @router.get(
     "",
-    response_model=UpListResponse,
+    response_model=PaginatedUpResponse,
     summary="获取UP主列表",
-    description="获取UP主列表，普通用户只能看到自己的，管理员可以查看所有"
+    description="获取UP主列表，普通用户只能看到自己的，管理员可以查看所有。支持分页和搜索。"
 )
 async def get_ups(
     request: Request,
+    page: int = 1,
+    page_size: int = 20,
+    keyword: Optional[str] = None,
     is_monitoring: Optional[bool] = None,
     user_id: Optional[int] = None,
     db: Database = Depends(get_db),
 ):
     """
-    获取UP主列表
+    获取UP主列表（分页）
 
     Args:
         request: 请求对象（用于获取当前用户信息）
+        page: 页码（从1开始），默认 1
+        page_size: 每页数量，默认 20
+        keyword: 搜索关键词（匹配 name 或 mid）
         is_monitoring: 是否监控中，不传则返回全部
         user_id: 管理员筛选指定用户的UP主
 
     Returns:
-        UP主列表，每个UP主包含 latest_videos 字段
+        分页UP主列表，每个UP主包含 latest_videos 字段
     """
     # 获取当前用户信息
     current_user_id = request.session.get("user_id")
     is_admin = request.session.get("is_admin", False)
 
-    logger.info(f"API调用: GET /api/ups, user_id={current_user_id}, is_admin={is_admin}")
+    logger.info(
+        f"API调用: GET /api/ups, user_id={current_user_id}, is_admin={is_admin}, "
+        f"page={page}, page_size={page_size}, keyword={keyword}"
+    )
 
     try:
         # 确定查询的用户ID
@@ -76,7 +86,21 @@ async def get_ups(
             # 普通用户只能查看自己的
             query_user_id = current_user_id
 
-        ups = db.get_ups(user_id=query_user_id, is_monitoring=is_monitoring)
+        # 查询总数
+        total = db.get_ups_count(
+            user_id=query_user_id,
+            is_monitoring=is_monitoring,
+            keyword=keyword
+        )
+
+        # 查询分页数据
+        ups = db.get_ups(
+            user_id=query_user_id,
+            is_monitoring=is_monitoring,
+            page=page,
+            page_size=page_size,
+            keyword=keyword
+        )
 
         # 为每个UP主查询最新5个视频
         items = []
@@ -92,8 +116,14 @@ async def get_ups(
             up_data["latest_videos"] = videos_result.get("items", [])
             items.append(up_data)
 
-        logger.info(f"返回 {len(items)} 个UP主")
-        return UpListResponse(items=items, total=len(items))
+        logger.info(f"返回 {len(items)} 个UP主，总计 {total} 个")
+
+        return PaginatedUpResponse(
+            items=items,
+            total=total,
+            page=page,
+            page_size=page_size
+        )
 
     except Exception as e:
         logger.error(f"获取UP主列表失败: {e}", exc_info=True)
@@ -149,7 +179,13 @@ async def add_up(
 
         # 从数据库获取当前用户的Cookie
         auth = db.get_auth(user_id=user_id)
+
         if not auth or not auth.get("cookies"):
+            username = request.session.get("username", "unknown")
+            logger.warning(
+                f"用户未绑定B站账号，无法添加UP主: "
+                f"user_id={user_id}, username={username}, mid={body.mid}"
+            )
             raise HTTPException(
                 status_code=400,
                 detail="未绑定B站账号，请先扫码登录"

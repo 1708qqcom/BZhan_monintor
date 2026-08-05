@@ -27,7 +27,7 @@ from jinja2 import Environment, FileSystemLoader
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from src.api import ups_router, videos_router, config_router, login_router
+from src.api import ups_router, videos_router, config_router, login_router, toview_router
 from src.database import Database
 from src.models import HealthResponse, ErrorResponse
 from src.scheduler import MonitorScheduler
@@ -511,6 +511,7 @@ app.include_router(ups_router)
 app.include_router(videos_router)
 app.include_router(config_router)
 app.include_router(login_router)
+app.include_router(toview_router)
 
 logger.debug("API路由注册完成")
 
@@ -674,7 +675,8 @@ async def root(request: Request):
     template = jinja_env.get_template("dashboard.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=request.session.get("is_admin", False)
+        is_admin=request.session.get("is_admin", False),
+        active_page="dashboard"
     ))
 
 
@@ -693,7 +695,8 @@ async def ups_page(request: Request):
     template = jinja_env.get_template("ups.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=request.session.get("is_admin", False)
+        is_admin=request.session.get("is_admin", False),
+        active_page="ups"
     ))
 
 
@@ -712,7 +715,8 @@ async def videos_page(request: Request):
     template = jinja_env.get_template("videos.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=request.session.get("is_admin", False)
+        is_admin=request.session.get("is_admin", False),
+        active_page="videos"
     ))
 
 
@@ -731,7 +735,8 @@ async def config_page(request: Request):
     template = jinja_env.get_template("config.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=request.session.get("is_admin", False)
+        is_admin=request.session.get("is_admin", False),
+        active_page="config"
     ))
 
 
@@ -750,7 +755,8 @@ async def bilibili_login_page(request: Request):
     template = jinja_env.get_template("bilibili_login.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=request.session.get("is_admin", False)
+        is_admin=request.session.get("is_admin", False),
+        active_page="bilibili_login"
     ))
 
 
@@ -777,7 +783,72 @@ async def users_page(request: Request):
     template = jinja_env.get_template("users.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
-        is_admin=True
+        is_admin=True,
+        active_page="users"
+    ))
+
+
+# ==================== 稍后再看页面 ====================
+
+@app.get("/toview", response_class=HTMLResponse, tags=["页面"])
+async def toview_page(request: Request):
+    """
+    稍后再看页面
+
+    Args:
+        request: 请求对象
+    """
+    logger.debug("渲染稍后再看页面")
+
+    template = jinja_env.get_template("toview.html")
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False),
+        active_page="toview"
+    ))
+
+
+@app.get("/admin/toview", response_class=HTMLResponse, tags=["页面"])
+async def admin_toview_page(request: Request):
+    """
+    管理员稍后再看管理页面
+
+    Args:
+        request: 请求对象
+    """
+    # 权限检查
+    is_admin = request.session.get("is_admin", False)
+    if not is_admin:
+        return HTMLResponse(
+            content="<h1>403 禁止访问</h1><p>只有管理员可以访问此页面</p>",
+            status_code=403
+        )
+
+    logger.debug("渲染管理员稍后再看页面")
+
+    template = jinja_env.get_template("admin_toview.html")
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=True,
+        active_page="admin_toview"
+    ))
+
+
+@app.get("/toview/history", response_class=HTMLResponse, tags=["页面"])
+async def toview_history_page(request: Request):
+    """
+    推送历史页面
+
+    Args:
+        request: 请求对象
+    """
+    logger.debug("渲染推送历史页面")
+
+    template = jinja_env.get_template("toview_history.html")
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False),
+        active_page="toview_history"
     ))
 
 

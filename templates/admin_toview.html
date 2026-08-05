@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}稍后再看管理 - B站监控{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 页面标题 -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">📺 稍后再看管理</h1>
+            <p class="text-sm text-gray-500 mt-1">查看所有用户的稍后再看列表，支持手动推送</p>
+        </div>
+        <button onclick="loadAllToview()" class="btn-primary bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>刷新数据</span>
+        </button>
+    </div>
+
+    <!-- 用户筛选 -->
+    <div class="bg-white rounded-lg border border-primary-200 p-4">
+        <div class="flex items-center space-x-4">
+            <label for="user-filter" class="text-sm font-medium text-gray-700">筛选用户：</label>
+            <select id="user-filter" onchange="filterByUser()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                <option value="">全部用户</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div id="loading-state" class="hidden">
+        <div class="space-y-4">
+            {% for i in range(3) %}
+            <div class="bg-white rounded-lg border border-primary-200 p-6 animate-pulse">
+                <div class="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {% for j in range(3) %}
+                    <div class="h-32 bg-gray-200 rounded"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="empty-state" class="hidden text-center py-12">
+        <div class="w-24 h-24 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
+            <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">暂无用户数据</h3>
+        <p class="text-sm text-gray-500">系统中还没有用户的稍后再看数据</p>
+    </div>
+
+    <!-- 用户列表 -->
+    <div id="user-list" class="space-y-4">
+        <!-- 通过JS动态渲染 -->
+    </div>
+</div>
+
+<script>
+// 页面加载时获取数据
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllToview();
+});
+
+// 加载所有用户的稍后再看
+async function loadAllToview() {
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const userList = document.getElementById('user-list');
+
+    // 显示加载状态
+    loadingState.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    userList.innerHTML = '';
+
+    try {
+        const response = await fetch('/api/toview/all');
+        const data = await response.json();
+
+        // 隐藏加载状态
+        loadingState.classList.add('hidden');
+
+        if (!response.ok) {
+            throw new Error(data.detail || '获取失败');
+        }
+
+        if (!data.success || !data.data) {
+            throw new Error('数据格式错误');
+        }
+
+        const users = data.data || [];
+
+        if (users.length === 0) {
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        // 更新用户筛选下拉框
+        updateFilterOptions(users);
+
+        // 渲染用户列表
+        userList.innerHTML = users.map((user, index) => createUserSection(user, index)).join('');
+
+    } catch (error) {
+        loadingState.classList.add('hidden');
+        showError(error.message);
+    }
+}
+
+// 更新筛选下拉框
+function updateFilterOptions(users) {
+    const filter = document.getElementById('user-filter');
+    const currentValue = filter.value;
+
+    filter.innerHTML = '<option value="">全部用户</option>';
+    users.forEach(user => {
+        filter.innerHTML += `<option value="${user.user_id}">${user.username} (${user.count}个)</option>`;
+    });
+
+    filter.value = currentValue;
+}
+
+// 创建用户区块HTML
+function createUserSection(user, index) {
+    const userId = user.user_id;
+    const username = user.username;
+    const count = user.count || 0;
+    const videos = user.videos || [];
+
+    return `
+        <div class="bg-white rounded-lg border border-primary-200 overflow-hidden animate-fade-in-up" style="animation-delay: ${index * 100}ms">
+            <!-- 用户头部 -->
+            <div class="p-4 bg-primary-50 border-b border-primary-200 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">${username}</h3>
+                        <p class="text-sm text-gray-500">共 ${count} 个视频</p>
+                    </div>
+                </div>
+                ${count > 0 ? `
+                <button onclick="pushToview(${userId}, '${username}')" class="btn-primary bg-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                    <span>立即推送</span>
+                </button>
+                ` : ''}
+            </div>
+
+            <!-- 视频列表 -->
+            ${count > 0 ? `
+            <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                ${videos.map(video => createVideoCard(video)).join('')}
+            </div>
+            ` : `
+            <div class="p-4 text-center text-gray-500">
+                <p>暂无稍后再看视频</p>
+            </div>
+            `}
+        </div>
+    `;
+}
+
+// 创建视频卡片HTML
+function createVideoCard(video) {
+    const title = video.title || '未知标题';
+    const author = video.author || '未知UP主';
+    const play = formatPlayCount(video.play || 0);
+    const bvid = video.bvid || '';
+
+    return `
+        <div class="border border-gray-200 rounded-lg p-3 hover:border-primary transition-colors">
+            <h4 class="font-medium text-gray-900 mb-2 line-clamp-2">${title}</h4>
+            <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                <span class="truncate max-w-[50%]" title="${author}">${author}</span>
+                <span>${play}播放</span>
+            </div>
+            <a href="https://www.bilibili.com/video/${bvid}" target="_blank" class="text-primary hover:underline text-sm">观看视频 →</a>
+        </div>
+    `;
+}
+
+// 格式化播放量
+function formatPlayCount(count) {
+    if (count >= 10000) {
+        return (count / 10000).toFixed(1) + '万';
+    }
+    return count.toString();
+}
+
+// 筛选用户
+function filterByUser() {
+    const userId = document.getElementById('user-filter').value;
+    const userSections = document.querySelectorAll('[data-user-id]');
+
+    userSections.forEach(section => {
+        if (!userId || section.dataset.userId === userId) {
+            section.classList.remove('hidden');
+        } else {
+            section.classList.add('hidden');
+        }
+    });
+}
+
+// 推送稍后再看
+async function pushToview(userId, username) {
+    if (!confirm(`确定要推送 ${username} 的稍后再看视频吗？`)) {
+        return;
+    }
+
+    try {
+        showLoading(`正在推送 ${username} 的稍后再看...`);
+
+        const response = await fetch('/api/toview/push', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                count: 3
+            })
+        });
+
+        const data = await response.json();
+
+        hideLoading();
+
+        if (!response.ok) {
+            throw new Error(data.detail || '推送失败');
+        }
+
+        if (data.success) {
+            showSuccess(data.message || '推送成功');
+            // 刷新数据
+            setTimeout(() => loadAllToview(), 1000);
+        } else {
+            throw new Error('推送失败');
+        }
+
+    } catch (error) {
+        hideLoading();
+        showError(error.message);
+    }
+}
+
+// 显示提示信息
+function showSuccess(message) {
+    const successDiv = document.getElementById('global-success');
+    document.getElementById('global-success-message').textContent = message;
+    successDiv.classList.remove('hidden', 'translate-x-full');
+    setTimeout(() => {
+        successDiv.classList.add('translate-x-full');
+        setTimeout(() => successDiv.classList.add('hidden'), 300);
+    }, 3000);
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('global-error');
+    document.getElementById('global-error-message').textContent = message;
+    errorDiv.classList.remove('hidden', 'translate-x-full');
+    setTimeout(() => {
+        errorDiv.classList.add('translate-x-full');
+        setTimeout(() => errorDiv.classList.add('hidden'), 300);
+    }, 5000);
+}
+
+function showLoading(message) {
+    // 简单实现，可扩展为更复杂的加载提示
+    console.log('Loading:', message);
+}
+
+function hideLoading() {
+    console.log('Loading hidden');
+}
+</script>
+{% endblock %}

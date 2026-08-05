@@ -1113,3 +1113,198 @@ class MonitorScheduler:
                     self._trigger_event.clear()
 
         logger.info("调度器已退出")
+
+    # ==================== 稍后再看定时推送 ====================
+
+    def setup_toview_push_scheduler(self) -> None:
+        """
+        设置稍后再看定时推送任务
+
+        使用 APScheduler 的 CronTrigger 在每天 21:00 执行推送
+        注意：此方法需要在 start() 之前调用
+        """
+        try:
+            from apscheduler.schedulers.background import BackgroundScheduler
+            from apscheduler.triggers.cron import CronTrigger
+
+            logger.info("设置稍后再看定时推送任务（每天 21:00）")
+
+            # 创建后台调度器
+            toview_scheduler = BackgroundScheduler()
+
+            # 添加定时任务
+            toview_scheduler.add_job(
+                func=self._push_toview_all_users,
+                trigger=CronTrigger(hour=21, minute=0),
+                id='toview_push',
+                name='稍后再看定时推送',
+                replace_existing=True
+            )
+
+            # 启动调度器
+            toview_scheduler.start()
+            logger.info("稍后再看定时推送任务已启动")
+
+        except Exception as e:
+            logger.error(f"设置稍后再看定时推送失败: {e}", exc_info=True)
+
+    def _push_toview_all_users(self) -> None:
+        """
+        推送所有用户的稍后再看视频
+
+        流程：
+        1. 获取所有有效 B站登录的用户
+        2. 遍历每个用户获取稍后再看列表
+        3. 推送前 3 个视频到飞书
+        4. 记录推送历史
+        """
+        logger.info("========== 开始稍后再看定时推送 ==========")
+
+        if not self.use_database:
+            logger.error("未启用数据库，稍后再看推送无法运行")
+            return
+
+        try:
+            # 1. 获取所有有效 B站登录的用户
+            users = self.db.get_all_users_with_valid_auth()
+
+            if not users:
+                logger.info("无有效 B站登录用户，跳过推送")
+                return
+
+            logger.info(f"获取到 {len(users)} 个有效用户")
+
+            # 2. 遍历每个用户
+            success_count = 0
+            failed_count = 0
+
+            for i, user in enumerate(users, 1):
+                user_id = user["id"]
+                username = user["username"]
+                cookies = user.get("cookies", {})
+
+                logger.info(f"[{i}/{len(users)}] 处理用户: {username}")
+
+                try:
+                    result = self._push_toview_for_user(user_id, username, cookies)
+
+                    if result["success"]:
+                        success_count += 1
+                    else:
+                        failed_count += 1
+
+                except Exception as e:
+                    logger.error(f"[用户 {username}] 推送异常: {e}", exc_info=True)
+                    failed_count += 1
+
+            logger.info(
+                f"========== 稍后再看定时推送完成 ========== "
+                f"总数: {len(users)}, 成功: {success_count}, 失败: {failed_count}"
+            )
+
+        except Exception as e:
+            logger.error(f"稍后再看定时推送异常: {e}", exc_info=True)
+
+    def _push_toview_for_user(self, user_id: int, username: str, cookies: dict) -> dict:
+        """
+        为单个用户推送稍后再看视频
+
+        Args:
+            user_id: 用户 ID
+            username: 用户名
+            cookies: 用户的 B站 Cookie
+
+        Returns:
+            推送结果 {"success": bool, "error": str}
+        """
+        result = {"success": False, "error": None}
+
+        try:
+            # 1. 验证 Cookie
+            bilibili_client = type(self.bilibili)(cookies=cookies)
+
+            if not bilibili_client.check_cookie_valid():
+                logger.warning(f"[用户 {username}] B站 Cookie 已过期")
+                result["error"] = "B站 Cookie 已过期"
+
+                # 记录失败历史
+                self.db.save_toview_push_history(
+                    user_id=user_id,
+                    push_type="auto",
+                    videos=[],
+                    success=False,
+                    error_message="B站 Cookie 已过期"
+                )
+                return result
+
+            # 2. 获取飞书 Webhook
+            webhook_url = self.db.get_config_value("feishu_webhook_url", user_id=user_id)
+            if not webhook_url:
+                # 回退到全局配置
+                webhook_url = self.db.get_config_value("feishu_webhook_url")
+
+            if not webhook_url:
+                logger.warning(f"[用户 {username}] 未配置飞书 Webhook")
+                result["error"] = "未配置飞书 Webhook"
+
+                self.db.save_toview_push_history(
+                    user_id=user_id,
+                    push_type="auto",
+                    videos=[],
+                    success=False,
+                    error_message="未配置飞书 Webhook"
+                )
+                return result
+
+            # 3. 获取稍后再看列表（前 3 个）
+            videos = bilibili_client.get_toview_list(page=1, page_size=3)
+
+            if not videos:
+                logger.info(f"[用户 {username}] 稍后再看列表为空")
+                result["success"] = True  # 空列表不算失败
+                return result
+
+            # 4. 保存到数据库（缓存）
+            self.db.save_toview_videos(user_id, videos)
+
+            # 5. 推送到飞书
+            from src.feishu import FeishuNotifier
+            feishu_notifier = FeishuNotifier(webhook_url)
+
+            push_success = feishu_notifier.send_toview_notification(username, videos)
+
+            # 6. 记录推送历史
+            self.db.save_toview_push_history(
+                user_id=user_id,
+                push_type="auto",
+                videos=videos,
+                success=push_success,
+                error_message=None if push_success else "推送失败"
+            )
+
+            if push_success:
+                logger.info(f"[用户 {username}] 稍后再看推送成功，共 {len(videos)} 个视频")
+                result["success"] = True
+            else:
+                logger.warning(f"[用户 {username}] 稍后再看推送失败")
+                result["error"] = "推送失败"
+
+            return result
+
+        except Exception as e:
+            logger.error(f"[用户 {username}] 推送失败: {e}", exc_info=True)
+            result["error"] = str(e)
+
+            # 记录异常历史
+            try:
+                self.db.save_toview_push_history(
+                    user_id=user_id,
+                    push_type="auto",
+                    videos=[],
+                    success=False,
+                    error_message=str(e)
+                )
+            except Exception as db_error:
+                logger.error(f"记录推送历史失败: {db_error}")
+
+            return result

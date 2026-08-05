@@ -67,6 +67,9 @@ function formatDateTime(isoString) {
 
 /**
  * 显示全局错误提示
+ *
+ * @param {string} message - 错误信息（支持HTML）
+ * @param {number} duration - 显示时长（毫秒），默认5000ms
  */
 function showError(message, duration = 5000) {
     console.error('[Global Error]', message);
@@ -75,7 +78,8 @@ function showError(message, duration = 5000) {
     const messageEl = document.getElementById('global-error-message');
 
     if (container && messageEl) {
-        messageEl.textContent = message;
+        // 支持HTML内容（用于显示跳转链接）
+        messageEl.innerHTML = message;
         container.classList.remove('hidden');
 
         // 自动隐藏

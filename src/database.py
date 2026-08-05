@@ -226,22 +226,36 @@ class Database:
 
     # ==================== UP主 CRUD ====================
 
-    def get_ups(self, user_id: int = None, is_monitoring: Optional[bool] = None) -> list[dict]:
+    def get_ups(
+        self,
+        user_id: int = None,
+        is_monitoring: Optional[bool] = None,
+        page: Optional[int] = None,
+        page_size: int = 20,
+        keyword: Optional[str] = None,
+    ) -> list[dict]:
         """
-        查询 UP主列表
+        查询 UP主列表（支持分页和搜索）
 
         Args:
             user_id: 用户 ID，None 表示查询所有（管理员用）
             is_monitoring: 是否监控中，None 表示全部
+            page: 页码（从1开始），None 表示不分页返回全部
+            page_size: 每页数量，默认 20
+            keyword: 搜索关键词（匹配 name 或 mid）
 
         Returns:
             UP主列表 [{"id": 1, "mid": 123, "name": "名字", ...}, ...]
         """
-        logger.debug(f"查询 UP主列表: user_id={user_id}, is_monitoring={is_monitoring}")
+        logger.debug(
+            f"查询 UP主列表: user_id={user_id}, is_monitoring={is_monitoring}, "
+            f"page={page}, page_size={page_size}, keyword={keyword}"
+        )
 
         with self._get_connection() as conn:
             cursor = conn.cursor()
 
+            # 构造 WHERE 条件
             conditions = []
             params = []
 
@@ -253,13 +267,28 @@ class Database:
                 conditions.append("is_monitoring = ?")
                 params.append(1 if is_monitoring else 0)
 
+            if keyword:
+                # 搜索 name 或 mid
+                conditions.append("(name LIKE ? OR CAST(mid AS TEXT) LIKE ?)")
+                search_pattern = f"%{keyword}%"
+                params.extend([search_pattern, search_pattern])
+
             where_clause = " AND ".join(conditions) if conditions else "1=1"
+
+            # 构造分页
+            if page is not None:
+                offset = (page - 1) * page_size
+                pagination_clause = f"LIMIT ? OFFSET ?"
+                params.extend([page_size, offset])
+            else:
+                pagination_clause = ""
 
             sql = f"""
                 SELECT id, mid, name, face, user_id, is_monitoring, created_at, updated_at
                 FROM ups
                 WHERE {where_clause}
                 ORDER BY created_at DESC
+                {pagination_clause}
             """
 
             cursor.execute(sql, params)
@@ -268,6 +297,56 @@ class Database:
 
             logger.info(f"查询到 {len(result)} 个 UP主")
             return result
+
+    def get_ups_count(
+        self,
+        user_id: int = None,
+        is_monitoring: Optional[bool] = None,
+        keyword: Optional[str] = None,
+    ) -> int:
+        """
+        查询 UP主总数（用于分页）
+
+        Args:
+            user_id: 用户 ID，None 表示查询所有（管理员用）
+            is_monitoring: 是否监控中，None 表示全部
+            keyword: 搜索关键词（匹配 name 或 mid）
+
+        Returns:
+            符合条件的 UP主总数
+        """
+        logger.debug(
+            f"查询 UP主总数: user_id={user_id}, is_monitoring={is_monitoring}, keyword={keyword}"
+        )
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            # 构造 WHERE 条件（与 get_ups 一致）
+            conditions = []
+            params = []
+
+            if user_id is not None:
+                conditions.append("user_id = ?")
+                params.append(user_id)
+
+            if is_monitoring is not None:
+                conditions.append("is_monitoring = ?")
+                params.append(1 if is_monitoring else 0)
+
+            if keyword:
+                conditions.append("(name LIKE ? OR CAST(mid AS TEXT) LIKE ?)")
+                search_pattern = f"%{keyword}%"
+                params.extend([search_pattern, search_pattern])
+
+            where_clause = " AND ".join(conditions) if conditions else "1=1"
+
+            sql = f"SELECT COUNT(*) FROM ups WHERE {where_clause}"
+            cursor.execute(sql, params)
+            total = cursor.fetchone()[0]
+
+            logger.debug(f"UP主总数: {total}")
+            return total
 
     def get_up_by_mid(self, mid: int, user_id: int = None) -> Optional[dict]:
         """
@@ -1160,3 +1239,271 @@ class Database:
             cursor.execute("SELECT COUNT(*) FROM users")
             count = cursor.fetchone()[0]
             return count > 0
+
+    # ==================== 稍后再看视频管理 ====================
+
+    def save_toview_videos(self, user_id: int, videos: list[dict]) -> int:
+        """
+        保存稍后再看视频列表
+
+        Args:
+            user_id: 用户 ID
+            videos: 视频列表，每个元素包含 bvid, title, author, mid, pic, play, duration, pubdate
+
+        Returns:
+            保存的视频数量
+
+        Raises:
+            sqlite3.Error: 数据库操作失败
+        """
+        if not videos:
+            logger.debug("视频列表为空，跳过保存")
+            return 0
+
+        logger.info(f"保存稍后再看视频: user_id={user_id}, count={len(videos)}")
+
+        now = int(datetime.now().timestamp())
+        saved_count = 0
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            for video in videos:
+                bvid = video.get("bvid")
+                if not bvid:
+                    logger.warning(f"视频缺少 bvid: {video}")
+                    continue
+
+                try:
+                    # 使用 INSERT OR REPLACE 实现更新或插入
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO toview_videos
+                        (user_id, bvid, title, author, mid, pic, play, duration, pubdate, added_at, synced_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        user_id,
+                        bvid,
+                        video.get("title", ""),
+                        video.get("author"),
+                        video.get("mid"),
+                        video.get("pic"),
+                        video.get("play", 0),
+                        video.get("duration"),
+                        video.get("pubdate"),
+                        video.get("added_at", now),
+                        now
+                    ))
+                    saved_count += 1
+
+                except sqlite3.Error as e:
+                    logger.error(f"保存视频失败: bvid={bvid}, error={e}")
+                    continue
+
+            conn.commit()
+
+        logger.info(f"稍后再看视频保存成功: user_id={user_id}, saved={saved_count}")
+        return saved_count
+
+    def get_toview_videos(self, user_id: int, limit: int = 30) -> list[dict]:
+        """
+        获取用户的稍后再看视频列表
+
+        Args:
+            user_id: 用户 ID
+            limit: 返回数量限制
+
+        Returns:
+            视频列表，按添加时间倒序排列
+        """
+        logger.debug(f"查询稍后再看视频: user_id={user_id}, limit={limit}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, user_id, bvid, title, author, mid, pic, play, duration, pubdate, added_at, synced_at
+                FROM toview_videos
+                WHERE user_id = ?
+                ORDER BY added_at DESC
+                LIMIT ?
+            """, (user_id, limit))
+
+            rows = cursor.fetchall()
+            result = [dict(row) for row in rows]
+
+            logger.info(f"查询到 {len(result)} 条稍后再看视频")
+            return result
+
+    def get_all_toview_videos(self, user_id: Optional[int] = None) -> list[dict]:
+        """
+        获取所有用户的稍后再看视频（管理员用）
+
+        Args:
+            user_id: 可选，筛选指定用户
+
+        Returns:
+            分用户的视频列表，每个元素包含 user_id, username, count, videos
+        """
+        logger.debug(f"查询所有用户稍后再看视频: user_id={user_id}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            if user_id is not None:
+                # 查询指定用户
+                cursor.execute("""
+                    SELECT
+                        u.id as user_id,
+                        u.username,
+                        COUNT(tv.id) as count
+                    FROM users u
+                    LEFT JOIN toview_videos tv ON u.id = tv.user_id
+                    WHERE u.id = ?
+                    GROUP BY u.id
+                """, (user_id,))
+            else:
+                # 查询所有用户
+                cursor.execute("""
+                    SELECT
+                        u.id as user_id,
+                        u.username,
+                        COUNT(tv.id) as count
+                    FROM users u
+                    LEFT JOIN toview_videos tv ON u.id = tv.user_id
+                    GROUP BY u.id
+                """)
+
+            user_rows = cursor.fetchall()
+
+            result = []
+            for user_row in user_rows:
+                user_data = dict(user_row)
+
+                # 查询该用户的视频列表
+                cursor.execute("""
+                    SELECT bvid, title, author, mid, pic, play, duration, pubdate, added_at
+                    FROM toview_videos
+                    WHERE user_id = ?
+                    ORDER BY added_at DESC
+                    LIMIT 10
+                """, (user_data["user_id"],))
+
+                video_rows = cursor.fetchall()
+                user_data["videos"] = [dict(row) for row in video_rows]
+                result.append(user_data)
+
+            logger.info(f"查询到 {len(result)} 个用户的稍后再看数据")
+            return result
+
+    def save_toview_push_history(
+        self,
+        user_id: int,
+        push_type: str,
+        videos: list[dict],
+        success: bool,
+        error_message: str = None,
+        pushed_by: int = None
+    ) -> int:
+        """
+        保存稍后再看推送历史
+
+        Args:
+            user_id: 用户 ID
+            push_type: 推送类型（'auto' 或 'manual'）
+            videos: 推送的视频列表
+            success: 是否成功
+            error_message: 错误信息（失败时记录）
+            pushed_by: 手动推送的操作人 ID（管理员）
+
+        Returns:
+            新记录的 id
+        """
+        logger.info(
+            f"保存推送历史: user_id={user_id}, type={push_type}, "
+            f"success={success}, video_count={len(videos)}"
+        )
+
+        now = int(datetime.now().timestamp())
+        video_list_json = json.dumps(videos, ensure_ascii=False)
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO toview_push_history
+                (user_id, push_type, pushed_at, video_count, video_list, success, error_message, pushed_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id,
+                push_type,
+                now,
+                len(videos),
+                video_list_json,
+                1 if success else 0,
+                error_message,
+                pushed_by
+            ))
+
+            conn.commit()
+            history_id = cursor.lastrowid
+
+            logger.info(f"推送历史保存成功: id={history_id}")
+            return history_id
+
+    def get_toview_push_history(
+        self,
+        user_id: Optional[int] = None,
+        limit: int = 100
+    ) -> list[dict]:
+        """
+        获取推送历史
+
+        Args:
+            user_id: 用户 ID（None 表示查询所有）
+            limit: 返回数量限制
+
+        Returns:
+            推送历史列表，按推送时间倒序排列
+        """
+        logger.debug(f"查询推送历史: user_id={user_id}, limit={limit}")
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            if user_id is not None:
+                cursor.execute("""
+                    SELECT
+                        tph.id, tph.user_id, tph.push_type, tph.pushed_at,
+                        tph.video_count, tph.video_list, tph.success, tph.error_message,
+                        tph.pushed_by, u.username as pushed_by_name
+                    FROM toview_push_history tph
+                    LEFT JOIN users u ON tph.pushed_by = u.id
+                    WHERE tph.user_id = ?
+                    ORDER BY tph.pushed_at DESC
+                    LIMIT ?
+                """, (user_id, limit))
+            else:
+                cursor.execute("""
+                    SELECT
+                        tph.id, tph.user_id, tph.push_type, tph.pushed_at,
+                        tph.video_count, tph.video_list, tph.success, tph.error_message,
+                        tph.pushed_by, u.username as pushed_by_name
+                    FROM toview_push_history tph
+                    LEFT JOIN users u ON tph.pushed_by = u.id
+                    ORDER BY tph.pushed_at DESC
+                    LIMIT ?
+                """, (limit,))
+
+            rows = cursor.fetchall()
+            result = []
+
+            for row in rows:
+                history = dict(row)
+                # 解析视频列表 JSON
+                if history.get("video_list"):
+                    try:
+                        history["video_list"] = json.loads(history["video_list"])
+                    except json.JSONDecodeError:
+                        history["video_list"] = []
+                result.append(history)
+
+            logger.info(f"查询到 {len(result)} 条推送历史")
+            return result

@@ -72,9 +72,17 @@ class UpCreateRequest(BaseModel):
 
 
 class UpListResponse(BaseModel):
-    """UP主列表响应模型"""
+    """UP主列表响应模型（已废弃，保留兼容）"""
     items: list[UpResponse]
     total: int
+
+
+class PaginatedUpResponse(BaseModel):
+    """分页 UP主响应模型"""
+    items: list[UpResponse]
+    total: int
+    page: int
+    page_size: int
 
 
 # ==================== 视频历史相关模型 ====================

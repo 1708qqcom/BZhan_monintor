@@ -5,83 +5,112 @@
 {% block content %}
 <div class="space-y-6">
     <!-- 页面标题 -->
-    <div>
-        <h1 class="text-2xl font-bold text-gray-900">配置管理</h1>
+    <div class="animate-fade-in-up">
+        <h1 class="text-2xl font-bold text-gray-900 font-mono">配置管理</h1>
         <p class="mt-1 text-sm text-gray-500">修改系统配置</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- 基本配置 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="bg-white rounded-xl shadow-sm border border-primary-200 card-interactive animate-fade-in-up" style="animation-delay: 60ms;">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">基本配置</h2>
+                <h2 class="text-lg font-medium text-gray-900 font-mono">基本配置</h2>
             </div>
 
             <form id="config-form" class="p-6 space-y-6">
                 <!-- 检查间隔 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="check-interval" class="block text-sm font-medium text-gray-700 mb-2">
                         检查间隔（分钟）
                     </label>
-                    <input
-                        type="number"
-                        id="check-interval"
-                        min="5"
-                        max="1440"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
-                    >
-                    <p class="text-xs text-gray-500 mt-1">
+                    <div class="relative">
+                        <input
+                            type="number"
+                            id="check-interval"
+                            min="5"
+                            max="1440"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150 pr-10"
+                            aria-describedby="check-interval-help check-interval-error"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                            <svg class="w-4 h-4 text-green-500 hidden" id="check-interval-valid" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <svg class="w-4 h-4 text-red-500 hidden" id="check-interval-invalid" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <p id="check-interval-help" class="text-xs text-gray-500 mt-1">
                         建议 30-60 分钟，最小 5 分钟
+                    </p>
+                    <p id="check-interval-error" class="text-xs text-red-600 mt-1 hidden">
+                        请输入5-1440之间的数值
                     </p>
                 </div>
 
                 <!-- 最大UP主数 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="max-ups" class="block text-sm font-medium text-gray-700 mb-2">
                         最大监控UP主数量
                     </label>
-                    <input
-                        type="number"
-                        id="max-ups"
-                        min="1"
-                        max="250"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
-                    >
-                    <p class="text-xs text-gray-500 mt-1">
+                    <div class="relative">
+                        <input
+                            type="number"
+                            id="max-ups"
+                            min="1"
+                            max="250"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150 pr-10"
+                            aria-describedby="max-ups-help max-ups-error"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                            <svg class="w-4 h-4 text-green-500 hidden" id="max-ups-valid" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <svg class="w-4 h-4 text-red-500 hidden" id="max-ups-invalid" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <p id="max-ups-help" class="text-xs text-gray-500 mt-1">
                         监控的UP主数量上限，建议不超过 100
+                    </p>
+                    <p id="max-ups-error" class="text-xs text-red-600 mt-1 hidden">
+                        请输入1-250之间的数值
                     </p>
                 </div>
 
                 <!-- 飞书 Webhook -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="feishu-webhook" class="block text-sm font-medium text-gray-700 mb-2">
                         飞书 Webhook URL
                     </label>
                     <input
                         type="password"
                         id="feishu-webhook"
                         placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
+                        aria-describedby="feishu-webhook-help"
                     >
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p id="feishu-webhook-help" class="text-xs text-gray-500 mt-1">
                         飞书群机器人的 Webhook 地址，已配置时显示为隐藏状态
                     </p>
                 </div>
 
                 <!-- 操作按钮 -->
-                <div class="flex justify-end space-x-3">
+                <div class="flex justify-end space-x-3 pt-4">
                     <button
                         type="button"
                         id="btn-reset-config"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-150"
                     >
                         重置
                     </button>
                     <button
                         type="submit"
-                        class="px-4 py-2 bg-bilibili-pink text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors"
+                        class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all duration-150 shadow-sm hover:shadow-md btn-interactive"
                     >
                         保存配置
                     </button>
@@ -90,9 +119,9 @@
         </div>
 
         <!-- 测试推送 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="bg-white rounded-xl shadow-sm border border-primary-200 card-interactive animate-fade-in-up" style="animation-delay: 120ms;">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">测试推送</h2>
+                <h2 class="text-lg font-medium text-gray-900 font-mono">测试推送</h2>
             </div>
 
             <div class="p-6 space-y-4">
@@ -101,26 +130,26 @@
                 </p>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="test-message" class="block text-sm font-medium text-gray-700 mb-2">
                         测试消息内容
                     </label>
                     <input
                         type="text"
                         id="test-message"
                         value="这是一条测试消息"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bilibili-pink focus:border-bilibili-pink text-sm"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
                     >
                 </div>
 
                 <button
                     id="btn-test-push"
-                    class="w-full bg-bilibili-blue text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                    class="w-full bg-accent text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-all duration-150 text-sm font-medium shadow-sm hover:shadow-md btn-interactive"
                 >
                     发送测试消息
                 </button>
 
                 <!-- 测试结果 -->
-                <div id="test-result" class="hidden mt-4 p-4 rounded-lg text-sm"></div>
+                <div id="test-result" class="hidden mt-4 p-4 rounded-lg text-sm transition-all duration-300"></div>
             </div>
         </div>
     </div>
@@ -160,6 +189,49 @@
      * 绑定事件
      */
     function bindEvents() {
+        // 实时验证
+        document.getElementById('check-interval').addEventListener('input', function(e) {
+            const value = parseInt(e.target.value);
+            const validEl = document.getElementById('check-interval-valid');
+            const invalidEl = document.getElementById('check-interval-invalid');
+            const errorEl = document.getElementById('check-interval-error');
+
+            if (value >= 5 && value <= 1440) {
+                validEl.classList.remove('hidden');
+                invalidEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                e.target.classList.remove('border-red-300');
+                e.target.classList.add('border-green-300');
+            } else if (e.target.value) {
+                validEl.classList.add('hidden');
+                invalidEl.classList.remove('hidden');
+                errorEl.classList.remove('hidden');
+                e.target.classList.remove('border-green-300');
+                e.target.classList.add('border-red-300');
+            }
+        });
+
+        document.getElementById('max-ups').addEventListener('input', function(e) {
+            const value = parseInt(e.target.value);
+            const validEl = document.getElementById('max-ups-valid');
+            const invalidEl = document.getElementById('max-ups-invalid');
+            const errorEl = document.getElementById('max-ups-error');
+
+            if (value >= 1 && value <= 250) {
+                validEl.classList.remove('hidden');
+                invalidEl.classList.add('hidden');
+                errorEl.classList.add('hidden');
+                e.target.classList.remove('border-red-300');
+                e.target.classList.add('border-green-300');
+            } else if (e.target.value) {
+                validEl.classList.add('hidden');
+                invalidEl.classList.remove('hidden');
+                errorEl.classList.remove('hidden');
+                e.target.classList.remove('border-green-300');
+                e.target.classList.add('border-red-300');
+            }
+        });
+
         // 保存配置
         document.getElementById('config-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -171,8 +243,8 @@
             const feishuWebhook = document.getElementById('feishu-webhook').value.trim();
 
             // 验证
-            if (checkInterval < 5) {
-                showError('检查间隔不能小于 5 分钟');
+            if (checkInterval < 5 || checkInterval > 1440) {
+                showError('检查间隔必须在 5-1440 分钟之间');
                 return;
             }
 
@@ -207,6 +279,14 @@
             document.getElementById('max-ups').value = 50;
             document.getElementById('feishu-webhook').value = '';
 
+            // 清除验证状态
+            document.getElementById('check-interval-valid').classList.add('hidden');
+            document.getElementById('check-interval-invalid').classList.add('hidden');
+            document.getElementById('check-interval').classList.remove('border-red-300', 'border-green-300');
+            document.getElementById('max-ups-valid').classList.add('hidden');
+            document.getElementById('max-ups-invalid').classList.add('hidden');
+            document.getElementById('max-ups').classList.remove('border-red-300', 'border-green-300');
+
             showSuccess('配置已重置');
         });
 
@@ -223,11 +303,18 @@
             }
 
             try {
-                resultDiv.classList.remove('hidden', 'bg-red-50', 'text-red-700');
+                resultDiv.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700');
                 resultDiv.classList.add('bg-blue-50', 'text-blue-700');
-                resultDiv.textContent = '发送中...';
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.042.784 3.87 2.058 5.244L6 17.291z"></path>
+                        </svg>
+                        发送中...
+                    </div>
+                `;
 
-                // 调用飞书测试接口
                 const response = await fetchAPI('/api/config/test-push', {
                     method: 'POST',
                     body: JSON.stringify({ message: message })
@@ -235,7 +322,14 @@
 
                 resultDiv.classList.remove('bg-blue-50', 'text-blue-700');
                 resultDiv.classList.add('bg-green-50', 'text-green-700');
-                resultDiv.textContent = '✓ 测试消息发送成功';
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        测试消息发送成功
+                    </div>
+                `;
 
                 showSuccess('测试推送成功');
 
@@ -244,7 +338,14 @@
 
                 resultDiv.classList.remove('bg-blue-50', 'text-blue-700', 'bg-green-50', 'text-green-700');
                 resultDiv.classList.add('bg-red-50', 'text-red-700');
-                resultDiv.textContent = '✗ 发送失败: ' + error.message;
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        发送失败: ${error.message}
+                    </div>
+                `;
 
                 showError('测试推送失败: ' + error.message);
             }
