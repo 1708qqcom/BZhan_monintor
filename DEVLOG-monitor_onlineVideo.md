@@ -4,6 +4,76 @@
 
 ---
 
+## 2026-08-06
+
+### 实现：用户引导流程（v2.3）
+
+**做了什么**
+- 新增 `user_onboarding` 数据库表及完整 CRUD 方法（`init_onboarding_progress`、`get_onboarding_progress`、`update_onboarding_step`）
+- 新增引导流程 API 模块 `src/api/onboarding.py`（3个端点：获取状态、完成步骤、跳过步骤）
+- 新增引导页面模板 `templates/onboarding.html`（3步向导 + 进度指示器）
+- 新增前端交互脚本 `static/js/onboarding.js`（步骤切换、B站扫码轮询、飞书配置保存、UP主批量选择）
+- 新增数据模型 `OnboardingProgress`、`OnboardingStepRequest`、`OnboardingStatusResponse`
+- 注册流程集成：新用户注册后自动初始化引导进度并重定向到 `/onboarding`
+- 仪表盘集成：查询引导进度，未完成时显示进度提示卡片（带百分比进度条）
+- 编写测试：`test_onboarding_api.py`（API接口测试）、`test_onboarding_db.py`（数据库方法测试）
+
+**为什么这样做**
+- 新用户注册后面对空白仪表盘缺乏引导，不知道第一步该做什么
+- 3步向导覆盖核心配置路径：B站绑定 → 飞书推送 → UP主选择，降低上手成本
+- 每步可跳过，不强制的设计降低用户抵触
+- 仪表盘进度卡片作为轻量提醒，避免打断用户正常使用
+
+**技术决策**
+- 引导状态存 SQLite 而非 session：跨设备/清除Cookie后仍保留进度，适合长周期使用
+- 前端 Vanilla JS 而非框架：页面简单，无构建步骤，与项目整体风格一致
+- 步骤完成计算逻辑：`completed or skipped` 都算该步已处理，进度 = 已处理/3 × 100
+- 注册时引导初始化失败不阻断注册流程（try-except 包裹），保障核心流程可用
+
+**关键文件**
+- `src/database.py` — 新增 user_onboarding 表 + 3个CRUD方法
+- `src/api/onboarding.py` — 引导流程 API 端点
+- `src/models.py` — 新增引导相关 Pydantic 模型
+- `src/web.py` — 注册重定向、仪表盘进度查询、onboarding 页面路由
+- `templates/onboarding.html` — 引导页面模板
+- `static/js/onboarding.js` — 引导流程交互脚本
+- `templates/dashboard.html` — 仪表盘引导进度卡片
+- `templates/base.html` — 导航栏登录链接
+
+---
+
+### 实现：飞书推送格式优化
+
+**做了什么**
+- 单视频推送：标题从纯文本改为可点击的 markdown 链接格式 `[视频标题](视频链接)`
+- 单视频推送和每日摘要列表项添加 🎬 emoji
+
+**为什么这样做**
+- 原格式标题不可点击，用户需要手动复制BV号到浏览器打开，体验不流畅
+- emoji 前缀增强视觉识别度，与通知内容调性一致
+
+---
+
+### 实现：导航栏未登录状态优化
+
+**做了什么**
+- `templates/base.html` 中未登录用户显示"登录"导航链接
+
+**为什么这样做**
+- 原实现在未登录状态下用户菜单完全空白，新用户不知道该点哪里登录
+
+---
+
+### 清理：删除废弃临时文档
+
+**做了什么**
+- 删除 `temp_video_stats_tracking_design.md`、`temp_video_stats_tracking_requirements.md`、`temp_video_stats_tracking_todo.md`
+
+**为什么这样做**
+- 播放量追踪曲线功能未实施，临时设计文档已无参考价值
+
+---
+
 ## 2026-08-02
 
 ### 实现：完成部署准备工作（v2.2）

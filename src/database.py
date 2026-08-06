@@ -238,6 +238,29 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_toview_history_time ON toview_push_history(pushed_at)
             """)
 
+            # 8. 用户引导进度表
+            logger.debug("创建 user_onboarding 表...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS user_onboarding (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL UNIQUE,
+                    step1_completed INTEGER DEFAULT 0,
+                    step1_skipped INTEGER DEFAULT 0,
+                    step2_completed INTEGER DEFAULT 0,
+                    step2_skipped INTEGER DEFAULT 0,
+                    step3_completed INTEGER DEFAULT 0,
+                    step3_skipped INTEGER DEFAULT 0,
+                    current_step INTEGER DEFAULT 1,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_user_onboarding_user_id
+                ON user_onboarding(user_id)
+            """)
+
             conn.commit()
             logger.info("数据库表结构初始化完成")
 
@@ -1558,3 +1581,143 @@ class Database:
 
             logger.info(f"查询到 {len(result)} 条推送历史")
             return result
+
+    # ==================== 用户引导进度管理 ====================
+
+    def init_onboarding_progress(self, user_id: int) -> int:
+        """
+        初始化用户引导进度记录
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            新记录的 ID
+
+        Raises:
+            sqlite3.IntegrityError: 用户已存在引导记录
+        """
+        logger.info(f"初始化引导进度: user_id={user_id}")
+
+        now = datetime.now().isoformat()
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO user_onboarding
+                    (user_id, step1_completed, step1_skipped, step2_completed, step2_skipped,
+                     step3_completed, step3_skipped, current_step, created_at, updated_at)
+                    VALUES (?, 0, 0, 0, 0, 0, 0, 1, ?, ?)
+                """, (user_id, now, now))
+
+                conn.commit()
+                onboarding_id = cursor.lastrowid
+
+                logger.info(f"引导进度初始化成功: id={onboarding_id}, user_id={user_id}")
+                return onboarding_id
+
+        except sqlite3.IntegrityError as e:
+            logger.warning(f"用户引导记录已存在: user_id={user_id}, error={e}")
+            raise
+
+    def get_onboarding_progress(self, user_id: int) -> Optional[dict]:
+        """
+        查询用户引导进度
+
+        Args:
+            user_id: 用户 ID
+
+        Returns:
+            引导进度字典，不存在返回 None
+        """
+        logger.debug(f"查询引导进度: user_id={user_id}")
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT id, user_id, step1_completed, step1_skipped,
+                           step2_completed, step2_skipped, step3_completed, step3_skipped,
+                           current_step, created_at, updated_at
+                    FROM user_onboarding
+                    WHERE user_id = ?
+                """, (user_id,))
+
+                row = cursor.fetchone()
+                if row:
+                    logger.debug(f"查询到引导进度: user_id={user_id}")
+                    return dict(row)
+                else:
+                    logger.debug(f"引导进度不存在: user_id={user_id}")
+                    return None
+
+        except Exception as e:
+            logger.error(f"查询引导进度失败: user_id={user_id}, error={e}", exc_info=True)
+            return None
+
+    def update_onboarding_step(
+        self,
+        user_id: int,
+        step: int,
+        completed: bool = False,
+        skipped: bool = False
+    ) -> bool:
+        """
+        更新用户引导步骤状态
+
+        Args:
+            user_id: 用户 ID
+            step: 步骤编号（1-3）
+            completed: 是否完成
+            skipped: 是否跳过
+
+        Returns:
+            更新成功返回 True
+
+        Raises:
+            ValueError: 参数无效
+        """
+        # 参数校验
+        if step not in [1, 2, 3]:
+            raise ValueError(f"步骤编号无效: step={step}")
+
+        if not completed and not skipped:
+            raise ValueError("必须指定 completed 或 skipped")
+
+        logger.info(f"更新引导步骤: user_id={user_id}, step={step}, completed={completed}, skipped={skipped}")
+
+        now = datetime.now().isoformat()
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+
+                # 构造更新字段
+                if completed:
+                    update_field = f"step{step}_completed = 1"
+                else:  # skipped
+                    update_field = f"step{step}_skipped = 1"
+
+                # 计算下一步（超过3则保持为3）
+                next_step = min(step + 1, 3)
+
+                cursor.execute(f"""
+                    UPDATE user_onboarding
+                    SET {update_field}, current_step = ?, updated_at = ?
+                    WHERE user_id = ?
+                """, (next_step, now, user_id))
+
+                conn.commit()
+                affected = cursor.rowcount
+
+                if affected > 0:
+                    logger.info(f"引导步骤更新成功: user_id={user_id}, step={step}")
+                    return True
+                else:
+                    logger.warning(f"引导进度记录不存在: user_id={user_id}")
+                    return False
+
+        except Exception as e:
+            logger.error(f"更新引导步骤失败: user_id={user_id}, step={step}, error={e}", exc_info=True)
+            return False

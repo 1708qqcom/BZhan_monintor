@@ -23,6 +23,17 @@
 
 ## 已完成
 
+- [x] ✅ 用户引导流程（2026-08-06）
+  - [x] user_onboarding 数据库表 + CRUD 方法
+  - [x] 引导流程 API（status/complete-step/skip-step）
+  - [x] /onboarding 引导页面（3步向导）
+  - [x] onboarding.js 交互脚本
+  - [x] 注册后自动重定向引导页
+  - [x] 仪表盘引导进度卡片
+  - [x] 飞书推送格式优化（可点击标题 + emoji）
+  - [x] 导航栏未登录状态优化
+  - [x] test_onboarding_api.py / test_onboarding_db.py 测试通过
+
 - [x] ✅ 登录后自动同步关注列表（2026-08-02）
   - [x] 创建同步服务模块 sync_service.py
   - [x] 新增 POST /api/ups/sync API端点

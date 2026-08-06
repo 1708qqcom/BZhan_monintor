@@ -159,6 +159,33 @@ class QrCodeResponse(BaseModel):
     image_url: str
 
 
+# ==================== 引导流程相关模型 ====================
+
+class OnboardingProgress(BaseModel):
+    """引导进度数据模型"""
+    user_id: int
+    current_step: int = Field(ge=1, le=3, description="当前步骤（1-3）")
+    step1_completed: bool = False
+    step1_skipped: bool = False
+    step2_completed: bool = False
+    step2_skipped: bool = False
+    step3_completed: bool = False
+    step3_skipped: bool = False
+    progress_percent: int = Field(ge=0, le=100, description="进度百分比（0-100）")
+    is_completed: bool = Field(description="是否已完成所有步骤或全部跳过")
+
+
+class OnboardingStepRequest(BaseModel):
+    """引导步骤请求模型"""
+    step: int = Field(ge=1, le=3, description="步骤编号（1-3）")
+
+
+class OnboardingStatusResponse(BaseModel):
+    """引导状态响应模型"""
+    has_onboarding_record: bool = Field(description="是否存在引导记录")
+    progress: Optional[OnboardingProgress] = None
+
+
 # ==================== 通用响应模型 ====================
 
 class ErrorResponse(BaseModel):

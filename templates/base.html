@@ -133,6 +133,7 @@
 
                 <!-- 右侧用户菜单 -->
                 <div class="hidden md:flex md:items-center md:space-x-4">
+                    {% if username %}
                     <!-- 用户信息 -->
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -150,6 +151,11 @@
                             退出
                         </button>
                     </form>
+                    {% else %}
+                    <a href="/auth/login" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors duration-150">
+                        登录
+                    </a>
+                    {% endif %}
                 </div>
 
                 <!-- 移动端汉堡菜单按钮 -->
@@ -166,6 +172,7 @@
         <!-- 移动端菜单（默认隐藏） -->
         <div id="mobile-menu" class="hidden md:hidden border-t border-primary-200 transform -translate-y-full transition-transform duration-400">
             <div class="pt-2 pb-3 space-y-1 bg-white">
+                {% if username %}
                 <!-- 用户信息 -->
                 <div class="px-4 py-2 flex items-center space-x-2 border-b border-gray-100 mb-2">
                     <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -178,6 +185,7 @@
                     <span class="text-xs bg-accent text-white px-2 py-0.5 rounded-full font-medium">管理员</span>
                     {% endif %}
                 </div>
+                {% endif %}
                 <a href="/" class="block pl-3 pr-4 py-2 text-base font-medium {% if active_page == 'dashboard' %}text-primary bg-primary-50 border-l-4 border-primary{% else %}text-gray-700 hover:bg-gray-50 hover:text-primary{% endif %}">
                     仪表盘
                 </a>
@@ -202,11 +210,17 @@
                 </a>
                 {% endif %}
                 <div class="pt-4 pb-2 border-t border-gray-200">
+                    {% if username %}
                     <form action="/auth/logout" method="POST">
                         <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50 transition-colors duration-150">
                             退出
                         </button>
                     </form>
+                    {% else %}
+                    <a href="/auth/login" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-primary hover:bg-gray-50 transition-colors duration-150">
+                        登录
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

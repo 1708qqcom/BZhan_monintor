@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}新用户引导 - B站监控{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <!-- 页面标题 -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">欢迎来到 B站监控系统</h1>
+        <p class="mt-2 text-sm text-gray-500">完成以下配置，即可开始使用监控功能</p>
+    </div>
+
+    <!-- 进度指示器 -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center">
+            <!-- 步骤 1 -->
+            <div class="flex items-center">
+                <div id="step1-indicator" class="w-10 h-10 rounded-full flex items-center justify-center border-2 bg-primary border-primary text-white font-medium">
+                    1
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-700">B站登录</span>
+            </div>
+
+            <!-- 连接线 -->
+            <div class="w-16 h-1 mx-2 bg-gray-200">
+                <div id="line1" class="h-full bg-primary transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <!-- 步骤 2 -->
+            <div class="flex items-center">
+                <div id="step2-indicator" class="w-10 h-10 rounded-full flex items-center justify-center border-2 bg-gray-200 border-gray-300 text-gray-500 font-medium">
+                    2
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-500">飞书配置</span>
+            </div>
+
+            <!-- 连接线 -->
+            <div class="w-16 h-1 mx-2 bg-gray-200">
+                <div id="line2" class="h-full bg-primary transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <!-- 步骤 3 -->
+            <div class="flex items-center">
+                <div id="step3-indicator" class="w-10 h-10 rounded-full flex items-center justify-center border-2 bg-gray-200 border-gray-300 text-gray-500 font-medium">
+                    3
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-500">UP主选择</span>
+            </div>
+        </div>
+
+        <!-- 进度百分比 -->
+        <div class="mt-4 text-center">
+            <span class="text-sm text-gray-500">配置进度：</span>
+            <span id="progress-percent" class="text-sm font-bold text-primary">0%</span>
+        </div>
+    </div>
+
+    <!-- 步骤内容区 -->
+    <div class="bg-white rounded-xl shadow-sm border border-primary-200 overflow-hidden">
+        <!-- 步骤 1：B站登录 -->
+        <div id="step1-content" class="step-content p-6">
+            <div class="text-center">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">步骤 1：绑定B站账号</h2>
+                <p class="text-sm text-gray-500 mb-6">扫描二维码登录B站，系统将自动同步您的关注列表</p>
+
+                <!-- 二维码区域 -->
+                <div id="qrcode-container" class="mb-4">
+                    <div class="inline-block p-4 bg-white border-2 border-gray-200 rounded-lg">
+                        <div id="qrcode-image" class="w-48 h-48 flex items-center justify-center bg-gray-100">
+                            <span class="text-gray-400 text-sm">点击下方按钮获取二维码</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 状态提示 -->
+                <div id="qrcode-status" class="text-sm text-gray-500 mb-4">
+                    准备就绪
+                </div>
+
+                <!-- 操作按钮 -->
+                <button
+                    id="btn-get-qrcode"
+                    class="bg-bilibili-pink text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium"
+                >
+                    获取二维码
+                </button>
+            </div>
+        </div>
+
+        <!-- 步骤 2：飞书配置 -->
+        <div id="step2-content" class="step-content p-6 hidden">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">步骤 2：配置飞书推送</h2>
+                <p class="text-sm text-gray-500 mb-6">配置飞书 Webhook，接收新视频推送通知</p>
+
+                <div class="space-y-4 max-w-md mx-auto">
+                    <!-- Webhook 输入 -->
+                    <div>
+                        <label for="feishu-webhook" class="block text-sm font-medium text-gray-700 mb-2">
+                            飞书 Webhook URL
+                        </label>
+                        <input
+                            type="text"
+                            id="feishu-webhook"
+                            placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all duration-150"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">
+                            如何获取？
+                            <a href="https://www.feishu.cn/hc/zh-CN/articles/360024984733" target="_blank" class="text-primary hover:underline">
+                                查看教程
+                            </a>
+                        </p>
+                    </div>
+
+                    <!-- 测试推送 -->
+                    <div>
+                        <button
+                            id="btn-test-push"
+                            class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-150 text-sm font-medium"
+                        >
+                            测试推送
+                        </button>
+                        <p id="test-push-status" class="text-xs text-center mt-2 text-gray-500"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤 3：UP主选择 -->
+        <div id="step3-content" class="step-content p-6 hidden">
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">步骤 3：选择要监控的UP主</h2>
+                <p class="text-sm text-gray-500 mb-6">选择您想监控的UP主，系统将自动推送新视频通知</p>
+
+                <!-- UP主列表 -->
+                <div id="ups-container" class="max-w-2xl mx-auto">
+                    <div class="text-center py-8">
+                        <div class="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p class="text-sm text-gray-500">正在加载UP主列表...</p>
+                    </div>
+                </div>
+
+                <!-- 全选/取消全选 -->
+                <div class="max-w-2xl mx-auto mt-4 flex justify-between items-center">
+                    <button
+                        id="btn-select-all"
+                        class="text-sm text-primary hover:underline font-medium"
+                    >
+                        全选
+                    </button>
+                    <button
+                        id="btn-select-none"
+                        class="text-sm text-gray-500 hover:underline font-medium"
+                    >
+                        取消全选
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div class="mt-6 flex justify-between items-center">
+        <!-- 左侧：跳过按钮 -->
+        <button
+            id="btn-skip"
+            class="text-sm text-gray-500 hover:text-primary transition-colors font-medium"
+        >
+            跳过此步骤
+        </button>
+
+        <!-- 右侧：操作按钮 -->
+        <div class="flex space-x-3">
+            <button
+                id="btn-prev"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-150 hidden"
+            >
+                上一步
+            </button>
+            <button
+                id="btn-next"
+                class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-all duration-150 shadow-sm hover:shadow-md hidden"
+            >
+                下一步
+            </button>
+            <button
+                id="btn-complete"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all duration-150 shadow-sm hover:shadow-md hidden"
+            >
+                完成配置
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/onboarding.js"></script>
+{% endblock %}

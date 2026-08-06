@@ -28,6 +28,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.api import ups_router, videos_router, config_router, login_router, toview_router
+from src.api.onboarding import router as onboarding_router
 from src.database import Database
 from src.models import HealthResponse, ErrorResponse
 from src.scheduler import MonitorScheduler
@@ -472,8 +473,16 @@ async def register_submit(
     request.session["username"] = username
     request.session["is_admin"] = False
 
+    # 5. 初始化引导进度（新用户首次注册）
+    try:
+        db.init_onboarding_progress(user_id)
+        logger.info(f"引导进度已初始化: user_id={user_id}")
+    except Exception as e:
+        # 引导初始化失败不影响注册流程
+        logger.warning(f"初始化引导进度失败（不影响注册）: user_id={user_id}, error={e}")
+
     logger.info(f"自动登录成功: username={username}")
-    return RedirectResponse(url="/", status_code=302)
+    return RedirectResponse(url="/onboarding", status_code=302)
 
 
 @app.post("/auth/logout", tags=["认证"])
@@ -530,6 +539,7 @@ app.include_router(videos_router)
 app.include_router(config_router)
 app.include_router(login_router)
 app.include_router(toview_router)
+app.include_router(onboarding_router)
 
 logger.debug("API路由注册完成")
 
@@ -690,11 +700,35 @@ async def root(request: Request):
     """
     logger.debug("渲染仪表盘页面")
 
+    # 查询引导进度
+    user_id = request.session.get("user_id")
+    onboarding_completed = True
+    onboarding_progress = 100
+
+    if user_id:
+        try:
+            db = Database()
+            progress = db.get_onboarding_progress(user_id)
+            if progress:
+                # 计算进度百分比
+                completed_count = sum([
+                    progress.get("step1_completed", 0) or progress.get("step1_skipped", 0),
+                    progress.get("step2_completed", 0) or progress.get("step2_skipped", 0),
+                    progress.get("step3_completed", 0) or progress.get("step3_skipped", 0),
+                ])
+                onboarding_progress = int((completed_count / 3) * 100)
+                onboarding_completed = completed_count >= 3
+            # 如果没有记录，说明是老用户，默认已完成
+        except Exception as e:
+            logger.warning(f"查询引导进度失败（不影响仪表盘）: {e}")
+
     template = jinja_env.get_template("dashboard.html")
     return HTMLResponse(content=template.render(
         username=request.session.get("username", ""),
         is_admin=request.session.get("is_admin", False),
-        active_page="dashboard"
+        active_page="dashboard",
+        onboarding_completed=onboarding_completed,
+        onboarding_progress=onboarding_progress
     ))
 
 
@@ -867,6 +901,26 @@ async def toview_history_page(request: Request):
         username=request.session.get("username", ""),
         is_admin=request.session.get("is_admin", False),
         active_page="toview_history"
+    ))
+
+
+# ==================== 用户引导页面 ====================
+
+@app.get("/onboarding", response_class=HTMLResponse, tags=["页面"])
+async def onboarding_page(request: Request):
+    """
+    用户引导页面
+
+    Args:
+        request: 请求对象
+    """
+    logger.debug("渲染用户引导页面")
+
+    template = jinja_env.get_template("onboarding.html")
+    return HTMLResponse(content=template.render(
+        username=request.session.get("username", ""),
+        is_admin=request.session.get("is_admin", False),
+        active_page="onboarding"
     ))
 
 

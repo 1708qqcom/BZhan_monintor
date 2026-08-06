@@ -82,7 +82,7 @@ class FeishuNotifier:
                         "tag": "div",
                         "text": {
                             "tag": "lark_md",
-                            "content": f"**视频标题**\n{video_title}"
+                            "content": f"🎬 **[{video_title}]({video_url})**"
                         }
                     },
                     {
@@ -233,7 +233,7 @@ class FeishuNotifier:
                 "text": {
                     "tag": "lark_md",
                     "content": (
-                        f"**{i}. [{title}](https://www.bilibili.com/video/{bvid})**\n"
+                        f"**{i}. 🎬 [{title}](https://www.bilibili.com/video/{bvid})**\n"
                         f"UP主: {author} | 播放: {self._format_view_count(play)}"
                     )
                 }
