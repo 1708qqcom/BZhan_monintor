@@ -15,6 +15,9 @@
         <div class="bg-white rounded-xl shadow-sm border border-primary-200 card-interactive animate-fade-in-up" style="animation-delay: 60ms;">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-medium text-gray-900 font-mono">基本配置</h2>
+                <p id="global-config-permission-hint" class="text-xs text-amber-600 mt-1 hidden">
+                    检查间隔与最大UP主数为全局配置，仅管理员可修改；普通用户仅可修改自己的飞书 Webhook。
+                </p>
             </div>
 
             <form id="config-form" class="p-6 space-y-6">
@@ -158,6 +161,9 @@
 
 {% block scripts %}
 <script>
+    // 当前用户是否为管理员（由后端模板注入；缺失时降级为 false，按普通用户处理）
+    const IS_ADMIN = {{ is_admin | tojson }};
+
     // 页面加载时获取配置
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('[Config] 开始加载配置');
@@ -179,9 +185,40 @@
             document.getElementById('max-ups').value = config.max_ups || 50;
             document.getElementById('feishu-webhook').value = config.feishu_webhook_url || '';
 
+            // 按权限控制全局配置字段的可编辑性
+            applyAdminPermissions();
+
         } catch (error) {
             console.error('[Config] 加载配置失败:', error);
             showError('加载配置失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 按管理员权限控制全局配置字段
+     * 非管理员：禁用检查间隔、最大UP主数输入框，仅允许修改飞书 Webhook
+     */
+    function applyAdminPermissions() {
+        if (IS_ADMIN) {
+            console.log('[Config] 当前用户为管理员，全局配置可编辑');
+            return;
+        }
+
+        console.log('[Config] 当前用户为普通用户，禁用全局配置字段');
+
+        const globalFieldIds = ['check-interval', 'max-ups'];
+        globalFieldIds.forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (input) {
+                input.disabled = true;
+                input.classList.add('bg-gray-100', 'cursor-not-allowed');
+            }
+        });
+
+        // 展示“仅管理员可修改”提示
+        const hintEl = document.getElementById('global-config-permission-hint');
+        if (hintEl) {
+            hintEl.classList.remove('hidden');
         }
     }
 
@@ -236,31 +273,28 @@
         document.getElementById('config-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            console.log('[Config] 保存配置');
+            console.log('[Config] 保存配置, is_admin=', IS_ADMIN);
 
             const checkInterval = parseInt(document.getElementById('check-interval').value);
             const maxUps = parseInt(document.getElementById('max-ups').value);
             const feishuWebhook = document.getElementById('feishu-webhook').value.trim();
 
-            // 验证
-            if (checkInterval < 5 || checkInterval > 1440) {
-                showError('检查间隔必须在 5-1440 分钟之间');
-                return;
+            // 按权限构造请求体：全局字段仅管理员提交，避免触发后端 403
+            const payload = {};
+            if (IS_ADMIN) {
+                if (!validateGlobalConfig(checkInterval, maxUps)) {
+                    return;
+                }
+                payload.check_interval_minutes = checkInterval;
+                payload.max_ups = maxUps;
             }
-
-            if (maxUps < 1 || maxUps > 250) {
-                showError('UP主数量必须在 1-250 之间');
-                return;
-            }
+            // 飞书 Webhook 为用户级配置，所有用户均可修改；传字符串以支持清空
+            payload.feishu_webhook_url = feishuWebhook;
 
             try {
                 await fetchAPI('/api/config', {
                     method: 'PUT',
-                    body: JSON.stringify({
-                        check_interval_minutes: checkInterval,
-                        max_ups: maxUps,
-                        feishu_webhook_url: feishuWebhook || null
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 showSuccess('配置保存成功');
@@ -350,6 +384,24 @@
                 showError('测试推送失败: ' + error.message);
             }
         });
+    }
+
+    /**
+     * 校验全局配置字段范围（仅管理员提交时调用）
+     * @param {number} checkInterval - 检查间隔（分钟）
+     * @param {number} maxUps - 最大UP主数
+     * @returns {boolean} 校验通过返回 true
+     */
+    function validateGlobalConfig(checkInterval, maxUps) {
+        if (isNaN(checkInterval) || checkInterval < 5 || checkInterval > 1440) {
+            showError('检查间隔必须在 5-1440 分钟之间');
+            return false;
+        }
+        if (isNaN(maxUps) || maxUps < 1 || maxUps > 250) {
+            showError('UP主数量必须在 1-250 之间');
+            return false;
+        }
+        return true;
     }
 </script>
 {% endblock %}
