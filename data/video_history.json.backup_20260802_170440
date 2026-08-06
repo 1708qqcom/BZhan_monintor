@@ -1,0 +1,2219 @@
+{
+  "videos": {
+    "BV1ZkGw6vEQg": {
+      "title": "来到宁夏吴忠，尝尝街边水果怎么样？",
+      "up_id": 3493260093819171,
+      "up_name": "李维刚的日常",
+      "pubdate": 1785489332,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:16.585219"
+    },
+    "BV1Gx3s6XE1x": {
+      "title": "顺德路边树上摘的龙眼，没想到味道还挺好吃的～",
+      "up_id": 3493260093819171,
+      "up_name": "李维刚的日常",
+      "pubdate": 1785402000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:16.585234"
+    },
+    "BV16x3y6WEzt": {
+      "title": "上次在雀哥这钓了200多斤的大鱼，这次用螺纹钢鱼竿试试能不能钓到大货？",
+      "up_id": 3493260093819171,
+      "up_name": "李维刚的日常",
+      "pubdate": 1785315600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:16.585238"
+    },
+    "BV16t3v6cE85": {
+      "title": "兄弟们，刚哥的烤肠上线了，今天带大家检验一下刚哥黑猪烤肠的生产流程，让大家每一口都吃得放心！",
+      "up_id": 3493260093819171,
+      "up_name": "李维刚的日常",
+      "pubdate": 1785232157,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:16.585241"
+    },
+    "BV1so3g6NELt": {
+      "title": "潮汕私房菜，没有菜单，老板上什么就吃什么，像开盲盒一样，不知道这一桌味道怎么样？",
+      "up_id": 3493260093819171,
+      "up_name": "李维刚的日常",
+      "pubdate": 1784971951,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:16.585243"
+    },
+    "BV1T9T96HEFD": {
+      "title": "AI写完代码还要你验收？你才是最大瓶颈！",
+      "up_id": 1731330412,
+      "up_name": "AI-Ghost-Lab",
+      "pubdate": 1783339458,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:17.758646"
+    },
+    "BV18wTM6bEyr": {
+      "title": "AI内容工作流复盘：运行17天，生产跑通了，但增长没跑通",
+      "up_id": 1731330412,
+      "up_name": "AI-Ghost-Lab",
+      "pubdate": 1782637682,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:17.758659"
+    },
+    "BV1RAJV6jEyy": {
+      "title": "我用AI工作流跑了一个新账号：选题、脚本、发布怎么分工",
+      "up_id": 1731330412,
+      "up_name": "AI-Ghost-Lab",
+      "pubdate": 1781516316,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:17.758664"
+    },
+    "BV11DEd6nEBK": {
+      "title": "深度复盘：为什么我暂停了GhostVM项目？",
+      "up_id": 1731330412,
+      "up_name": "AI-Ghost-Lab",
+      "pubdate": 1781091942,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:17.758667"
+    },
+    "BV1aP7k6HE1g": {
+      "title": "我以为自己在创业，其实换了个地方写代码",
+      "up_id": 1731330412,
+      "up_name": "AI-Ghost-Lab",
+      "pubdate": 1780659628,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:17.758669"
+    },
+    "BV1sv316KEih": {
+      "title": "【一飞冲天】AI 给我的最大帮助其实是... 很多人的方向都错了",
+      "up_id": 325864133,
+      "up_name": "飞天闪客",
+      "pubdate": 1785327425,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:18.886796"
+    },
+    "BV1yLKw6aE9p": {
+      "title": "【闪客】大大大模型哪大了？深入解读超大模型 Kimi K3 背后的技术",
+      "up_id": 325864133,
+      "up_name": "飞天闪客",
+      "pubdate": 1784358795,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:18.886809"
+    },
+    "BV1KcNc6FEqA": {
+      "title": "【闪客】GPT5.6 是什么水平？我花了 1036 元帮你测了下！效果直观，就是有点费钱！",
+      "up_id": 325864133,
+      "up_name": "飞天闪客",
+      "pubdate": 1783771633,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:18.886814"
+    },
+    "BV1LkM86vEEW": {
+      "title": "【闪客】大模型的分数是咋测出来的？深入拆解 Benchmark 背后的秘密",
+      "up_id": 325864133,
+      "up_name": "飞天闪客",
+      "pubdate": 1783417695,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:18.886817"
+    },
+    "BV1htTF6zEYE": {
+      "title": "【一飞冲天】如何真正做好一个自媒体？五年老油条的经验和心法分享！",
+      "up_id": 325864133,
+      "up_name": "飞天闪客",
+      "pubdate": 1782816012,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:18.886819"
+    },
+    "BV1vpGc68EvX": {
+      "title": "杭漂24岁大厂程序员真实的一天",
+      "up_id": 3493137471244811,
+      "up_name": "雯ww63",
+      "pubdate": 1785497400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:19.975826"
+    },
+    "BV1Ti346XEqq": {
+      "title": "程序员，如果你压力大到喘不过气，听我说几句",
+      "up_id": 3493137471244811,
+      "up_name": "雯ww63",
+      "pubdate": 1785414600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:19.975838"
+    },
+    "BV1zi3z63EMx": {
+      "title": "程序员的日子越来越不好过了。。",
+      "up_id": 3493137471244811,
+      "up_name": "雯ww63",
+      "pubdate": 1785251089,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:19.975841"
+    },
+    "BV1u43w6XEQb": {
+      "title": "1.5小时被烧掉100美刀！分享最近在AI Coding上的收获与感受",
+      "up_id": 3493137471244811,
+      "up_name": "雯ww63",
+      "pubdate": 1785159206,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:19.975844"
+    },
+    "BV1gL3E6NEqW": {
+      "title": "毕业租房，在杭州5000预算能租到什么样的房？求帮看现在的房子要不要换掉",
+      "up_id": 3493137471244811,
+      "up_name": "雯ww63",
+      "pubdate": 1785061414,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:19.975847"
+    },
+    "BV1XFgQ68Eo7": {
+      "title": "环境对学习有多重要？ 良性竞让人“遇强则强”",
+      "up_id": 3546937705892140,
+      "up_name": "学霸Talk",
+      "pubdate": 1784944800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:21.044619"
+    },
+    "BV1XcgQ6fEyH": {
+      "title": "四川物理满分大神 详解理科各科高分方法",
+      "up_id": 3546937705892140,
+      "up_name": "学霸Talk",
+      "pubdate": 1784883600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:21.044629"
+    },
+    "BV1vBgQ6eE36": {
+      "title": "四川学霸稳定第一秘籍 越自由的环境越要自律",
+      "up_id": 3546937705892140,
+      "up_name": "学霸Talk",
+      "pubdate": 1784799431,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:21.044632"
+    },
+    "BV1tHKJ6HEKq": {
+      "title": "警惕假努力带来的“正反馈” 用可量化标准评估学习",
+      "up_id": 3546937705892140,
+      "up_name": "学霸Talk",
+      "pubdate": 1784426400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:21.044635"
+    },
+    "BV1uEKJ6WE6t": {
+      "title": "平庸源于惯性 敢于改变才能高效进化",
+      "up_id": 3546937705892140,
+      "up_name": "学霸Talk",
+      "pubdate": 1784340000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:21.044637"
+    },
+    "BV1cQQ8BDEdA": {
+      "title": "hermes配置教程——ai时代只要你学的慢就完全不用学",
+      "up_id": 502937705,
+      "up_name": "健鑫",
+      "pubdate": 1776139200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:22.186628"
+    },
+    "BV1UewqzrEHt": {
+      "title": "ai coding开发全流程，超强干货来了！",
+      "up_id": 502937705,
+      "up_name": "健鑫",
+      "pubdate": 1773892800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:22.186638"
+    },
+    "BV1USw1zYE7e": {
+      "title": "最强编程模型 claude code 保姆级安装部署教程，零基础小白也能用 vibe coding",
+      "up_id": 502937705,
+      "up_name": "健鑫",
+      "pubdate": 1773720000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:22.186642"
+    },
+    "BV15zwwzHEjD": {
+      "title": "codex保姆级安装部署教程，零基础小白也能用vibe coding",
+      "up_id": 502937705,
+      "up_name": "健鑫",
+      "pubdate": 1773288000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:22.186644"
+    },
+    "BV16m9TYaEGH": {
+      "title": "求职过程中如何稳住心态？",
+      "up_id": 502937705,
+      "up_name": "健鑫",
+      "pubdate": 1740717473,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:22.186646"
+    },
+    "BV1z3NY66EY1": {
+      "title": "尚硅谷LangGraph教程，langgraph入门，langgraph智能体项目实战",
+      "up_id": 302417610,
+      "up_name": "尚硅谷",
+      "pubdate": 1784095200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:23.265479"
+    },
+    "BV1c5TL6eEkC": {
+      "title": "尚硅谷Hermes Agent教程，零基础玩转hermes爱马仕多智能体",
+      "up_id": 302417610,
+      "up_name": "尚硅谷",
+      "pubdate": 1782784800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:23.265488"
+    },
+    "BV1rv7A6oEeP": {
+      "title": "2026版LangChain教程，langchain快速入门， Agent智能体rag项目实战",
+      "up_id": 302417610,
+      "up_name": "尚硅谷",
+      "pubdate": 1782180000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:23.265490"
+    },
+    "BV1toJ36YEnm": {
+      "title": "零基础Coze与Dify教程，Agent智能体项目实战，coze|dify搭建部署",
+      "up_id": 302417610,
+      "up_name": "尚硅谷",
+      "pubdate": 1781575200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:23.265492"
+    },
+    "BV1RPET6tEp2": {
+      "title": "零基础Vibe Coding教程，vibecoding实战，Claude Code+Codex+Cursor",
+      "up_id": 302417610,
+      "up_name": "尚硅谷",
+      "pubdate": 1780970400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:23.265494"
+    },
+    "BV1fp3M6UE86": {
+      "title": "【入行必备经验】应届生找工作人事岗HR入门指南 基础人事实操",
+      "up_id": 35915353,
+      "up_name": "免疫老叔",
+      "pubdate": 1784964760,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:24.337601"
+    },
+    "BV1tnK66kE7M": {
+      "title": "找工作招聘软件怎么把boss直骗用成boss直聘",
+      "up_id": 35915353,
+      "up_name": "免疫老叔",
+      "pubdate": 1784449180,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:24.337611"
+    },
+    "BV1ArMP6gEk7": {
+      "title": "应届生毕业找工作面试技巧细节解析",
+      "up_id": 35915353,
+      "up_name": "免疫老叔",
+      "pubdate": 1783176771,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:24.337613"
+    },
+    "BV1knTM6jE2j": {
+      "title": "应届生毕业后去哪个城市找第一份工作",
+      "up_id": 35915353,
+      "up_name": "免疫老叔",
+      "pubdate": 1782638836,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:24.337615"
+    },
+    "BV14c7F6WEJD": {
+      "title": "应届生毕业后在职场上第一份工作要注意的细节点",
+      "up_id": 35915353,
+      "up_name": "免疫老叔",
+      "pubdate": 1782058855,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:24.337617"
+    },
+    "BV1FC3n69E31": {
+      "title": "如何让学习工作变成闯关游戏？我做了个AI教练",
+      "up_id": 399619154,
+      "up_name": "Michael范同学",
+      "pubdate": 1785488996,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:25.483841"
+    },
+    "BV13pKW6TEmM": {
+      "title": "在上海交大最后的日子里怎么全是比赛！",
+      "up_id": 399619154,
+      "up_name": "Michael范同学",
+      "pubdate": 1784883600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:25.483851"
+    },
+    "BV1j6NC6YEmK": {
+      "title": "在上海交大毕个业！",
+      "up_id": 399619154,
+      "up_name": "Michael范同学",
+      "pubdate": 1783933200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:25.483855"
+    },
+    "BV1ihXbBuE87": {
+      "title": "揭秘上交最卷专业的学习体验！计算机科学与技术知多少！",
+      "up_id": 399619154,
+      "up_name": "Michael范同学",
+      "pubdate": 1774602000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:25.483865"
+    },
+    "BV1Kxw7zjE7T": {
+      "title": "在上交读本科的最后一学期！这也不轻松啊？| MLOG",
+      "up_id": 399619154,
+      "up_name": "Michael范同学",
+      "pubdate": 1773997200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:25.483869"
+    },
+    "BV1A27e6DEfC": {
+      "title": "ᴠʟᴏɢ 独自国外旅行｜世界遗产小城｜巨石阵",
+      "up_id": 450690011,
+      "up_name": "刘兑",
+      "pubdate": 1782532800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:26.562077"
+    },
+    "BV1Qmjm6YEZL": {
+      "title": "理科→艺术→剑桥，我才想通志愿怎么报",
+      "up_id": 450690011,
+      "up_name": "刘兑",
+      "pubdate": 1782295200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:26.562088"
+    },
+    "BV1D5EX6EE2S": {
+      "title": "当你不小心考上剑桥大学，你将解锁「哈利波特」的世界",
+      "up_id": 450690011,
+      "up_name": "刘兑",
+      "pubdate": 1781431677,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:26.562093"
+    },
+    "BV1DBGU69E3Z": {
+      "title": "特罗姆瑟ᴠʟᴏɢ🏔️雪山+极光+峡湾",
+      "up_id": 450690011,
+      "up_name": "刘兑",
+      "pubdate": 1780632000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:26.562096"
+    },
+    "BV1o67d6PE1M": {
+      "title": "祝各位考生：提笔从容，落笔生花🌷",
+      "up_id": 450690011,
+      "up_name": "刘兑",
+      "pubdate": 1780545600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:26.562099"
+    },
+    "BV1J7EM6BEQD": {
+      "title": "【正念入门·十分钟冥想·接纳篇】第 45 天｜引导式冥想练习｜正念冥想入门指南｜减压助眠放松大脑缓解焦虑｜改善睡眠深度｜缓解疲惫｜提高专注力",
+      "up_id": 492369962,
+      "up_name": "冥想猴上树辣",
+      "pubdate": 1780903651,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:27.688889"
+    },
+    "BV1YsdrBkENV": {
+      "title": "【正念入门·十分钟冥想·接纳篇】第 44 天｜引导式冥想练习｜正念冥想入门指南｜减压助眠放松大脑缓解焦虑｜改善睡眠深度｜缓解疲惫｜提高专注力",
+      "up_id": 492369962,
+      "up_name": "冥想猴上树辣",
+      "pubdate": 1776687968,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:27.688899"
+    },
+    "BV1wK6cBzE8G": {
+      "title": "【正念入门·十分钟冥想·接纳篇】第 43 天｜引导式冥想练习｜正念冥想入门指南｜减压助眠放松大脑缓解焦虑｜改善睡眠深度｜缓解疲惫｜提高专注力",
+      "up_id": 492369962,
+      "up_name": "冥想猴上树辣",
+      "pubdate": 1769672158,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:27.688902"
+    },
+    "BV1zuBuBQEot": {
+      "title": "【正念入门·十分钟冥想·接纳篇】第 42 天｜引导式冥想练习｜正念冥想入门指南｜减压助眠放松大脑缓解焦虑｜改善睡眠深度｜缓解疲惫｜提高专注力",
+      "up_id": 492369962,
+      "up_name": "冥想猴上树辣",
+      "pubdate": 1766493336,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:27.688905"
+    },
+    "BV1e2SjBfErn": {
+      "title": "【正念入门·十分钟冥想·接纳篇】第 41 天｜引导式冥想练习｜正念冥想入门指南｜减压助眠放松大脑缓解焦虑｜改善睡眠深度｜缓解疲惫｜提高专注力",
+      "up_id": 492369962,
+      "up_name": "冥想猴上树辣",
+      "pubdate": 1764316905,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:27.688907"
+    },
+    "BV1rSkfBGE5J": {
+      "title": "【阎王点卯】最真实的26届计算机秋招公司 Tier 表",
+      "up_id": 527080131,
+      "up_name": "余兆平",
+      "pubdate": 1762765069,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:28.795522"
+    },
+    "BV1E5xkzPEPy": {
+      "title": "致所有计算机战友的一份信",
+      "up_id": 527080131,
+      "up_name": "余兆平",
+      "pubdate": 1759997104,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:28.795533"
+    },
+    "BV1qTYLzzEqY": {
+      "title": "最真实的26届计算机秋招实况！狠狠地赚他一笔？哀嚎遍地惨不忍睹？",
+      "up_id": 527080131,
+      "up_name": "余兆平",
+      "pubdate": 1757238310,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:28.795537"
+    },
+    "BV1eP8izHER4": {
+      "title": "时间轮算法——任务调度的神兵利器，定时任务的优秀选择",
+      "up_id": 527080131,
+      "up_name": "余兆平",
+      "pubdate": 1753606879,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:28.795540"
+    },
+    "BV1ituFziEBr": {
+      "title": "Redis ZSet 的适用场景和 skiplist 跳表的底层原理",
+      "up_id": 527080131,
+      "up_name": "余兆平",
+      "pubdate": 1752397899,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:28.795542"
+    },
+    "BV1aUGF6XEmW": {
+      "title": "为什么视频播客突然火了？",
+      "up_id": 637113690,
+      "up_name": "就叫老张好了",
+      "pubdate": 1785488400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:29.918138"
+    },
+    "BV1jg3F6dEqC": {
+      "title": "移民加拿大，实现年薪百万，当上公司高管，反而没有想象中的“幸福”",
+      "up_id": 637113690,
+      "up_name": "就叫老张好了",
+      "pubdate": 1785150000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:29.918150"
+    },
+    "BV1aMgh6eEXz": {
+      "title": "电气工程or集成电路，本质上是就业的两个极端选择",
+      "up_id": 637113690,
+      "up_name": "就叫老张好了",
+      "pubdate": 1784883600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:29.918153"
+    },
+    "BV18BNd6pEG8": {
+      "title": "快乐人生的本质：找对事情耗费时间",
+      "up_id": 637113690,
+      "up_name": "就叫老张好了",
+      "pubdate": 1784286000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:29.918155"
+    },
+    "BV1mLNn6nEU7": {
+      "title": "“你问所有fab厂的人，应该都是建议不要进fab”",
+      "up_id": 637113690,
+      "up_name": "就叫老张好了",
+      "pubdate": 1783677971,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:29.918157"
+    },
+    "BV1tbG768Ee7": {
+      "title": "在香港说普通话 会被歧视吗？沉浸式香港旅行的一天",
+      "up_id": 510665875,
+      "up_name": "霖哥lane",
+      "pubdate": 1779606012,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:31.038529"
+    },
+    "BV1aK5d62ExJ": {
+      "title": "来 不 及 解 释 了",
+      "up_id": 510665875,
+      "up_name": "霖哥lane",
+      "pubdate": 1778766598,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:31.038543"
+    },
+    "BV1rzRJBfE7h": {
+      "title": "来不及解释了，跟我出门！",
+      "up_id": 510665875,
+      "up_name": "霖哥lane",
+      "pubdate": 1777996068,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:31.038548"
+    },
+    "BV1wKaoztEzL": {
+      "title": "...我在非洲生活了一个月",
+      "up_id": 510665875,
+      "up_name": "霖哥lane",
+      "pubdate": 1757320401,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:31.038550"
+    },
+    "BV173VtzdEpd": {
+      "title": "放假vlog｜假期最后一天 是怎么度过的",
+      "up_id": 510665875,
+      "up_name": "霖哥lane",
+      "pubdate": 1746608400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:31.038553"
+    },
+    "BV116ga6hEQt": {
+      "title": "31岁程序🦍vlog.生活普普通通 我们要乐在其中 打工一天的放平心态也可以平凡的快乐",
+      "up_id": 409841712,
+      "up_name": "鞠鞠鞠鞠w",
+      "pubdate": 1784885634,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:32.108844"
+    },
+    "BV1DjM36zE4P": {
+      "title": "31岁程序🦍vlog .杭州程序员的真实一天",
+      "up_id": 409841712,
+      "up_name": "鞠鞠鞠鞠w",
+      "pubdate": 1783503255,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:32.108854"
+    },
+    "BV1duTt6xEFY": {
+      "title": "30岁程序🦍vlog .下班后自己调酒哄自己开心的真实一天 果然自己的快乐还得自己哄！",
+      "up_id": 409841712,
+      "up_name": "鞠鞠鞠鞠w",
+      "pubdate": 1783073249,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:32.108858"
+    },
+    "BV1qy756nEZn": {
+      "title": "30岁程序🦍vlog.人生到底是3万天 还是过了3万遍！",
+      "up_id": 409841712,
+      "up_name": "鞠鞠鞠鞠w",
+      "pubdate": 1782468914,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:32.108860"
+    },
+    "BV1Rjjc6MEX5": {
+      "title": "30岁程序🦍vlog. 今天五点半下班 开心",
+      "up_id": 409841712,
+      "up_name": "鞠鞠鞠鞠w",
+      "pubdate": 1781775295,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:32.108863"
+    },
+    "BV1TL3x6EEA3": {
+      "title": "26岁女程序员真实的一天",
+      "up_id": 210997342,
+      "up_name": "写代码的发财树",
+      "pubdate": 1785385897,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:33.210098"
+    },
+    "BV1KJ3j69EJA": {
+      "title": "26岁女程序员充实的周末",
+      "up_id": 210997342,
+      "up_name": "写代码的发财树",
+      "pubdate": 1785053491,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:33.210108"
+    },
+    "BV1WfgS6GEAw": {
+      "title": "26岁女程序员真实的一天",
+      "up_id": 210997342,
+      "up_name": "写代码的发财树",
+      "pubdate": 1784783076,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:33.210112"
+    },
+    "BV1mUKp68ETN": {
+      "title": "26岁女程序员真实的一天",
+      "up_id": 210997342,
+      "up_name": "写代码的发财树",
+      "pubdate": 1784546552,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:33.210114"
+    },
+    "BV1bwK36AE2J": {
+      "title": "26岁女程序员真实的一天",
+      "up_id": 210997342,
+      "up_name": "写代码的发财树",
+      "pubdate": 1784176047,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:33.210116"
+    },
+    "BV1bZTA61Eip": {
+      "title": "AI 生图原理与里程碑论文解读｜从 VAE、GAN 到 Diffusion、自回归",
+      "up_id": 341376543,
+      "up_name": "堂吉诃德拉曼查的英豪",
+      "pubdate": 1782581210,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:34.340328"
+    },
+    "BV1oKdxBzEVz": {
+      "title": "Hermes Agent 详细讲解 & 本地部署和基于 OpenClaw 迁出的全流程",
+      "up_id": 341376543,
+      "up_name": "堂吉诃德拉曼查的英豪",
+      "pubdate": 1776542275,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:34.340338"
+    },
+    "BV1zSDMBUE5o": {
+      "title": "近年AI应用技术串讲与优质文档分享｜Agent、Skill、OpenClaw、Harness……",
+      "up_id": 341376543,
+      "up_name": "堂吉诃德拉曼查的英豪",
+      "pubdate": 1775320104,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:34.340342"
+    },
+    "BV1qTYizcEN3": {
+      "title": "什么是Function Calling与MCP协议？它们为何要这样设计？",
+      "up_id": 341376543,
+      "up_name": "堂吉诃德拉曼查的英豪",
+      "pubdate": 1755332789,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:34.340344"
+    },
+    "BV1xoJwzDESD": {
+      "title": "《Attention is all you need》论文解读及Transformer架构详细介绍",
+      "up_id": 341376543,
+      "up_name": "堂吉诃德拉曼查的英豪",
+      "pubdate": 1747477693,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:34.340346"
+    },
+    "BV1qYGu6REip": {
+      "title": "《从夯到拉：AI 时代程序员派别锐评-你是哪一派？》",
+      "up_id": 364838313,
+      "up_name": "郑同学是我",
+      "pubdate": 1785555890,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:35.410250"
+    },
+    "BV11E3x6LEbf": {
+      "title": "求求了！出一期10分钟以内的小白Skills入门教程吧！适用任何VibeCoding工具",
+      "up_id": 364838313,
+      "up_name": "郑同学是我",
+      "pubdate": 1785388239,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:35.410270"
+    },
+    "BV1GPKS6LEd7": {
+      "title": "大模型评估指标怎么定？怎么写LLM as Judge Prompt&如何通过量化指标解决打分不准问题",
+      "up_id": 364838313,
+      "up_name": "郑同学是我",
+      "pubdate": 1782720351,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:35.410275"
+    },
+    "BV11WLR6uEdC": {
+      "title": "一天10个AI热门项目，我到底该学什么",
+      "up_id": 364838313,
+      "up_name": "郑同学是我",
+      "pubdate": 1781701932,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:35.410278"
+    },
+    "BV1aDLR6DESQ": {
+      "title": "从夯到拉锐评vibecoding工具",
+      "up_id": 364838313,
+      "up_name": "郑同学是我",
+      "pubdate": 1781698410,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:35.410280"
+    },
+    "BV1pH3c6TEQT": {
+      "title": "【漫士】时间为什么不能倒流？如何从数学证明熵增？",
+      "up_id": 266765166,
+      "up_name": "漫士沉思录",
+      "pubdate": 1785165307,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:36.532735"
+    },
+    "BV1regY6sEVx": {
+      "title": "【漫士】所以，到底什么是三维挂谷猜想？难在哪？",
+      "up_id": 266765166,
+      "up_name": "漫士沉思录",
+      "pubdate": 1784880668,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:36.532747"
+    },
+    "BV1zagQ6BErQ": {
+      "title": "中国数学家真的要拿菲尔兹奖了？ | 2026菲尔兹奖终极盘点",
+      "up_id": 266765166,
+      "up_name": "漫士沉思录",
+      "pubdate": 1784795828,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:36.532751"
+    },
+    "BV1onKz6XEhv": {
+      "title": "【漫士】预告片：王虹与三维挂谷猜想",
+      "up_id": 266765166,
+      "up_name": "漫士沉思录",
+      "pubdate": 1784456117,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:36.532754"
+    },
+    "BV1QeTs6rEB1": {
+      "title": "【漫士】赌球背后的数学，看完你还想赌吗？",
+      "up_id": 266765166,
+      "up_name": "漫士沉思录",
+      "pubdate": 1783066220,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:36.532757"
+    },
+    "BV1o87764Ebs": {
+      "title": "我做 AI Agent 一年,90% 在做表面功夫——直到我换了思路",
+      "up_id": 1235535223,
+      "up_name": "数字黑魔法",
+      "pubdate": 1782518100,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:37.707300"
+    },
+    "BV1pfEv6sEd7": {
+      "title": "高强度用完 Fable 5 Claude真的有那么强吗？",
+      "up_id": 1235535223,
+      "up_name": "数字黑魔法",
+      "pubdate": 1781160519,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:37.707311"
+    },
+    "BV1vqVP66EYR": {
+      "title": "AI 一句话帮我重构，它把我写了半年的代码悄悄删掉了",
+      "up_id": 1235535223,
+      "up_name": "数字黑魔法",
+      "pubdate": 1779781489,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:37.707315"
+    },
+    "BV1he9YB2Eh5": {
+      "title": "别再把 AI Agent 当宠物养了：真正能跑起来的 Agent，都是牛马",
+      "up_id": 1235535223,
+      "up_name": "数字黑魔法",
+      "pubdate": 1777593600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:37.707317"
+    },
+    "BV1J8DaBSEn8": {
+      "title": "做 AI Agent 最痛苦的事：明明看了很多教程，最后还是做不对...",
+      "up_id": 1235535223,
+      "up_name": "数字黑魔法",
+      "pubdate": 1775547688,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:37.707319"
+    },
+    "BV1FgGg68EP6": {
+      "title": "优秀的背后都是自虐般的自律，没有天赋那就重复",
+      "up_id": 1101307525,
+      "up_name": "努力的小易_",
+      "pubdate": 1785545532,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:38.825899"
+    },
+    "BV1ZVKU6JEvx": {
+      "title": "开始他们以为你只是三分钟热度，直到你坚持了一年又一年",
+      "up_id": 1101307525,
+      "up_name": "努力的小易_",
+      "pubdate": 1784529960,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:38.825909"
+    },
+    "BV1Bd7n6TEj8": {
+      "title": "历时五年从基础俯卧撑到俄挺俯卧撑全过程",
+      "up_id": 1101307525,
+      "up_name": "努力的小易_",
+      "pubdate": 1782537201,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:38.825912"
+    },
+    "BV145jw6bEL1": {
+      "title": "普通人锻炼五年的结果，学会了41种俯卧撑，练过才知道有多难",
+      "up_id": 1101307525,
+      "up_name": "努力的小易_",
+      "pubdate": 1781761190,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:38.825915"
+    },
+    "BV1KVEx6NEff": {
+      "title": "简单的动作重复千遍万遍，就会达到意想不到的结果",
+      "up_id": 1101307525,
+      "up_name": "努力的小易_",
+      "pubdate": 1780795254,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:38.825917"
+    },
+    "BV1oEjq6kE2p": {
+      "title": "为了上班吃零食，我们做了这个...",
+      "up_id": 163637592,
+      "up_name": "老师好我叫何同学",
+      "pubdate": 1781859600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:39.906967"
+    },
+    "BV17TEC6AE3Z": {
+      "title": "我们做了个不一样的拐杖...",
+      "up_id": 163637592,
+      "up_name": "老师好我叫何同学",
+      "pubdate": 1781256600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:39.906979"
+    },
+    "BV1fqVh6sEaF": {
+      "title": "我们做了个神奇外卖柜...",
+      "up_id": 163637592,
+      "up_name": "老师好我叫何同学",
+      "pubdate": 1780048800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:39.906984"
+    },
+    "BV17GdXBnEBv": {
+      "title": "变成相机，然后呢？OPPO Find X9 Ultra 首发体验",
+      "up_id": 163637592,
+      "up_name": "老师好我叫何同学",
+      "pubdate": 1776819600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:39.906987"
+    },
+    "BV1YydJBJEuF": {
+      "title": "【何同学】为了随地大小坐，我们做了这个…",
+      "up_id": 163637592,
+      "up_name": "老师好我叫何同学",
+      "pubdate": 1776502800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:39.906990"
+    },
+    "BV1DH9fBDEb8": {
+      "title": "非科班转码选手找工作的三大误区",
+      "up_id": 167485241,
+      "up_name": "居丽叶与谷密欧",
+      "pubdate": 1777811128,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:41.060675"
+    },
+    "BV1QfPezyEMz": {
+      "title": "Claude Code+Obsidian：每天自动读论文，早上到工位来上这么一篇真是惬意呀~",
+      "up_id": 167485241,
+      "up_name": "居丽叶与谷密欧",
+      "pubdate": 1772629633,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:41.060687"
+    },
+    "BV1u4FnzxEuV": {
+      "title": "好消息：不用担心分不清大模型和 Agent 相关岗位的区别了；坏消息：你可能需要什么都懂一点了🤣",
+      "up_id": 167485241,
+      "up_name": "居丽叶与谷密欧",
+      "pubdate": 1770430680,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:41.060691"
+    },
+    "BV1rx2tBwE6E": {
+      "title": "强化学习1：基础入门篇",
+      "up_id": 167485241,
+      "up_name": "居丽叶与谷密欧",
+      "pubdate": 1764776469,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:41.060695"
+    },
+    "BV1wfKiz3EZf": {
+      "title": "考研三战的结局是985本调剂211硕：人生的容错率高到你无法想象",
+      "up_id": 167485241,
+      "up_name": "居丽叶与谷密欧",
+      "pubdate": 1750996518,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:41.060698"
+    },
+    "BV1MjN16oE84": {
+      "title": "英伟达的护城河究竟是什么？",
+      "up_id": 16433002,
+      "up_name": "隔壁的程序员老王",
+      "pubdate": 1784192400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:42.237031"
+    },
+    "BV1VC7g6vE9f": {
+      "title": "Vibe Coding是什么？从AI模型、Agent到工作流，彻底搞懂AI编程工具",
+      "up_id": 16433002,
+      "up_name": "隔壁的程序员老王",
+      "pubdate": 1782378000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:42.237042"
+    },
+    "BV1mE7y6SEcV": {
+      "title": "Python 3.15有什么新特性",
+      "up_id": 16433002,
+      "up_name": "隔壁的程序员老王",
+      "pubdate": 1781168400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:42.237045"
+    },
+    "BV1TFG56XERd": {
+      "title": "大模型如何看懂图片 ViT Vision Transformer",
+      "up_id": 16433002,
+      "up_name": "隔壁的程序员老王",
+      "pubdate": 1779958800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:42.237048"
+    },
+    "BV1YP5W6ZEP9": {
+      "title": "VibeCoding就该这么做！",
+      "up_id": 16433002,
+      "up_name": "隔壁的程序员老王",
+      "pubdate": 1778749200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:42.237050"
+    },
+    "BV1n8Gu6oEw9": {
+      "title": "30秒速通明日方舟夏活",
+      "up_id": 506925078,
+      "up_name": "virtual小满",
+      "pubdate": 1785555540,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:43.407917"
+    },
+    "BV1Q43w6QETb": {
+      "title": "2026洛天依纯蓝幻乐杭州场",
+      "up_id": 506925078,
+      "up_name": "virtual小满",
+      "pubdate": 1785159820,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:43.407929"
+    },
+    "BV1Hc5u6eEQx": {
+      "title": "【蔚蓝档案】睡衣派对活动 EX关无水花",
+      "up_id": 506925078,
+      "up_name": "virtual小满",
+      "pubdate": 1778595790,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:43.407932"
+    },
+    "BV1A99yBYE6p": {
+      "title": "京区英一93 | AI辅助作文优化的经验分享",
+      "up_id": 506925078,
+      "up_name": "virtual小满",
+      "pubdate": 1777387939,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:43.407936"
+    },
+    "BV1T7DCBtE2C": {
+      "title": "[11408]26一战北大软微420分经验贴(英一93)",
+      "up_id": 506925078,
+      "up_name": "virtual小满",
+      "pubdate": 1775952000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:43.407940"
+    },
+    "BV18Qg96YE1W": {
+      "title": "对游凯超3小时访谈：开源Infra、和模型Co-design 、从社区到公司、“如果vLLM失败，我们会后悔一辈子”",
+      "up_id": 280780745,
+      "up_name": "张小珺商业访谈录",
+      "pubdate": 1785196800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:44.520588"
+    },
+    "BV1nB3u6tERu": {
+      "title": "对华为半导体首席科学家廖恒的5小时访谈：一部昇腾史、18层宝塔与全球芯片恢弘30年史诗| B站 x WAIC AI会客厅",
+      "up_id": 280780745,
+      "up_name": "张小珺商业访谈录",
+      "pubdate": 1784985578,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:44.520597"
+    },
+    "BV1cRK86zEpQ": {
+      "title": "和蚂蚁灵波沈宇军聊：机器人原生基础模型、大脑和本体的关系、预训练与数据scale up、老师汤晓鸥",
+      "up_id": 280780745,
+      "up_name": "张小珺商业访谈录",
+      "pubdate": 1784678400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:44.520601"
+    },
+    "BV12bNB6vEtt": {
+      "title": "对Physical Intelligence柯丽一鸣4小时访谈：PI的开源模型研究，机器人的江湖、族谱与主角",
+      "up_id": 280780745,
+      "up_name": "张小珺商业访谈录",
+      "pubdate": 1784161800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:44.520603"
+    },
+    "BV1HfEy6jEUx": {
+      "title": "口述SpaceX开发史：和前高管洪力德聊，马斯克用人观、最大IPO、太空与AI、人类文明扩张前奏？",
+      "up_id": 280780745,
+      "up_name": "张小珺商业访谈录",
+      "pubdate": 1781268745,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:44.520605"
+    },
+    "BV17J3B6PEGK": {
+      "title": "7 分钟了解 10 种 RAG 策略",
+      "up_id": 1318868,
+      "up_name": "Hucci写代码",
+      "pubdate": 1785402000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:45.654242"
+    },
+    "BV1qZg863ECF": {
+      "title": "6 分钟了解 Python 3.15 什么值得看",
+      "up_id": 1318868,
+      "up_name": "Hucci写代码",
+      "pubdate": 1784883600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:45.654259"
+    },
+    "BV18NLx6fEAq": {
+      "title": "Claude Code 为什么不用 RAG？",
+      "up_id": 1318868,
+      "up_name": "Hucci写代码",
+      "pubdate": 1779354000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:45.654265"
+    },
+    "BV1JQ5C6tEMn": {
+      "title": "我做了个 AI Galgame，但是……",
+      "up_id": 1318868,
+      "up_name": "Hucci写代码",
+      "pubdate": 1778662800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:45.654268"
+    },
+    "BV1eM9uB7EuS": {
+      "title": "Prompt 和 Context 之后，为什么所有人都在说 Harness？",
+      "up_id": 1318868,
+      "up_name": "Hucci写代码",
+      "pubdate": 1775213252,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:45.654271"
+    },
+    "BV1RkTY6MEvT": {
+      "title": "欧洲中世纪的时尚美学，有多要命？——从毒铅粉到现代皮肤科学",
+      "up_id": 315846984,
+      "up_name": "歌白说Geslook",
+      "pubdate": 1782964800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:46.807204"
+    },
+    "BV17C7G6VEVD": {
+      "title": "为什么你的毛发生长的位置，这么奇怪且随机？",
+      "up_id": 315846984,
+      "up_name": "歌白说Geslook",
+      "pubdate": 1782468000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:46.807213"
+    },
+    "BV13Kj169EHm": {
+      "title": "一场残酷的饥饿实验：警示了想要通过节食减肥的人们",
+      "up_id": 315846984,
+      "up_name": "歌白说Geslook",
+      "pubdate": 1782207000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:46.807215"
+    },
+    "BV1k6E167ECc": {
+      "title": "性、爱、吸引力和痴迷的逻辑| 恋爱不是追的，要靠吸引！",
+      "up_id": 315846984,
+      "up_name": "歌白说Geslook",
+      "pubdate": 1781523000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:46.807217"
+    },
+    "BV1jeEv6kEEM": {
+      "title": "为啥全球各地人类肤色都不一样？人类肤色为何演化？",
+      "up_id": 315846984,
+      "up_name": "歌白说Geslook",
+      "pubdate": 1781170200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:46.807219"
+    },
+    "BV1TLNn6HEsm": {
+      "title": "黑马程序员零基础AI具身智能机器人实战全套课程，从MuJoCo物理引擎到T800人形机器人自主行走实战项目（涵盖建模、PD控制与力矩约束、AI策略生成全链路）",
+      "up_id": 37974444,
+      "up_name": "黑马程序员",
+      "pubdate": 1783908000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:47.953284"
+    },
+    "BV1RFTc62EaK": {
+      "title": "黑马Vibe Coding零基础入门，vibecoding项目，涵盖Claude Code、Cursor、Codex、SDD、LangChain、Agent开发",
+      "up_id": 37974444,
+      "up_name": "黑马程序员",
+      "pubdate": 1782871200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:47.953298"
+    },
+    "BV1m6G26yEue": {
+      "title": "黑马程序员全网首发Agent测试一套通关，从AI软件测试基础到智能体实战项目，带你手把手搭建AI智能体评测",
+      "up_id": 37974444,
+      "up_name": "黑马程序员",
+      "pubdate": 1779933600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:47.953303"
+    },
+    "BV1395x6AEvJ": {
+      "title": "黑马程序员嵌入式OTA远程更新核心技能，从零搭建物联网OTA远程升级系统，Flash读改写+Ymodem+HTTP全解析",
+      "up_id": 37974444,
+      "up_name": "黑马程序员",
+      "pubdate": 1778547600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:47.953307"
+    },
+    "BV1MFokBkEzC": {
+      "title": "黑马程序员2026最新AI版天机学堂全套视频课程，Spring AI+多智能体架构全栈实战项目，AI+Java微服务主流实战项目进阶一套通关",
+      "up_id": 37974444,
+      "up_name": "黑马程序员",
+      "pubdate": 1777338171,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:47.953310"
+    },
+    "BV1dw526tEMA": {
+      "title": "【2026/Agent】一期讲透！理论+代码从ToolCall到Harness、Claw，告诉你Agent的一切",
+      "up_id": 661890559,
+      "up_name": "木乔_Mokio",
+      "pubdate": 1778692642,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:49.026460"
+    },
+    "BV1pUDHBoE5Q": {
+      "title": "唐氏模型or效率神器？心法用法全覆盖！现代大学生AI使用指南",
+      "up_id": 661890559,
+      "up_name": "木乔_Mokio",
+      "pubdate": 1775710244,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:49.026469"
+    },
+    "BV1z4wRzgExu": {
+      "title": "春招公式分享！大二时我怎么靠公式得吃字节offer？",
+      "up_id": 661890559,
+      "up_name": "木乔_Mokio",
+      "pubdate": 1773760400,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:49.026471"
+    },
+    "BV1axcQznEQK": {
+      "title": "【2026】架构密码？开年模型架构解读与机制科普：SWA、DSA、DeltaNet",
+      "up_id": 661890559,
+      "up_name": "木乔_Mokio",
+      "pubdate": 1773155161,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:49.026473"
+    },
+    "BV1XWfUBTEHe": {
+      "title": "【2026/Minimind】注入灵魂！Pytorch手敲大模型训练：一集通关SFT、LoRA、PPO、DPO、GRPO",
+      "up_id": 661890559,
+      "up_name": "木乔_Mokio",
+      "pubdate": 1771955325,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:49.026475"
+    },
+    "BV1GQjK6SEAT": {
+      "title": "不记录的人，连眼泪都没有方向",
+      "up_id": 1249146420,
+      "up_name": "海边送水工",
+      "pubdate": 1781554930,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:50.148379"
+    },
+    "BV144zeBgE6c": {
+      "title": "没文化的苦旅:北京",
+      "up_id": 1249146420,
+      "up_name": "海边送水工",
+      "pubdate": 1769437741,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:50.148390"
+    },
+    "BV1YprEByEsP": {
+      "title": "所谓动力，不过是固执的心火难歇",
+      "up_id": 1249146420,
+      "up_name": "海边送水工",
+      "pubdate": 1768328368,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:50.148394"
+    },
+    "BV1sMiGBAEtA": {
+      "title": "愿你在生活中拥有无限的平静",
+      "up_id": 1249146420,
+      "up_name": "海边送水工",
+      "pubdate": 1767196560,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:50.148397"
+    },
+    "BV1nZnmzrEfA": {
+      "title": "请坚定地相信自己的感受",
+      "up_id": 1249146420,
+      "up_name": "海边送水工",
+      "pubdate": 1759239805,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:50.148400"
+    },
+    "BV1F79YBbEwe": {
+      "title": "26双非22408二战395分经验分享",
+      "up_id": 259851129,
+      "up_name": "不会锐评的瑞克",
+      "pubdate": 1777533814,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:51.267657"
+    },
+    "BV1FvE86iEGU": {
+      "title": "关于RAG入门必学的基础概念",
+      "up_id": 477343623,
+      "up_name": "Stellar鱼",
+      "pubdate": 1780853664,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:52.394698"
+    },
+    "BV11wEb6uEwB": {
+      "title": "如何优化你简历的RAG项目，工业级RAG项目是怎么做的",
+      "up_id": 477343623,
+      "up_name": "Stellar鱼",
+      "pubdate": 1780837315,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:52.394720"
+    },
+    "BV1NoD8BWEgE": {
+      "title": "因为喜欢你",
+      "up_id": 477343623,
+      "up_name": "Stellar鱼",
+      "pubdate": 1775531569,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:52.394727"
+    },
+    "BV13MQQB8ERn": {
+      "title": "前后端都可看的Agent开发学习路线",
+      "up_id": 477343623,
+      "up_name": "Stellar鱼",
+      "pubdate": 1774191446,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:52.394732"
+    },
+    "BV11FqNBEEZ1": {
+      "title": "为什么后端开发也应该学习AI/Agent技术？后端程序员如何开始自己的AI项目",
+      "up_id": 477343623,
+      "up_name": "Stellar鱼",
+      "pubdate": 1767705791,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:52.394738"
+    },
+    "BV1r73J6QExq": {
+      "title": "被骂了三十年的PPT，为什么我们还离不开它？｜附做PPT好用的AI！",
+      "up_id": 20826656,
+      "up_name": "糖果果的未来要发光",
+      "pubdate": 1785060000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:53.502712"
+    },
+    "BV1gLKb67EAK": {
+      "title": "爸爸去哪儿：昆明篇｜飞1500公里，带孩子在昆明踢了他的\"决赛\"！",
+      "up_id": 20826656,
+      "up_name": "糖果果的未来要发光",
+      "pubdate": 1784629243,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:53.502724"
+    },
+    "BV1E4KF6jEeK": {
+      "title": "带美国堂妹｜逛中国顶尖AI科技展｜体验中国科技进度条｜WAIC 2026……",
+      "up_id": 20826656,
+      "up_name": "糖果果的未来要发光",
+      "pubdate": 1784348501,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:53.502729"
+    },
+    "BV1CWNE6MEhC": {
+      "title": "离职那天，我问了她对工作的究极幻想！",
+      "up_id": 20826656,
+      "up_name": "糖果果的未来要发光",
+      "pubdate": 1783675800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:53.502732"
+    },
+    "BV1jETF61EEn": {
+      "title": "你的相册该整理了，存了一万张截图后，我决定治一治自己的知识囤积癖！",
+      "up_id": 20826656,
+      "up_name": "糖果果的未来要发光",
+      "pubdate": 1782815512,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:53.502734"
+    },
+    "BV1E7GG6YEuG": {
+      "title": "今天是一期QA视频！我们最近在做什么！",
+      "up_id": 382337524,
+      "up_name": "圈宁CeoxNim",
+      "pubdate": 1785593089,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:54.618887"
+    },
+    "BV1FZGA65Et7": {
+      "title": "我觉得当下的学习必然导致情绪问题",
+      "up_id": 382337524,
+      "up_name": "圈宁CeoxNim",
+      "pubdate": 1785509715,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:54.618897"
+    },
+    "BV1MB3b6FE9w": {
+      "title": "如果你即将或者正在异地恋",
+      "up_id": 382337524,
+      "up_name": "圈宁CeoxNim",
+      "pubdate": 1785421853,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:54.618901"
+    },
+    "BV1gJ3n6gEjF": {
+      "title": "你现在做的作业开学是不会讲的",
+      "up_id": 382337524,
+      "up_name": "圈宁CeoxNim",
+      "pubdate": 1785336800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:54.618903"
+    },
+    "BV1yn3q6CEDW": {
+      "title": "当对方突然叫你的全名！",
+      "up_id": 382337524,
+      "up_name": "圈宁CeoxNim",
+      "pubdate": 1785244863,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:54.618905"
+    },
+    "BV1cmTu6mEL3": {
+      "title": "如何使用第三方模型驱动 Codex（无需 OpenAI 账号）",
+      "up_id": 1815948385,
+      "up_name": "马克的技术工作坊",
+      "pubdate": 1782654280,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:55.762551"
+    },
+    "BV1c9EK6KEW4": {
+      "title": "Codex 从 0 到 1 全攻略 - Annotate / Fork / Archive / Plan / Plugin / Skill ......",
+      "up_id": 1815948385,
+      "up_name": "马克的技术工作坊",
+      "pubdate": 1780879857,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:55.762562"
+    },
+    "BV12LR1B3EUt": {
+      "title": "Harness Engineering 到底是什么？概念、实战与争议，一次全部讲清楚",
+      "up_id": 1815948385,
+      "up_name": "马克的技术工作坊",
+      "pubdate": 1777980016,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:55.762565"
+    },
+    "BV16zDfBtECQ": {
+      "title": "为什么越来越多的人抛弃 MCP，转向 CLI？",
+      "up_id": 1815948385,
+      "up_name": "马克的技术工作坊",
+      "pubdate": 1775783433,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:55.762568"
+    },
+    "BV1E7wtzaEdq": {
+      "title": "从 LLM 到 Agent Skill，一期视频带你打通底层逻辑！",
+      "up_id": 1815948385,
+      "up_name": "马克的技术工作坊",
+      "pubdate": 1773498176,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:55.762570"
+    },
+    "BV1gNGT6TEkq": {
+      "title": "男大科普｜怎么减少脸部出油",
+      "up_id": 3546736932948176,
+      "up_name": "我我我爱吃火锅",
+      "pubdate": 1785514363,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:56.951790"
+    },
+    "BV1U53q6mEy4": {
+      "title": "男大｜夏天衣服分享及穿搭思路",
+      "up_id": 3546736932948176,
+      "up_name": "我我我爱吃火锅",
+      "pubdate": 1785241847,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:56.951808"
+    },
+    "BV1RmgY61EJW": {
+      "title": "男大科普｜皮肤怎么变好",
+      "up_id": 3546736932948176,
+      "up_name": "我我我爱吃火锅",
+      "pubdate": 1784874207,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:56.951811"
+    },
+    "BV1o6gk63EV6": {
+      "title": "男大分享｜简约平价的衣服分享（几十块到一百）",
+      "up_id": 3546736932948176,
+      "up_name": "我我我爱吃火锅",
+      "pubdate": 1784723993,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:56.951814"
+    },
+    "BV1trNd6nEyX": {
+      "title": "男大夹板教程｜怎么diy自己的头发",
+      "up_id": 3546736932948176,
+      "up_name": "我我我爱吃火锅",
+      "pubdate": 1784286601,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:56.951818"
+    },
+    "BV1vQ3C62EJf": {
+      "title": "wework使用教程",
+      "up_id": 71506,
+      "up_name": "axb",
+      "pubdate": 1785310591,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:58.070319"
+    },
+    "BV1jqztBuEUr": {
+      "title": "演示：使用Wegent AI编码功能在手机上进行项目开发",
+      "up_id": 71506,
+      "up_name": "axb",
+      "pubdate": 1769364826,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:58.070332"
+    },
+    "BV18z421Y7SY": {
+      "title": "如何做一次公开技术分享",
+      "up_id": 71506,
+      "up_name": "axb",
+      "pubdate": 1716133255,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:58.070337"
+    },
+    "BV1vD421P7UU": {
+      "title": "基于Rill Flow&大模型创建旅游攻略应用",
+      "up_id": 71506,
+      "up_name": "axb",
+      "pubdate": 1715257293,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:58.070341"
+    },
+    "BV1zT421C7Kf": {
+      "title": "【为吐槽华润开始做视频】装修笔记：木地板",
+      "up_id": 71506,
+      "up_name": "axb",
+      "pubdate": 1714386045,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:58.070344"
+    },
+    "BV1HR3Q62Eci": {
+      "title": "练腹经常腰酸腿酸的兄弟，不妨下次试试这些能避免代偿的高效动作！ #居家锻炼 #健身 #腹肌训练 #自律",
+      "up_id": 491937922,
+      "up_name": "阿龙新手健身教学",
+      "pubdate": 1785653147,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:59.188105"
+    },
+    "BV1N2GA6QE18": {
+      "title": "这些动作组合可以练好哪些部位？ #居家锻炼 #徒手健身 #健身干货 #自律",
+      "up_id": 491937922,
+      "up_name": "阿龙新手健身教学",
+      "pubdate": 1785481543,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:59.188119"
+    },
+    "BV14t3C6AE69": {
+      "title": "新手健身｜刚开始先把基础动作练好，才是最有效的！#徒手健身 #新手健身 #居家锻炼 #薄肌",
+      "up_id": 491937922,
+      "up_name": "阿龙新手健身教学",
+      "pubdate": 1785314739,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:59.188124"
+    },
+    "BV1FT3w6iEKJ": {
+      "title": "别让小臂阻碍了你的进步！每周带两次小臂训练，你会发现你所有推拉抓握动作进步快到飞起！",
+      "up_id": 491937922,
+      "up_name": "阿龙新手健身教学",
+      "pubdate": 1785162590,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:59.188128"
+    },
+    "BV1mrge6BEyw": {
+      "title": "如果你只追求薄肌身材，那每个部位大致要练多久才能实现你知道吗？",
+      "up_id": 491937922,
+      "up_name": "阿龙新手健身教学",
+      "pubdate": 1784898097,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:27:59.188131"
+    },
+    "BV16XDYBXEdb": {
+      "title": "一个token是怎么穿过MoE的?手撕混合专家模型的前向传播全过程",
+      "up_id": 271305784,
+      "up_name": "作者武辰",
+      "pubdate": 1775535407,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:00.343621"
+    },
+    "BV1oRXaBJEry": {
+      "title": "一张图片是怎么喂给大模型的？谈谈 CPU、内存、显存、GPU",
+      "up_id": 271305784,
+      "up_name": "作者武辰",
+      "pubdate": 1774878698,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:00.343644"
+    },
+    "BV1aawjzpEmS": {
+      "title": "面试中容易露馅的问题：大模型的训练和推理吃多少显存？",
+      "up_id": 271305784,
+      "up_name": "作者武辰",
+      "pubdate": 1773634416,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:00.343648"
+    },
+    "BV1m2P9zsEgW": {
+      "title": "（科普向）算法工程师需要知道的显卡知识",
+      "up_id": 271305784,
+      "up_name": "作者武辰",
+      "pubdate": 1773064290,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:00.343651"
+    },
+    "BV1D2PxzDER2": {
+      "title": "非科班想转AI的推荐路径：行业经验+大模型",
+      "up_id": 271305784,
+      "up_name": "作者武辰",
+      "pubdate": 1772810307,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:00.343654"
+    },
+    "BV1wXkKB8E2G": {
+      "title": "最简单有效的反拖延技巧（2分钟法则）",
+      "up_id": 443777606,
+      "up_name": "李红鱼",
+      "pubdate": 1768554000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:01.423800"
+    },
+    "BV1MFr3B7ExV": {
+      "title": "我尝试高效利用自己的碎片化时间",
+      "up_id": 443777606,
+      "up_name": "李红鱼",
+      "pubdate": 1768008979,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:01.423821"
+    },
+    "BV1j92LBsExs": {
+      "title": "如何高效休息，恢复高能量状态？（博士up主的经验）",
+      "up_id": 443777606,
+      "up_name": "李红鱼",
+      "pubdate": 1764924698,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:01.423825"
+    },
+    "BV1duU5BpEva": {
+      "title": "我尝试找到最高效的iPhone使用方法（自动化、快捷键...）",
+      "up_id": 443777606,
+      "up_name": "李红鱼",
+      "pubdate": 1763716009,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:01.423827"
+    },
+    "BV1kQ2gBnEsG": {
+      "title": "最简单高效的早起工作流程（实践有用）",
+      "up_id": 443777606,
+      "up_name": "李红鱼",
+      "pubdate": 1762513351,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:01.423829"
+    },
+    "BV14UUAYmExC": {
+      "title": "送给所有知道我名字的人",
+      "up_id": 19577966,
+      "up_name": "李子柒",
+      "pubdate": 1731472200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:02.495588"
+    },
+    "BV1jNmtYcEbY": {
+      "title": "拿柴房造了一个森林衣帽间",
+      "up_id": 19577966,
+      "up_name": "李子柒",
+      "pubdate": 1731402000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:02.495598"
+    },
+    "BV1TsmtY7Egu": {
+      "title": "雕漆隐花，雕出紫气东来！",
+      "up_id": 19577966,
+      "up_name": "李子柒",
+      "pubdate": 1731400200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:02.495601"
+    },
+    "BV1mX4y1w7vT": {
+      "title": "【盐】一百多年不曾停歇的盐井，仍在续写名为“味道”的故事",
+      "up_id": 19577966,
+      "up_name": "李子柒",
+      "pubdate": 1626263640,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:02.495605"
+    },
+    "BV1264y1k77Y": {
+      "title": "小时候睡的旧木床，蜕变成古色古香的流觞曲水桌",
+      "up_id": 19577966,
+      "up_name": "李子柒",
+      "pubdate": 1622903761,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:02.495609"
+    },
+    "BV1zfGG6eEB1": {
+      "title": "李健「万物安生时」巡演安可场纪录：多少人为李健，跨越山海相聚新加坡？",
+      "up_id": 96067952,
+      "up_name": "李健工作室",
+      "pubdate": 1785581949,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:03.598502"
+    },
+    "BV1KM3J6fEtW": {
+      "title": "LIVE | 李健《人间共鸣》演唱会直拍版！旋律为契，人间同频。",
+      "up_id": 96067952,
+      "up_name": "李健工作室",
+      "pubdate": 1785056641,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:03.598514"
+    },
+    "BV1XAKm6MEhv": {
+      "title": "李健「万物安生时」巡演安可场 | (苏州+佛山）双城巡演纪录送达……",
+      "up_id": 96067952,
+      "up_name": "李健工作室",
+      "pubdate": 1784542894,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:03.598519"
+    },
+    "BV1JGjZ6ME8P": {
+      "title": "李健「万物安生时」巡演安可场 |（广州+上海）双城幕后纪录送达！",
+      "up_id": 96067952,
+      "up_name": "李健工作室",
+      "pubdate": 1782302340,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:03.598524"
+    },
+    "BV1F5jq6jECm": {
+      "title": "暮色成书 长夜作答｜李健《从黄昏到午夜》制作侧记",
+      "up_id": 96067952,
+      "up_name": "李健工作室",
+      "pubdate": 1781859600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:03.598530"
+    },
+    "BV1Mv9KBwEJB": {
+      "title": "拿着锤子找钉子?也谈AI时代程序员的焦虑",
+      "up_id": 397531789,
+      "up_name": "晚安奥兰多",
+      "pubdate": 1775205805,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:04.680702"
+    },
+    "BV1SY97BwEH8": {
+      "title": "后端社招-饿了么一面",
+      "up_id": 397531789,
+      "up_name": "晚安奥兰多",
+      "pubdate": 1775037600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:04.680714"
+    },
+    "BV1NYw9z7EEy": {
+      "title": "这样的大环境下我还是裸辞了,不想上班",
+      "up_id": 397531789,
+      "up_name": "晚安奥兰多",
+      "pubdate": 1773732430,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:04.680720"
+    },
+    "BV1owcRzYEhU": {
+      "title": "Java后端社招面试-小红书一面",
+      "up_id": 397531789,
+      "up_name": "晚安奥兰多",
+      "pubdate": 1773226800,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:04.680722"
+    },
+    "BV1pDk4BHERx": {
+      "title": "如何提升需求交付效率——来自技术视角",
+      "up_id": 397531789,
+      "up_name": "晚安奥兰多",
+      "pubdate": 1768739952,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:04.680726"
+    },
+    "BV1v4SMB6EyQ": {
+      "title": "出租屋改造多功能智能娱乐工作间",
+      "up_id": 10433048,
+      "up_name": "lookroot",
+      "pubdate": 1764320399,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:05.824631"
+    },
+    "BV1jc12BMEjj": {
+      "title": "今天没写代码，今天结婚。",
+      "up_id": 10433048,
+      "up_name": "lookroot",
+      "pubdate": 1762527815,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:05.824642"
+    },
+    "BV1m9pCzyESm": {
+      "title": "程序员开发设备升级：Macbook M1到M4、升级编程专用显示器，使用技巧分享",
+      "up_id": 10433048,
+      "up_name": "lookroot",
+      "pubdate": 1758103200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:05.824646"
+    },
+    "BV1HbeBz2EKQ": {
+      "title": "一个普通码农的四年-技术篇",
+      "up_id": 10433048,
+      "up_name": "lookroot",
+      "pubdate": 1755945716,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:05.824650"
+    },
+    "BV1kXgmzUEW8": {
+      "title": "谢谢雷总耍我，小米YU7这是年轻人第一辆车吗？",
+      "up_id": 10433048,
+      "up_name": "lookroot",
+      "pubdate": 1751364000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:05.824654"
+    },
+    "BV1GNNX6EEh7": {
+      "title": "【小程序毕设】校园宿舍报修小程序，基于SpringBoot3+Vue3+微信小程序的校园宿舍报修系统",
+      "up_id": 402779077,
+      "up_name": "程序员青戈",
+      "pubdate": 1783996077,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:06.999733"
+    },
+    "BV1gMNE6EExS": {
+      "title": "【小程序毕设】校园自习室预约选座小程序，基于SpringBoot3+Vue3+微信小程序的校园自习室智能座位预约系统",
+      "up_id": 402779077,
+      "up_name": "程序员青戈",
+      "pubdate": 1783666536,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:06.999750"
+    },
+    "BV1aEMe6qEg8": {
+      "title": "【小程序毕设】校园零食商城小程序，基于SpringBoot3+Vue3+微信小程序的校园零食商城",
+      "up_id": 402779077,
+      "up_name": "程序员青戈",
+      "pubdate": 1783479900,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:06.999757"
+    },
+    "BV1CFTX6zE3z": {
+      "title": "【小程序毕设】医院预约挂号小程序，基于SpringBoot3+Vue3+微信小程序的医院预约挂号系统",
+      "up_id": 402779077,
+      "up_name": "程序员青戈",
+      "pubdate": 1783322480,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:06.999764"
+    },
+    "BV1hwT76nET5": {
+      "title": "【小程序毕设】咖啡点单小程序，基于SpringBoot+Vue+微信小程序的咖啡点单系统",
+      "up_id": 402779077,
+      "up_name": "程序员青戈",
+      "pubdate": 1782973508,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:06.999770"
+    },
+    "BV1oiKm6yEYU": {
+      "title": "千万博主谈b站真相（完整版）",
+      "up_id": 5294454,
+      "up_name": "逗比的雀巢",
+      "pubdate": 1784541900,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:08.140596"
+    },
+    "BV1rz7569EWw": {
+      "title": "找到了10年前跪舔b站的视频",
+      "up_id": 5294454,
+      "up_name": "逗比的雀巢",
+      "pubdate": 1782467592,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:08.140613"
+    },
+    "BV1K3Gz6pEoo": {
+      "title": "全世界笑点下降1000倍而我不变",
+      "up_id": 5294454,
+      "up_name": "逗比的雀巢",
+      "pubdate": 1779535340,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:08.140621"
+    },
+    "BV16ooQBsERA": {
+      "title": "对不起...",
+      "up_id": 5294454,
+      "up_name": "逗比的雀巢",
+      "pubdate": 1777112116,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:08.140627"
+    },
+    "BV1CbXZBPECb": {
+      "title": "凶手一句话，造就十年悬案",
+      "up_id": 5294454,
+      "up_name": "逗比的雀巢",
+      "pubdate": 1775124516,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:08.140634"
+    },
+    "BV1qTXDBNEhw": {
+      "title": "怎么知道自己可以干什么岗位？|大学生求职系列",
+      "up_id": 1061686558,
+      "up_name": "若不游",
+      "pubdate": 1774771771,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:09.253954"
+    },
+    "BV1q4APzwECD": {
+      "title": "海外大厂大裁员？AI写代码无压力？计算机学子毕业即失业？技术无用论？",
+      "up_id": 1061686558,
+      "up_name": "若不游",
+      "pubdate": 1774096222,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:09.253966"
+    },
+    "BV1szqWBeEHq": {
+      "title": "逃课自学，大二拿了大厂offer",
+      "up_id": 1061686558,
+      "up_name": "若不游",
+      "pubdate": 1765811924,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:09.253969"
+    },
+    "BV1fv2DBWEvN": {
+      "title": "这不得找个寒假实习？",
+      "up_id": 1061686558,
+      "up_name": "若不游",
+      "pubdate": 1765276345,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:09.253972"
+    },
+    "BV1HVyEBaEFu": {
+      "title": "希望对各位有帮助，仅供参考。",
+      "up_id": 1061686558,
+      "up_name": "若不游",
+      "pubdate": 1763541023,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:09.253974"
+    },
+    "BV1QE3F6JE2t": {
+      "title": "一不小心开发了一个游戏机博物馆【B站AI创造公开赛】",
+      "up_id": 3546572358945017,
+      "up_name": "是花子呀_",
+      "pubdate": 1785145828,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:10.332979"
+    },
+    "BV1NrM76mEGq": {
+      "title": "让不同的AI生活在一个小镇会发生什么？【B站AI创造公开赛】",
+      "up_id": 3546572358945017,
+      "up_name": "是花子呀_",
+      "pubdate": 1783587600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:10.332992"
+    },
+    "BV1hi7w6ME4Q": {
+      "title": "Harness engineering 实操干货教程！",
+      "up_id": 3546572358945017,
+      "up_name": "是花子呀_",
+      "pubdate": 1782098550,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:10.332997"
+    },
+    "BV1D7L16pE7u": {
+      "title": "这也太难了~ | Marvis",
+      "up_id": 3546572358945017,
+      "up_name": "是花子呀_",
+      "pubdate": 1779267773,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:10.333002"
+    },
+    "BV1mJ556dEGX": {
+      "title": "咦？浏览器混进了什么奇怪的东西？",
+      "up_id": 3546572358945017,
+      "up_name": "是花子呀_",
+      "pubdate": 1778641038,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:10.333006"
+    },
+    "BV1XJ3C6BEMC": {
+      "title": "耗时半年复原古代计量道路里程的记里鼓车 车行一里击鼓一次",
+      "up_id": 1922513266,
+      "up_name": "鲁磊",
+      "pubdate": 1785319200,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:11.433040"
+    },
+    "BV1fEDvB9E6V": {
+      "title": "中国十大雅事·听雨  春水碧于天，画船听雨眠。",
+      "up_id": 1922513266,
+      "up_name": "鲁磊",
+      "pubdate": 1775557692,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:11.433052"
+    },
+    "BV1vpFwzLEx8": {
+      "title": "制水力碾茶机做武夷红茶正山小种，世界红茶源于武夷山桐木关",
+      "up_id": 1922513266,
+      "up_name": "鲁磊",
+      "pubdate": 1770285600,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:11.433058"
+    },
+    "BV1XxrzBAE5H": {
+      "title": "古方秋梨膏制作，止咳润肺",
+      "up_id": 1922513266,
+      "up_name": "鲁磊",
+      "pubdate": 1768299000,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:11.433062"
+    },
+    "BV1XPBkBPEfr": {
+      "title": "千人催补货的植物洗发皂上架了丨松针洗发皂+何首乌洗发皂",
+      "up_id": 1922513266,
+      "up_name": "鲁磊",
+      "pubdate": 1766829316,
+      "pushed": false,
+      "pushed_at": null,
+      "created_at": "2026-08-02T16:28:11.433067"
+    }
+  },
+  "updated_at": "2026-08-02T16:28:59.350835"
+}
