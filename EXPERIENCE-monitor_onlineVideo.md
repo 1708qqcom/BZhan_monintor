@@ -2,6 +2,66 @@
 
 ---
 
+## 2026-08-06 — 稍后再看页面视频封面无法显示（B站防盗链）
+
+**场景**
+- 稍后再看页面（`/toview`）加载后，视频封面显示为SVG占位符图标
+- 浏览器开发者工具检查：
+  - `<img>` 标签的 `src` 属性正确指向 `https://i2.hdslb.com/bfs/archive/xxx.jpg`
+  - 图片请求返回 `403 Forbidden` 或 `ERR_BLOCKED_BY_ORB`
+  - 触发 `onerror` 事件，显示SVG占位符
+
+**原因**
+1. **B站图片服务器防盗链机制**：
+   - 检查 HTTP 请求的 `Referer` 头
+   - `Referer` 为 `*.bilibili.com` → 200 OK（允许）
+   - `Referer` 为其他域名 → 403 Forbidden（拒绝）
+2. **浏览器默认行为**：
+   - 从 `http://123.57.88.156:3231/toview` 页面请求图片
+   - 自动带上 `Referer: http://123.57.88.156:3231/toview` 头
+   - B站服务器检测到非白名单域名，拒绝访问
+3. **测试验证**：
+   ```bash
+   # 不带Referer: 200 OK (50692 bytes)
+   curl https://i2.hdslb.com/bfs/archive/xxx.jpg
+   
+   # 带bilibili Referer: 200 OK (50692 bytes)
+   curl -H "Referer: https://www.bilibili.com/" https://i2.hdslb.com/bfs/archive/xxx.jpg
+   
+   # 带外部Referer: 403 Forbidden (146 bytes)
+   curl -H "Referer: http://123.57.88.156:3231/" https://i2.hdslb.com/bfs/archive/xxx.jpg
+   ```
+
+**解决**
+- **方案（推荐）**：在 `<img>` 标签添加 `referrerpolicy="no-referrer"` 属性
+  ```html
+  <img src="https://i2.hdslb.com/bfs/archive/xxx.jpg"
+       referrerpolicy="no-referrer"
+       loading="lazy"
+       alt="视频封面">
+  ```
+  - 浏览器发送图片请求时**不携带 Referer 头**
+  - B站服务器接受无 Referer 的请求（返回 200 OK）
+  - 简单有效，适用于开发环境和内部管理系统
+
+**涉及文件**
+- `templates/toview.html` — 用户稍后再看页面（第131行）
+- `templates/admin_toview.html` — 管理员页面（保持一致）
+
+**关键点**
+- 图片URL协议需转换为HTTPS（避免Mixed Content）
+- 添加 `loading="lazy"` 优化加载性能
+- `onerror` 处理显示SVG占位符作为降级方案
+
+**预防**
+- 所有使用B站图片的地方统一添加 `referrerpolicy="no-referrer"`
+- 包括：UP主头像、视频封面、用户头像等
+- 在模板基类或组件中封装，避免遗漏
+
+**标签**：`#防盗链` `#Referer` `#图片加载` `#403错误` `#稍后再看`
+
+---
+
 ## 2026-08-02 — 推送历史页面播放量和推送时间无法显示
 
 **场景**

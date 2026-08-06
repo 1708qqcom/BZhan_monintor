@@ -1120,33 +1120,97 @@ class MonitorScheduler:
         """
         设置稍后再看定时推送任务
 
-        使用 APScheduler 的 CronTrigger 在每天 21:00 执行推送
+        从数据库读取推送时间配置（默认 21:00）
+        使用 APScheduler 的 CronTrigger 执行定时推送
         注意：此方法需要在 start() 之前调用
         """
         try:
             from apscheduler.schedulers.background import BackgroundScheduler
             from apscheduler.triggers.cron import CronTrigger
 
-            logger.info("设置稍后再看定时推送任务（每天 21:00）")
+            # 从数据库读取推送时间配置
+            push_time = "21:00"  # 默认值
+            if self.use_database:
+                push_time = self.db.get_config_value("toview_push_time", default="21:00")
+
+            # 解析时间
+            try:
+                hour, minute = map(int, push_time.split(":"))
+                logger.info(f"设置稍后再看定时推送任务（每天 {push_time}）")
+            except (ValueError, AttributeError) as e:
+                logger.warning(f"推送时间格式错误: {push_time}, 使用默认值 21:00, error={e}")
+                hour, minute = 21, 0
+                push_time = "21:00"
 
             # 创建后台调度器
-            toview_scheduler = BackgroundScheduler()
+            self.toview_scheduler = BackgroundScheduler()
 
             # 添加定时任务
-            toview_scheduler.add_job(
+            self.toview_scheduler.add_job(
                 func=self._push_toview_all_users,
-                trigger=CronTrigger(hour=21, minute=0),
+                trigger=CronTrigger(hour=hour, minute=minute),
                 id='toview_push',
                 name='稍后再看定时推送',
                 replace_existing=True
             )
 
             # 启动调度器
-            toview_scheduler.start()
-            logger.info("稍后再看定时推送任务已启动")
+            self.toview_scheduler.start()
+            logger.info(f"稍后再看定时推送任务已启动，推送时间: {push_time}")
 
         except Exception as e:
             logger.error(f"设置稍后再看定时推送失败: {e}", exc_info=True)
+
+    def update_push_schedule(self, new_time: str) -> bool:
+        """
+        动态更新推送时间
+
+        Args:
+            new_time: 新的推送时间，格式 HH:MM（如 21:00）
+
+        Returns:
+            更新成功返回 True，失败返回 False
+        """
+        try:
+            # 检查调度器是否已初始化
+            if not hasattr(self, 'toview_scheduler'):
+                logger.warning("推送调度器未初始化，无法动态更新")
+                return False
+
+            # 解析时间
+            try:
+                hour, minute = map(int, new_time.split(":"))
+                if not (0 <= hour <= 23 and 0 <= minute <= 59):
+                    raise ValueError("时间范围无效")
+            except (ValueError, AttributeError) as e:
+                logger.error(f"时间格式错误: {new_time}, error={e}")
+                return False
+
+            logger.info(f"更新推送时间: {new_time}")
+
+            # 移除旧任务
+            try:
+                self.toview_scheduler.remove_job('toview_push')
+                logger.debug("旧推送任务已移除")
+            except Exception as e:
+                logger.warning(f"移除旧任务失败: {e}")
+
+            # 添加新任务
+            from apscheduler.triggers.cron import CronTrigger
+            self.toview_scheduler.add_job(
+                func=self._push_toview_all_users,
+                trigger=CronTrigger(hour=hour, minute=minute),
+                id='toview_push',
+                name='稍后再看定时推送',
+                replace_existing=True
+            )
+
+            logger.info(f"推送时间已更新为 {new_time}，下次推送: {hour:02d}:{minute:02d}")
+            return True
+
+        except Exception as e:
+            logger.error(f"更新推送时间失败: {e}", exc_info=True)
+            return False
 
     def _push_toview_all_users(self) -> None:
         """

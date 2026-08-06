@@ -129,6 +129,13 @@ def _start_monitor_thread(db: Database) -> None:
 
         scheduler.set_state_callback(_on_state_change)
 
+        # 6.5 设置稍后再看定时推送
+        try:
+            scheduler.setup_toview_push_scheduler()
+            logger.info("稍后再看定时推送调度器已初始化")
+        except Exception as e:
+            logger.error(f"初始化稍后再看推送调度器失败: {e}", exc_info=True)
+
         # 7. 更新状态
         _monitor_state["is_running"] = True
         _monitor_state["scheduler"] = scheduler
@@ -190,6 +197,12 @@ async def lifespan(app: FastAPI):
         logger.error(f"启动监控线程失败: {e}", exc_info=True)
         # 不抛出异常，允许Web服务继续运行
 
+    # 将调度器实例保存到 app.state（供 API 访问）
+    if _monitor_state.get("scheduler"):
+        # 注意：lifespan 是生成器，app 还未创建，需要在后面设置
+        # 这里先跳过，在创建 app 后设置
+        pass
+
     yield
 
     logger.info("Web 应用关闭")
@@ -205,6 +218,11 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# 设置调度器实例到 app.state（供 API 访问）
+if _monitor_state.get("scheduler"):
+    app.state.scheduler = _monitor_state["scheduler"]
+    logger.info("调度器实例已绑定到 app.state")
 
 
 # ==================== 中间件配置 ====================

@@ -11,7 +11,7 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.bilibili import BilibiliClient
 from src.feishu import FeishuNotifier
@@ -33,6 +33,15 @@ class PushRequest(BaseModel):
     """手动推送请求"""
     user_id: Optional[int] = None  # 目标用户ID，不填则推送自己的
     count: int = 3  # 推送数量，默认3个
+
+
+class PushTimeConfigRequest(BaseModel):
+    """推送时间配置请求"""
+    push_time: str = Field(
+        ...,
+        description="推送时间，格式 HH:MM（如 21:00）",
+        examples=["21:00", "18:30"]
+    )
 
 
 # ==================== API端点 ====================
@@ -376,4 +385,137 @@ async def get_history(request: Request, user_id: Optional[int] = None, limit: in
         raise HTTPException(
             status_code=500,
             detail=f"查询失败: {str(e)}"
+        )
+
+
+# ==================== 推送配置API ====================
+
+@router.get("/config")
+async def get_push_config(request: Request):
+    """
+    获取推送时间配置
+
+    Returns:
+        {
+            "success": true,
+            "data": {
+                "push_time": "21:00",
+                "next_push_time": "2026-08-07 21:00:00",
+                "is_enabled": true
+            }
+        }
+    """
+    username = request.session.get("username", "unknown")
+    logger.info(f"API调用: GET /api/toview/config, user={username}")
+
+    try:
+        # 从数据库读取配置
+        push_time = db.get_config_value("toview_push_time", default="21:00")
+
+        # 计算下次推送时间
+        from datetime import datetime, timedelta
+        now = datetime.now()
+
+        try:
+            hour, minute = map(int, push_time.split(":"))
+            next_push = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+            # 如果今天的推送时间已过，则为明天
+            if next_push <= now:
+                next_push += timedelta(days=1)
+        except (ValueError, AttributeError):
+            # 配置格式错误，使用默认值
+            logger.warning(f"推送时间格式错误: {push_time}, 使用默认值 21:00")
+            push_time = "21:00"
+            hour, minute = 21, 0
+            next_push = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            if next_push <= now:
+                next_push += timedelta(days=1)
+
+        logger.info(f"获取推送配置成功: push_time={push_time}, next_push={next_push}")
+
+        return {
+            "success": True,
+            "data": {
+                "push_time": push_time,
+                "next_push_time": next_push.strftime("%Y-%m-%d %H:%M:%S"),
+                "is_enabled": True
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"获取推送配置失败: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取配置失败: {str(e)}"
+        )
+
+
+@router.put("/config")
+async def update_push_config(request: Request, body: PushTimeConfigRequest):
+    """
+    更新推送时间配置（管理员）
+
+    Args:
+        body: {"push_time": "18:30"}
+
+    Returns:
+        {"success": true, "message": "推送时间已更新"}
+    """
+    # 权限检查
+    is_admin = request.session.get("is_admin", False)
+    username = request.session.get("username", "unknown")
+
+    if not is_admin:
+        logger.warning(f"非管理员尝试修改推送时间: user={username}")
+        raise HTTPException(
+            status_code=403,
+            detail="无权限，只有管理员可以修改推送时间"
+        )
+
+    logger.info(f"API调用: PUT /api/toview/config, user={username}, push_time={body.push_time}")
+
+    try:
+        # 1. 验证时间格式
+        try:
+            hour, minute = map(int, body.push_time.split(":"))
+            if not (0 <= hour <= 23 and 0 <= minute <= 59):
+                raise ValueError("时间范围无效")
+        except (ValueError, AttributeError) as e:
+            logger.warning(f"时间格式错误: {body.push_time}, error={e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"时间格式错误，请使用 HH:MM 格式（如 21:00）"
+            )
+
+        # 2. 更新数据库配置
+        db.update_config("toview_push_time", body.push_time, user_id=None)
+        logger.info(f"推送时间配置已更新: {body.push_time}")
+
+        # 3. 更新调度器（如果调度器已初始化）
+        # 注意：这里需要访问 web.py 中的调度器实例
+        # 通过 request.app.state.scheduler 访问
+        if hasattr(request.app.state, "scheduler"):
+            try:
+                scheduler = request.app.state.scheduler
+                if hasattr(scheduler, "update_push_schedule"):
+                    scheduler.update_push_schedule(body.push_time)
+                    logger.info(f"调度器推送时间已更新: {body.push_time}")
+            except Exception as e:
+                logger.error(f"更新调度器失败: {e}, 下次启动时生效", exc_info=True)
+                # 不抛出异常，配置已保存，下次启动时生效
+
+        return {
+            "success": True,
+            "message": f"推送时间已更新为 {body.push_time}"
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"更新推送配置失败: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"更新失败: {str(e)}"
         )

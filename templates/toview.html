@@ -18,6 +18,56 @@
         </button>
     </div>
 
+    <!-- 管理员工具区域 -->
+    {% if is_admin %}
+    <div id="admin-tools" class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
+        <div class="flex items-center mb-4">
+            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <h2 class="text-lg font-semibold text-blue-900">管理员工具</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 推送时间设置 -->
+            <div class="bg-white rounded-lg p-4 border border-blue-100">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">⏰ 定时推送设置</h3>
+                <div class="flex items-center space-x-3">
+                    <div class="flex-1">
+                        <label class="block text-xs text-gray-500 mb-1">推送时间</label>
+                        <input type="time" id="push-time-input"
+                               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               value="21:00">
+                    </div>
+                    <button onclick="updatePushTime()"
+                            id="update-time-btn"
+                            class="mt-5 bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors">
+                        保存
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    下次推送时间：<span id="next-push-time" class="font-medium text-blue-600">加载中...</span>
+                </p>
+            </div>
+
+            <!-- 手动推送 -->
+            <div class="bg-white rounded-lg p-4 border border-blue-100">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">📤 手动推送测试</h3>
+                <p class="text-xs text-gray-500 mb-3">测试推送是否正常工作，推送前3个视频到飞书群</p>
+                <button onclick="manualPush()"
+                        id="manual-push-btn"
+                        class="w-full bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                    <span>立即推送测试</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 加载状态 -->
     <div id="loading-state" class="hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -64,11 +114,6 @@
 </div>
 
 <script>
-// 页面加载时获取数据
-document.addEventListener('DOMContentLoaded', function() {
-    loadToview();
-});
-
 // 加载稍后再看列表
 async function loadToview() {
     const loadingState = document.getElementById('loading-state');
@@ -177,5 +222,142 @@ function formatPlayCount(count) {
 function refreshToview() {
     loadToview();
 }
+
+// ==================== 管理员工具函数 ====================
+
+// 加载推送配置
+async function loadPushConfig() {
+    try {
+        const response = await fetch('/api/toview/config');
+        const data = await response.json();
+
+        if (data.success) {
+            const config = data.data;
+
+            // 更新时间选择器
+            const timeInput = document.getElementById('push-time-input');
+            if (timeInput) {
+                timeInput.value = config.push_time;
+            }
+
+            // 更新下次推送时间显示
+            const nextPushTime = document.getElementById('next-push-time');
+            if (nextPushTime) {
+                nextPushTime.textContent = config.next_push_time;
+            }
+        }
+    } catch (error) {
+        console.error('加载推送配置失败:', error);
+        const nextPushTime = document.getElementById('next-push-time');
+        if (nextPushTime) {
+            nextPushTime.textContent = '加载失败';
+        }
+    }
+}
+
+// 更新推送时间
+async function updatePushTime() {
+    const timeInput = document.getElementById('push-time-input');
+    const btn = document.getElementById('update-time-btn');
+    const pushTime = timeInput.value;
+
+    if (!pushTime) {
+        alert('请选择推送时间');
+        return;
+    }
+
+    // 禁用按钮
+    btn.disabled = true;
+    btn.textContent = '保存中...';
+
+    try {
+        const response = await fetch('/api/toview/config', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ push_time: pushTime })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert('推送时间已更新为 ' + pushTime);
+
+            // 重新加载配置以更新下次推送时间
+            await loadPushConfig();
+        } else {
+            alert('更新失败: ' + (data.detail || '未知错误'));
+        }
+    } catch (error) {
+        console.error('更新推送时间失败:', error);
+        alert('更新失败: ' + error.message);
+    } finally {
+        // 恢复按钮
+        btn.disabled = false;
+        btn.textContent = '保存';
+    }
+}
+
+// 手动推送测试
+async function manualPush() {
+    const btn = document.getElementById('manual-push-btn');
+
+    // 确认操作
+    if (!confirm('确定要立即推送稍后再看视频到飞书吗？')) {
+        return;
+    }
+
+    // 禁用按钮
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>推送中...</span>
+    `;
+
+    try {
+        const response = await fetch('/api/toview/push', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})  // 默认推送自己的，数量为3
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert('推送成功！\\n\\n已推送 ' + (data.pushed_videos?.length || 0) + ' 个视频到飞书群\\n请检查飞书群消息');
+        } else {
+            alert('推送失败: ' + (data.detail || '未知错误'));
+        }
+    } catch (error) {
+        console.error('手动推送失败:', error);
+        alert('推送失败: ' + error.message);
+    } finally {
+        // 恢复按钮
+        btn.disabled = false;
+        btn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            <span>立即推送测试</span>
+        `;
+    }
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function() {
+    loadToview();
+
+    // 如果是管理员，加载推送配置
+    const adminTools = document.getElementById('admin-tools');
+    if (adminTools) {
+        loadPushConfig();
+    }
+});
 </script>
 {% endblock %}

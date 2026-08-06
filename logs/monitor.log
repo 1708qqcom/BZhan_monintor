@@ -38189,3 +38189,557 @@ jinja2.exceptions.UndefinedError: 'request' is undefined
 2026-08-05 22:18:53,575 - monitor.scheduler - INFO - [用户 admin] 检查完成: 新视频0个, 推送0个
 2026-08-05 22:18:53,579 - monitor.scheduler - INFO - ========== 监控循环完成 ========== 用户: 1, 新视频: 0, 已推送: 0, 失败: 0, 耗时: 249.8秒
 2026-08-05 22:18:53,579 - monitor.scheduler - INFO - 等待 10 分钟后进行下次检查...
+2026-08-06 08:49:02,537 - monitor - INFO - 启动Web服务模式
+2026-08-06 08:49:03,358 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 08:49:03,363 - monitor.web - INFO - Jinja2 模板目录: D:\Desktop\learning_projects_2026\monitor_onlineVideo\templates
+2026-08-06 08:49:03,363 - monitor.web - INFO - 静态文件目录: D:\Desktop\learning_projects_2026\monitor_onlineVideo\static
+2026-08-06 08:49:03,364 - monitor.web - INFO - 认证中间件已配置
+2026-08-06 08:49:03,364 - monitor.web - INFO - 日志中间件已配置
+2026-08-06 08:49:03,364 - monitor.web - INFO - Session 中间件已配置，max_age=86400秒
+2026-08-06 08:49:03,364 - monitor.web - INFO - CORS 中间件已配置
+2026-08-06 08:49:03,370 - monitor.web - INFO - 静态文件已挂载: /static -> D:\Desktop\learning_projects_2026\monitor_onlineVideo\static
+2026-08-06 08:49:03,541 - monitor.web - INFO - 启动Web服务器: http://0.0.0.0:3231
+2026-08-06 08:49:03,542 - monitor.web - INFO - API文档: http://0.0.0.0:3231/docs
+2026-08-06 08:49:03,654 - monitor.web - INFO - ==================================================
+2026-08-06 08:49:03,655 - monitor.web - INFO - Web 应用启动中...
+2026-08-06 08:49:03,655 - monitor.web - INFO - ==================================================
+2026-08-06 08:49:03,656 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 08:49:03,656 - monitor.database - INFO - 开始初始化数据库表结构...
+2026-08-06 08:49:03,673 - monitor.database - INFO - 数据库表结构初始化完成
+2026-08-06 08:49:03,675 - monitor.web - INFO - 数据库初始化成功
+2026-08-06 08:49:03,675 - monitor.web - INFO - 准备启动监控调度器线程...
+2026-08-06 08:49:04,171 - monitor.bilibili - INFO - Cookie有效性检查通过，用户: 花海似霰
+2026-08-06 08:49:04,172 - monitor.web - INFO - B站Cookie验证通过
+2026-08-06 08:49:04,179 - monitor.web - INFO - 飞书推送器已初始化: https://open.feishu.cn/open-apis/bot/v2/hook/b4ea1...
+2026-08-06 08:49:04,184 - monitor.scheduler - INFO - 调度器初始化完成: 检查间隔=10分钟, 最多监控50个UP主, 历史保留180天, 存储模式=数据库
+2026-08-06 08:49:04,186 - monitor.web - INFO - 监控调度器线程开始运行
+2026-08-06 08:49:04,186 - monitor.web - INFO - 监控调度器已启动（后台线程）
+2026-08-06 08:49:04,186 - monitor.scheduler - INFO - ==================================================
+2026-08-06 08:49:04,186 - monitor.scheduler - INFO - 监控调度器启动
+2026-08-06 08:49:04,187 - monitor.scheduler - INFO - ==================================================
+2026-08-06 08:49:04,202 - monitor.database - INFO - 查询到 1006 条视频记录，总计 1006 条
+2026-08-06 08:49:04,204 - monitor.scheduler - INFO - 从数据库加载历史记录成功，共 1006 条
+2026-08-06 08:49:04,204 - monitor.scheduler - INFO - 监控间隔: 10 分钟
+2026-08-06 08:49:04,205 - monitor.scheduler - INFO - 历史保留: 180 天
+2026-08-06 08:49:04,205 - monitor.scheduler - INFO - 
+第 1 次监控循环
+2026-08-06 08:49:04,205 - monitor.scheduler - INFO - ========== 开始监控循环 ==========
+2026-08-06 08:49:04,210 - monitor.scheduler - INFO - 最大UP主数已更新: 50 -> 250
+2026-08-06 08:49:04,214 - monitor.database - INFO - 查询到 1 个有效 B站登录用户
+2026-08-06 08:49:04,216 - monitor.scheduler - INFO - 获取到 1 个有效用户
+2026-08-06 08:49:04,216 - monitor.scheduler - INFO - [1/1] 检查用户: admin
+2026-08-06 08:49:04,216 - monitor.scheduler - INFO - [用户 admin] 开始检查...
+2026-08-06 08:49:04,652 - monitor.bilibili - INFO - Cookie有效性检查通过，用户: 花海似霰
+2026-08-06 08:49:04,662 - monitor.database - INFO - 查询到 202 个 UP主
+2026-08-06 08:49:04,663 - monitor.scheduler - INFO - [用户 admin] 监控 202 个UP主
+2026-08-06 08:49:04,668 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:04,669 - monitor.bilibili - INFO - 获取UP主 321173469 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:04,669 - monitor.bilibili - INFO - 获取WBI密钥...
+2026-08-06 08:49:05,701 - monitor.bilibili - INFO - WBI密钥获取成功，缓存600秒
+2026-08-06 08:49:06,803 - monitor.bilibili - INFO - 获取UP主 321173469 视频成功，共 5 个视频
+2026-08-06 08:49:06,807 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:06,809 - monitor.bilibili - INFO - 获取UP主 431528342 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:07,931 - monitor.bilibili - INFO - 获取UP主 431528342 视频成功，共 5 个视频
+2026-08-06 08:49:07,936 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:07,938 - monitor.bilibili - INFO - 获取UP主 172803134 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:09,048 - monitor.bilibili - INFO - 获取UP主 172803134 视频成功，共 5 个视频
+2026-08-06 08:49:09,053 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:09,055 - monitor.bilibili - INFO - 获取UP主 3690981341792399 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:10,175 - monitor.bilibili - INFO - 获取UP主 3690981341792399 视频成功，共 5 个视频
+2026-08-06 08:49:10,181 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:10,183 - monitor.bilibili - INFO - 获取UP主 308552985 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:11,298 - monitor.bilibili - INFO - 获取UP主 308552985 视频成功，共 5 个视频
+2026-08-06 08:49:11,307 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:11,310 - monitor.bilibili - INFO - 获取UP主 39123536 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:12,389 - monitor.bilibili - INFO - 获取UP主 39123536 视频成功，共 5 个视频
+2026-08-06 08:49:12,394 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:12,395 - monitor.bilibili - INFO - 获取UP主 451645162 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:13,478 - monitor.bilibili - INFO - 获取UP主 451645162 视频成功，共 5 个视频
+2026-08-06 08:49:13,485 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:13,487 - monitor.bilibili - INFO - 获取UP主 1078766196 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:14,580 - monitor.bilibili - INFO - 获取UP主 1078766196 视频成功，共 5 个视频
+2026-08-06 08:49:14,586 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:14,587 - monitor.bilibili - INFO - 获取UP主 476613798 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:15,668 - monitor.bilibili - INFO - 获取UP主 476613798 视频成功，共 5 个视频
+2026-08-06 08:49:15,674 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:15,675 - monitor.bilibili - INFO - 获取UP主 412186367 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:16,363 - monitor.web - INFO - 请求: GET / 客户端: 127.0.0.1
+2026-08-06 08:49:16,387 - monitor.web - INFO - 响应: GET / 状态码: 200 耗时: 24.30ms
+2026-08-06 08:49:16,426 - monitor.web - INFO - 请求: GET /static/js/main.js 客户端: 127.0.0.1
+2026-08-06 08:49:16,533 - monitor.web - INFO - 响应: GET /static/js/main.js 状态码: 304 耗时: 107.25ms
+2026-08-06 08:49:16,759 - monitor.bilibili - INFO - 获取UP主 412186367 视频成功，共 5 个视频
+2026-08-06 08:49:16,766 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 08:49:16,767 - monitor.bilibili - INFO - 获取UP主 25195727 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:17,005 - monitor.web - INFO - 请求: GET /api/health 客户端: 127.0.0.1
+2026-08-06 08:49:17,008 - monitor.web - INFO - 响应: GET /api/health 状态码: 200 耗时: 3.33ms
+2026-08-06 08:49:17,167 - monitor.web - INFO - 请求: GET /api/monitor/status 客户端: 127.0.0.1
+2026-08-06 08:49:17,169 - monitor.web - INFO - 响应: GET /api/monitor/status 状态码: 200 耗时: 1.95ms
+2026-08-06 08:49:17,198 - monitor.web - INFO - 请求: GET /api/ups 客户端: 127.0.0.1
+2026-08-06 08:49:17,202 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 08:49:17,204 - monitor.api.ups - INFO - API调用: GET /api/ups, user_id=1, is_admin=True, page=1, page_size=20, keyword=None
+2026-08-06 08:49:17,216 - monitor.database - INFO - 查询到 20 个 UP主
+2026-08-06 08:49:17,225 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,234 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,242 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,252 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,261 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,268 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,276 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,284 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,293 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,304 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,313 - monitor.database - INFO - 查询到 5 条视频记录，总计 6 条
+2026-08-06 08:49:17,322 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,332 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,338 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,345 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,354 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,362 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,371 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,378 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,387 - monitor.database - INFO - 查询到 5 条视频记录，总计 5 条
+2026-08-06 08:49:17,389 - monitor.api.ups - INFO - 返回 20 个UP主，总计 202 个
+2026-08-06 08:49:17,391 - monitor.web - INFO - 响应: GET /api/ups 状态码: 200 耗时: 192.82ms
+2026-08-06 08:49:17,418 - monitor.web - INFO - 请求: GET /api/videos 客户端: 127.0.0.1
+2026-08-06 08:49:17,423 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 08:49:17,426 - monitor.api.videos - INFO - API调用: GET /api/videos, user_id=1, page=1, page_size=1, up_id=None, date_from=2026-08-06, date_to=2026-08-06
+2026-08-06 08:49:17,435 - monitor.database - INFO - 查询到 0 条视频记录，总计 0 条
+2026-08-06 08:49:17,439 - monitor.api.videos - INFO - 返回 0 条视频记录，总计 0 条
+2026-08-06 08:49:17,440 - monitor.web - INFO - 响应: GET /api/videos 状态码: 200 耗时: 21.97ms
+2026-08-06 08:49:17,447 - monitor.web - INFO - 请求: GET /api/videos 客户端: 127.0.0.1
+2026-08-06 08:49:17,449 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 08:49:17,450 - monitor.api.videos - INFO - API调用: GET /api/videos, user_id=1, page=1, page_size=5, up_id=None, date_from=None, date_to=None
+2026-08-06 08:49:17,458 - monitor.database - INFO - 查询到 5 条视频记录，总计 1006 条
+2026-08-06 08:49:17,460 - monitor.api.videos - INFO - 返回 5 条视频记录，总计 1006 条
+2026-08-06 08:49:17,461 - monitor.web - INFO - 响应: GET /api/videos 状态码: 200 耗时: 13.69ms
+2026-08-06 08:49:17,927 - monitor.bilibili - INFO - 获取UP主 25195727 视频成功，共 5 个视频
+2026-08-06 08:49:17,933 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:17,936 - monitor.bilibili - INFO - 获取UP主 357665034 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:18,008 - monitor.web - INFO - 请求: GET /favicon.ico 客户端: 127.0.0.1
+2026-08-06 08:49:18,009 - monitor.web - INFO - 响应: GET /favicon.ico 状态码: 404 耗时: 1.11ms
+2026-08-06 08:49:19,033 - monitor.bilibili - INFO - 获取UP主 357665034 视频成功，共 5 个视频
+2026-08-06 08:49:19,033 - monitor.scheduler - INFO - UP主 数学汤家凤 发现 3 个新视频
+2026-08-06 08:49:19,034 - monitor.scheduler - INFO - 正在推送视频: 汤家凤考研数学｜27考研数学全程班
+2026-08-06 08:49:19,034 - monitor.feishu - INFO - 准备发送新视频通知: 汤家凤考研数学｜27考研数学全程班
+2026-08-06 08:49:19,034 - monitor.feishu - INFO - 正在发送飞书消息...
+2026-08-06 08:49:19,937 - monitor.feishu - INFO - 飞书消息发送成功
+2026-08-06 08:49:19,943 - monitor.feishu - INFO - 新视频通知发送成功: 汤家凤考研数学｜27考研数学全程班
+2026-08-06 08:49:19,943 - monitor.scheduler - INFO - 视频推送成功: BV1dmKg6kE69
+2026-08-06 08:49:19,944 - monitor.database - INFO - 添加视频记录: bvid=BV1dmKg6kE69, title=汤家凤考研数学｜27考研数学全程班
+2026-08-06 08:49:19,953 - monitor.database - INFO - 视频记录添加成功: id=1258, bvid=BV1dmKg6kE69
+2026-08-06 08:49:19,957 - monitor.scheduler - INFO - 正在推送视频: 汤家凤×石雷鹏27考研数英一联报班
+2026-08-06 08:49:19,957 - monitor.feishu - INFO - 准备发送新视频通知: 汤家凤×石雷鹏27考研数英一联报班
+2026-08-06 08:49:19,958 - monitor.feishu - INFO - 正在发送飞书消息...
+2026-08-06 08:49:20,357 - monitor.web - INFO - 请求: GET /toview 客户端: 127.0.0.1
+2026-08-06 08:49:20,366 - monitor.web - INFO - 响应: GET /toview 状态码: 200 耗时: 9.12ms
+2026-08-06 08:49:20,523 - monitor.web - INFO - 请求: GET /api/toview 客户端: 127.0.0.1
+2026-08-06 08:49:20,527 - monitor.api.toview - INFO - API调用: GET /api/toview, user=admin
+2026-08-06 08:49:20,538 - monitor.bilibili - INFO - 获取稍后再看列表 (page=1, page_size=30)
+2026-08-06 08:49:20,846 - monitor.feishu - INFO - 飞书消息发送成功
+2026-08-06 08:49:20,850 - monitor.feishu - INFO - 新视频通知发送成功: 汤家凤×石雷鹏27考研数英一联报班
+2026-08-06 08:49:20,850 - monitor.scheduler - INFO - 视频推送成功: BV1uFNq6iEX7
+2026-08-06 08:49:20,851 - monitor.database - INFO - 添加视频记录: bvid=BV1uFNq6iEX7, title=汤家凤×石雷鹏27考研数英一联报班
+2026-08-06 08:49:20,861 - monitor.database - INFO - 视频记录添加成功: id=1259, bvid=BV1uFNq6iEX7
+2026-08-06 08:49:20,866 - monitor.scheduler - INFO - 正在推送视频: 汤家凤×石雷鹏27考研数英二联报班
+2026-08-06 08:49:20,866 - monitor.feishu - INFO - 准备发送新视频通知: 汤家凤×石雷鹏27考研数英二联报班
+2026-08-06 08:49:20,867 - monitor.feishu - INFO - 正在发送飞书消息...
+2026-08-06 08:49:21,261 - monitor.bilibili - INFO - 获取稍后再看列表成功，共 30 个视频
+2026-08-06 08:49:21,262 - monitor.database - INFO - 保存稍后再看视频: user_id=1, count=30
+2026-08-06 08:49:21,278 - monitor.database - INFO - 稍后再看视频保存成功: user_id=1, saved=30
+2026-08-06 08:49:21,279 - monitor.api.toview - INFO - [用户 admin] 获取稍后再看成功，共 30 个视频
+2026-08-06 08:49:21,284 - monitor.web - INFO - 响应: GET /api/toview 状态码: 200 耗时: 760.78ms
+2026-08-06 08:49:22,134 - monitor.feishu - INFO - 飞书消息发送成功
+2026-08-06 08:49:22,136 - monitor.feishu - INFO - 新视频通知发送成功: 汤家凤×石雷鹏27考研数英二联报班
+2026-08-06 08:49:22,136 - monitor.scheduler - INFO - 视频推送成功: BV1otNq6jEJ1
+2026-08-06 08:49:22,137 - monitor.database - INFO - 添加视频记录: bvid=BV1otNq6jEJ1, title=汤家凤×石雷鹏27考研数英二联报班
+2026-08-06 08:49:22,149 - monitor.database - INFO - 视频记录添加成功: id=1260, bvid=BV1otNq6jEJ1
+2026-08-06 08:49:22,157 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:22,158 - monitor.bilibili - INFO - 获取UP主 317479700 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:22,306 - monitor.bilibili - INFO - 获取UP主 317479700 视频成功，共 5 个视频
+2026-08-06 08:49:22,313 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:22,316 - monitor.bilibili - INFO - 获取UP主 584862847 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:23,398 - monitor.bilibili - INFO - 获取UP主 584862847 视频成功，共 5 个视频
+2026-08-06 08:49:23,404 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:23,406 - monitor.bilibili - INFO - 获取UP主 504207128 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:24,501 - monitor.bilibili - INFO - 获取UP主 504207128 视频成功，共 5 个视频
+2026-08-06 08:49:24,507 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:24,509 - monitor.bilibili - INFO - 获取UP主 1208823126 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:25,864 - monitor.bilibili - INFO - 获取UP主 1208823126 视频成功，共 5 个视频
+2026-08-06 08:49:25,869 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:25,871 - monitor.bilibili - INFO - 获取UP主 66391032 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:27,476 - monitor.bilibili - INFO - 获取UP主 66391032 视频成功，共 5 个视频
+2026-08-06 08:49:27,482 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:27,484 - monitor.bilibili - INFO - 获取UP主 1167671073 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:28,541 - monitor.bilibili - INFO - 获取UP主 1167671073 视频成功，共 5 个视频
+2026-08-06 08:49:28,546 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:28,548 - monitor.bilibili - INFO - 获取UP主 1265948124 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:29,597 - monitor.bilibili - INFO - 获取UP主 1265948124 视频成功，共 5 个视频
+2026-08-06 08:49:29,604 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:29,605 - monitor.bilibili - INFO - 获取UP主 626823956 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:30,708 - monitor.bilibili - INFO - 获取UP主 626823956 视频成功，共 5 个视频
+2026-08-06 08:49:30,713 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:30,715 - monitor.bilibili - INFO - 获取UP主 29903122 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:31,835 - monitor.bilibili - INFO - 获取UP主 29903122 视频成功，共 5 个视频
+2026-08-06 08:49:31,842 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:31,844 - monitor.bilibili - INFO - 获取UP主 622062766 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:32,724 - monitor.web - INFO - 请求: GET /toview 客户端: 127.0.0.1
+2026-08-06 08:49:32,726 - monitor.web - INFO - 响应: GET /toview 状态码: 200 耗时: 1.89ms
+2026-08-06 08:49:32,805 - monitor.web - INFO - 请求: GET /api/toview 客户端: 127.0.0.1
+2026-08-06 08:49:32,806 - monitor.api.toview - INFO - API调用: GET /api/toview, user=admin
+2026-08-06 08:49:32,815 - monitor.bilibili - INFO - 获取稍后再看列表 (page=1, page_size=30)
+2026-08-06 08:49:32,947 - monitor.bilibili - INFO - 获取UP主 622062766 视频成功，共 5 个视频
+2026-08-06 08:49:32,952 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:32,955 - monitor.bilibili - INFO - 获取UP主 3493279159028558 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:33,422 - monitor.bilibili - INFO - 获取稍后再看列表成功，共 30 个视频
+2026-08-06 08:49:33,423 - monitor.database - INFO - 保存稍后再看视频: user_id=1, count=30
+2026-08-06 08:49:33,445 - monitor.database - INFO - 稍后再看视频保存成功: user_id=1, saved=30
+2026-08-06 08:49:33,445 - monitor.api.toview - INFO - [用户 admin] 获取稍后再看成功，共 30 个视频
+2026-08-06 08:49:33,454 - monitor.web - INFO - 响应: GET /api/toview 状态码: 200 耗时: 648.79ms
+2026-08-06 08:49:34,066 - monitor.bilibili - INFO - 获取UP主 3493279159028558 视频成功，共 5 个视频
+2026-08-06 08:49:34,071 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:34,073 - monitor.bilibili - INFO - 获取UP主 1640095931 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:35,150 - monitor.bilibili - INFO - 获取UP主 1640095931 视频成功，共 5 个视频
+2026-08-06 08:49:35,155 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:35,157 - monitor.bilibili - INFO - 获取UP主 1295893300 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:36,245 - monitor.bilibili - INFO - 获取UP主 1295893300 视频成功，共 5 个视频
+2026-08-06 08:49:36,251 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:36,253 - monitor.bilibili - INFO - 获取UP主 511582432 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:37,334 - monitor.bilibili - INFO - 获取UP主 511582432 视频成功，共 5 个视频
+2026-08-06 08:49:37,339 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:37,341 - monitor.bilibili - INFO - 获取UP主 7788379 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:38,470 - monitor.bilibili - INFO - 获取UP主 7788379 视频成功，共 5 个视频
+2026-08-06 08:49:38,476 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:38,477 - monitor.bilibili - INFO - 获取UP主 97139894 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:39,530 - monitor.bilibili - INFO - 获取UP主 97139894 视频成功，共 5 个视频
+2026-08-06 08:49:39,534 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:39,536 - monitor.bilibili - INFO - 获取UP主 71302461 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:40,590 - monitor.bilibili - INFO - 获取UP主 71302461 视频成功，共 5 个视频
+2026-08-06 08:49:40,596 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:40,598 - monitor.bilibili - INFO - 获取UP主 491748397 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:40,693 - monitor.web - INFO - 请求: GET /toview 客户端: 127.0.0.1
+2026-08-06 08:49:40,695 - monitor.web - INFO - 响应: GET /toview 状态码: 200 耗时: 2.09ms
+2026-08-06 08:49:40,773 - monitor.web - INFO - 请求: GET /api/toview 客户端: 127.0.0.1
+2026-08-06 08:49:40,774 - monitor.api.toview - INFO - API调用: GET /api/toview, user=admin
+2026-08-06 08:49:40,782 - monitor.bilibili - INFO - 获取稍后再看列表 (page=1, page_size=30)
+2026-08-06 08:49:41,438 - monitor.bilibili - INFO - 获取稍后再看列表成功，共 30 个视频
+2026-08-06 08:49:41,439 - monitor.database - INFO - 保存稍后再看视频: user_id=1, count=30
+2026-08-06 08:49:41,451 - monitor.database - INFO - 稍后再看视频保存成功: user_id=1, saved=30
+2026-08-06 08:49:41,452 - monitor.api.toview - INFO - [用户 admin] 获取稍后再看成功，共 30 个视频
+2026-08-06 08:49:41,454 - monitor.web - INFO - 响应: GET /api/toview 状态码: 200 耗时: 681.33ms
+2026-08-06 08:49:41,715 - monitor.bilibili - INFO - 获取UP主 491748397 视频成功，共 5 个视频
+2026-08-06 08:49:41,720 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:41,721 - monitor.bilibili - INFO - 获取UP主 348646636 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:42,874 - monitor.bilibili - INFO - 获取UP主 348646636 视频成功，共 5 个视频
+2026-08-06 08:49:42,879 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:42,880 - monitor.bilibili - INFO - 获取UP主 72338055 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:44,013 - monitor.bilibili - INFO - 获取UP主 72338055 视频成功，共 5 个视频
+2026-08-06 08:49:44,018 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:44,019 - monitor.bilibili - INFO - 获取UP主 473038306 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:45,106 - monitor.bilibili - INFO - 获取UP主 473038306 视频成功，共 5 个视频
+2026-08-06 08:49:45,111 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:45,113 - monitor.bilibili - INFO - 获取UP主 174211919 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:46,208 - monitor.bilibili - INFO - 获取UP主 174211919 视频成功，共 5 个视频
+2026-08-06 08:49:46,213 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:46,214 - monitor.bilibili - INFO - 获取UP主 15772053 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:47,299 - monitor.bilibili - INFO - 获取UP主 15772053 视频成功，共 5 个视频
+2026-08-06 08:49:47,304 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:47,305 - monitor.bilibili - INFO - 获取UP主 3493074588142101 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:48,406 - monitor.bilibili - INFO - 获取UP主 3493074588142101 视频成功，共 5 个视频
+2026-08-06 08:49:48,411 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:48,412 - monitor.bilibili - INFO - 获取UP主 477069325 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:49,550 - monitor.bilibili - INFO - 获取UP主 477069325 视频成功，共 5 个视频
+2026-08-06 08:49:49,555 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 08:49:49,557 - monitor.bilibili - INFO - 获取UP主 481153145 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:50,654 - monitor.bilibili - INFO - 获取UP主 481153145 视频成功，共 5 个视频
+2026-08-06 08:49:50,659 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 08:49:50,661 - monitor.bilibili - INFO - 获取UP主 250945731 的视频列表 (page=1, page_size=5)
+2026-08-06 08:49:51,375 - monitor.web - INFO - Web 应用关闭
+2026-08-06 09:08:33,859 - monitor - INFO - 启动Web服务模式
+2026-08-06 09:08:34,621 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 09:08:34,625 - monitor.web - INFO - Jinja2 模板目录: D:\Desktop\learning_projects_2026\monitor_onlineVideo\templates
+2026-08-06 09:08:34,626 - monitor.web - INFO - 静态文件目录: D:\Desktop\learning_projects_2026\monitor_onlineVideo\static
+2026-08-06 09:08:34,627 - monitor.web - INFO - 认证中间件已配置
+2026-08-06 09:08:34,627 - monitor.web - INFO - 日志中间件已配置
+2026-08-06 09:08:34,627 - monitor.web - INFO - Session 中间件已配置，max_age=86400秒
+2026-08-06 09:08:34,627 - monitor.web - INFO - CORS 中间件已配置
+2026-08-06 09:08:34,633 - monitor.web - INFO - 静态文件已挂载: /static -> D:\Desktop\learning_projects_2026\monitor_onlineVideo\static
+2026-08-06 09:08:34,796 - monitor.web - INFO - 启动Web服务器: http://0.0.0.0:3231
+2026-08-06 09:08:34,797 - monitor.web - INFO - API文档: http://0.0.0.0:3231/docs
+2026-08-06 09:08:34,886 - monitor.web - INFO - ==================================================
+2026-08-06 09:08:34,887 - monitor.web - INFO - Web 应用启动中...
+2026-08-06 09:08:34,887 - monitor.web - INFO - ==================================================
+2026-08-06 09:08:34,888 - monitor.database - INFO - 数据库管理器初始化: D:\Desktop\learning_projects_2026\monitor_onlineVideo\data\monitor.db
+2026-08-06 09:08:34,888 - monitor.database - INFO - 开始初始化数据库表结构...
+2026-08-06 09:08:34,903 - monitor.database - INFO - 数据库表结构初始化完成
+2026-08-06 09:08:34,904 - monitor.web - INFO - 数据库初始化成功
+2026-08-06 09:08:34,905 - monitor.web - INFO - 准备启动监控调度器线程...
+2026-08-06 09:08:35,419 - monitor.bilibili - INFO - Cookie有效性检查通过，用户: 花海似霰
+2026-08-06 09:08:35,419 - monitor.web - INFO - B站Cookie验证通过
+2026-08-06 09:08:35,424 - monitor.web - INFO - 飞书推送器已初始化: https://open.feishu.cn/open-apis/bot/v2/hook/b4ea1...
+2026-08-06 09:08:35,429 - monitor.scheduler - INFO - 调度器初始化完成: 检查间隔=10分钟, 最多监控50个UP主, 历史保留180天, 存储模式=数据库
+2026-08-06 09:08:35,431 - monitor.scheduler - ERROR - 设置稍后再看定时推送失败: No module named 'apscheduler'
+Traceback (most recent call last):
+  File "D:\Desktop\learning_projects_2026\monitor_onlineVideo\src\scheduler.py", line 1128, in setup_toview_push_scheduler
+    from apscheduler.schedulers.background import BackgroundScheduler
+ModuleNotFoundError: No module named 'apscheduler'
+2026-08-06 09:08:35,434 - monitor.web - INFO - 稍后再看定时推送调度器已初始化
+2026-08-06 09:08:35,435 - monitor.web - INFO - 监控调度器线程开始运行
+2026-08-06 09:08:35,435 - monitor.web - INFO - 监控调度器已启动（后台线程）
+2026-08-06 09:08:35,435 - monitor.scheduler - INFO - ==================================================
+2026-08-06 09:08:35,436 - monitor.scheduler - INFO - 监控调度器启动
+2026-08-06 09:08:35,436 - monitor.scheduler - INFO - ==================================================
+2026-08-06 09:08:35,462 - monitor.database - INFO - 查询到 1009 条视频记录，总计 1009 条
+2026-08-06 09:08:35,464 - monitor.scheduler - INFO - 从数据库加载历史记录成功，共 1009 条
+2026-08-06 09:08:35,465 - monitor.scheduler - INFO - 监控间隔: 10 分钟
+2026-08-06 09:08:35,465 - monitor.scheduler - INFO - 历史保留: 180 天
+2026-08-06 09:08:35,465 - monitor.scheduler - INFO - 
+第 1 次监控循环
+2026-08-06 09:08:35,465 - monitor.scheduler - INFO - ========== 开始监控循环 ==========
+2026-08-06 09:08:35,471 - monitor.scheduler - INFO - 最大UP主数已更新: 50 -> 250
+2026-08-06 09:08:35,475 - monitor.database - INFO - 查询到 1 个有效 B站登录用户
+2026-08-06 09:08:35,477 - monitor.scheduler - INFO - 获取到 1 个有效用户
+2026-08-06 09:08:35,477 - monitor.scheduler - INFO - [1/1] 检查用户: admin
+2026-08-06 09:08:35,478 - monitor.scheduler - INFO - [用户 admin] 开始检查...
+2026-08-06 09:08:35,940 - monitor.bilibili - INFO - Cookie有效性检查通过，用户: 花海似霰
+2026-08-06 09:08:35,949 - monitor.database - INFO - 查询到 202 个 UP主
+2026-08-06 09:08:35,951 - monitor.scheduler - INFO - [用户 admin] 监控 202 个UP主
+2026-08-06 09:08:35,954 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:35,955 - monitor.bilibili - INFO - 获取UP主 321173469 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:35,956 - monitor.bilibili - INFO - 获取WBI密钥...
+2026-08-06 09:08:37,004 - monitor.bilibili - INFO - WBI密钥获取成功，缓存600秒
+2026-08-06 09:08:38,085 - monitor.bilibili - INFO - 获取UP主 321173469 视频成功，共 5 个视频
+2026-08-06 09:08:38,090 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:38,091 - monitor.bilibili - INFO - 获取UP主 431528342 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:39,237 - monitor.bilibili - INFO - 获取UP主 431528342 视频成功，共 5 个视频
+2026-08-06 09:08:39,242 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:39,244 - monitor.bilibili - INFO - 获取UP主 172803134 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:40,382 - monitor.bilibili - INFO - 获取UP主 172803134 视频成功，共 5 个视频
+2026-08-06 09:08:40,386 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:40,387 - monitor.bilibili - INFO - 获取UP主 3690981341792399 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:41,475 - monitor.bilibili - INFO - 获取UP主 3690981341792399 视频成功，共 5 个视频
+2026-08-06 09:08:41,480 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:41,482 - monitor.bilibili - INFO - 获取UP主 308552985 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:42,572 - monitor.bilibili - INFO - 获取UP主 308552985 视频成功，共 5 个视频
+2026-08-06 09:08:42,578 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:42,579 - monitor.bilibili - INFO - 获取UP主 39123536 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:43,651 - monitor.bilibili - INFO - 获取UP主 39123536 视频成功，共 5 个视频
+2026-08-06 09:08:43,655 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:43,656 - monitor.bilibili - INFO - 获取UP主 451645162 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:44,811 - monitor.bilibili - INFO - 获取UP主 451645162 视频成功，共 5 个视频
+2026-08-06 09:08:44,815 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:44,816 - monitor.bilibili - INFO - 获取UP主 1078766196 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:45,942 - monitor.bilibili - INFO - 获取UP主 1078766196 视频成功，共 5 个视频
+2026-08-06 09:08:45,947 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:45,948 - monitor.bilibili - INFO - 获取UP主 476613798 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:47,040 - monitor.bilibili - INFO - 获取UP主 476613798 视频成功，共 5 个视频
+2026-08-06 09:08:47,045 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:47,047 - monitor.bilibili - INFO - 获取UP主 412186367 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:48,133 - monitor.bilibili - INFO - 获取UP主 412186367 视频成功，共 5 个视频
+2026-08-06 09:08:48,137 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 09:08:48,138 - monitor.bilibili - INFO - 获取UP主 25195727 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:49,209 - monitor.bilibili - INFO - 获取UP主 25195727 视频成功，共 5 个视频
+2026-08-06 09:08:49,216 - monitor.database - INFO - 查询到 1 条视频记录，总计 8 条
+2026-08-06 09:08:49,217 - monitor.bilibili - INFO - 获取UP主 357665034 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:50,300 - monitor.bilibili - INFO - 获取UP主 357665034 视频成功，共 5 个视频
+2026-08-06 09:08:50,304 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:50,305 - monitor.bilibili - INFO - 获取UP主 317479700 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:51,439 - monitor.bilibili - INFO - 获取UP主 317479700 视频成功，共 5 个视频
+2026-08-06 09:08:51,444 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:51,446 - monitor.bilibili - INFO - 获取UP主 584862847 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:52,584 - monitor.bilibili - INFO - 获取UP主 584862847 视频成功，共 5 个视频
+2026-08-06 09:08:52,589 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:52,590 - monitor.bilibili - INFO - 获取UP主 504207128 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:53,738 - monitor.bilibili - INFO - 获取UP主 504207128 视频成功，共 5 个视频
+2026-08-06 09:08:53,743 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:53,744 - monitor.bilibili - INFO - 获取UP主 1208823126 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:54,859 - monitor.bilibili - INFO - 获取UP主 1208823126 视频成功，共 5 个视频
+2026-08-06 09:08:54,865 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:54,866 - monitor.bilibili - INFO - 获取UP主 66391032 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:55,953 - monitor.bilibili - INFO - 获取UP主 66391032 视频成功，共 5 个视频
+2026-08-06 09:08:55,958 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:55,959 - monitor.bilibili - INFO - 获取UP主 1167671073 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:57,064 - monitor.bilibili - INFO - 获取UP主 1167671073 视频成功，共 5 个视频
+2026-08-06 09:08:57,070 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:57,071 - monitor.bilibili - INFO - 获取UP主 1265948124 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:58,212 - monitor.bilibili - INFO - 获取UP主 1265948124 视频成功，共 5 个视频
+2026-08-06 09:08:58,217 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:58,218 - monitor.bilibili - INFO - 获取UP主 626823956 的视频列表 (page=1, page_size=5)
+2026-08-06 09:08:59,342 - monitor.bilibili - INFO - 获取UP主 626823956 视频成功，共 5 个视频
+2026-08-06 09:08:59,348 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:08:59,349 - monitor.bilibili - INFO - 获取UP主 29903122 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:00,434 - monitor.bilibili - INFO - 获取UP主 29903122 视频成功，共 5 个视频
+2026-08-06 09:09:00,439 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:00,440 - monitor.bilibili - INFO - 获取UP主 622062766 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:01,570 - monitor.bilibili - INFO - 获取UP主 622062766 视频成功，共 5 个视频
+2026-08-06 09:09:01,574 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:01,575 - monitor.bilibili - INFO - 获取UP主 3493279159028558 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:02,702 - monitor.bilibili - INFO - 获取UP主 3493279159028558 视频成功，共 5 个视频
+2026-08-06 09:09:02,707 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:02,708 - monitor.bilibili - INFO - 获取UP主 1640095931 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:03,805 - monitor.bilibili - INFO - 获取UP主 1640095931 视频成功，共 5 个视频
+2026-08-06 09:09:03,810 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:03,811 - monitor.bilibili - INFO - 获取UP主 1295893300 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:04,934 - monitor.bilibili - INFO - 获取UP主 1295893300 视频成功，共 5 个视频
+2026-08-06 09:09:04,939 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:04,941 - monitor.bilibili - INFO - 获取UP主 511582432 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:06,046 - monitor.bilibili - INFO - 获取UP主 511582432 视频成功，共 5 个视频
+2026-08-06 09:09:06,051 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:06,052 - monitor.bilibili - INFO - 获取UP主 7788379 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:07,318 - monitor.bilibili - INFO - 获取UP主 7788379 视频成功，共 5 个视频
+2026-08-06 09:09:07,322 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:07,324 - monitor.bilibili - INFO - 获取UP主 97139894 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:08,399 - monitor.bilibili - INFO - 获取UP主 97139894 视频成功，共 5 个视频
+2026-08-06 09:09:08,403 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:08,405 - monitor.bilibili - INFO - 获取UP主 71302461 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:09,475 - monitor.bilibili - INFO - 获取UP主 71302461 视频成功，共 5 个视频
+2026-08-06 09:09:09,479 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:09,480 - monitor.bilibili - INFO - 获取UP主 491748397 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:10,698 - monitor.bilibili - INFO - 获取UP主 491748397 视频成功，共 5 个视频
+2026-08-06 09:09:10,702 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:10,704 - monitor.bilibili - INFO - 获取UP主 348646636 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:11,827 - monitor.bilibili - INFO - 获取UP主 348646636 视频成功，共 5 个视频
+2026-08-06 09:09:11,832 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:11,834 - monitor.bilibili - INFO - 获取UP主 72338055 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:12,929 - monitor.bilibili - INFO - 获取UP主 72338055 视频成功，共 5 个视频
+2026-08-06 09:09:12,933 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:12,935 - monitor.bilibili - INFO - 获取UP主 473038306 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:14,002 - monitor.bilibili - INFO - 获取UP主 473038306 视频成功，共 5 个视频
+2026-08-06 09:09:14,006 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:14,007 - monitor.bilibili - INFO - 获取UP主 174211919 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:15,087 - monitor.bilibili - INFO - 获取UP主 174211919 视频成功，共 5 个视频
+2026-08-06 09:09:15,091 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:15,092 - monitor.bilibili - INFO - 获取UP主 15772053 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:16,193 - monitor.bilibili - INFO - 获取UP主 15772053 视频成功，共 5 个视频
+2026-08-06 09:09:16,197 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:16,198 - monitor.bilibili - INFO - 获取UP主 3493074588142101 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:17,331 - monitor.bilibili - INFO - 获取UP主 3493074588142101 视频成功，共 5 个视频
+2026-08-06 09:09:17,336 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:17,338 - monitor.bilibili - INFO - 获取UP主 477069325 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:18,494 - monitor.bilibili - INFO - 获取UP主 477069325 视频成功，共 5 个视频
+2026-08-06 09:09:18,498 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 09:09:18,500 - monitor.bilibili - INFO - 获取UP主 481153145 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:19,635 - monitor.bilibili - INFO - 获取UP主 481153145 视频成功，共 5 个视频
+2026-08-06 09:09:19,639 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:19,641 - monitor.bilibili - INFO - 获取UP主 250945731 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:20,749 - monitor.bilibili - INFO - 获取UP主 250945731 视频成功，共 5 个视频
+2026-08-06 09:09:20,755 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:20,756 - monitor.bilibili - INFO - 获取UP主 28141886 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:21,855 - monitor.bilibili - INFO - 获取UP主 28141886 视频成功，共 5 个视频
+2026-08-06 09:09:21,860 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:21,862 - monitor.bilibili - INFO - 获取UP主 3493135690763074 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:22,996 - monitor.bilibili - INFO - 获取UP主 3493135690763074 视频成功，共 5 个视频
+2026-08-06 09:09:23,000 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:23,002 - monitor.bilibili - INFO - 获取UP主 1573766779 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:24,100 - monitor.bilibili - INFO - 获取UP主 1573766779 视频成功，共 5 个视频
+2026-08-06 09:09:24,105 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:24,107 - monitor.bilibili - INFO - 获取UP主 353495419 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:25,217 - monitor.bilibili - INFO - 获取UP主 353495419 视频成功，共 5 个视频
+2026-08-06 09:09:25,222 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:25,224 - monitor.bilibili - INFO - 获取UP主 32426640 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:26,332 - monitor.bilibili - INFO - 获取UP主 32426640 视频成功，共 5 个视频
+2026-08-06 09:09:26,337 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:26,339 - monitor.bilibili - INFO - 获取UP主 1391214311 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:27,442 - monitor.bilibili - INFO - 获取UP主 1391214311 视频成功，共 5 个视频
+2026-08-06 09:09:27,447 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 09:09:27,448 - monitor.bilibili - INFO - 获取UP主 38061207 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:28,574 - monitor.bilibili - INFO - 获取UP主 38061207 视频成功，共 5 个视频
+2026-08-06 09:09:28,580 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:28,581 - monitor.bilibili - INFO - 获取UP主 395619513 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:29,721 - monitor.bilibili - INFO - 获取UP主 395619513 视频成功，共 5 个视频
+2026-08-06 09:09:29,725 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:29,727 - monitor.bilibili - INFO - 获取UP主 1458978663 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:30,805 - monitor.bilibili - INFO - 获取UP主 1458978663 视频成功，共 5 个视频
+2026-08-06 09:09:30,810 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:30,812 - monitor.bilibili - INFO - 获取UP主 480379897 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:31,920 - monitor.bilibili - INFO - 获取UP主 480379897 视频成功，共 5 个视频
+2026-08-06 09:09:31,925 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:31,926 - monitor.bilibili - INFO - 获取UP主 1780540121 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:33,068 - monitor.bilibili - INFO - 获取UP主 1780540121 视频成功，共 5 个视频
+2026-08-06 09:09:33,072 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:33,073 - monitor.bilibili - INFO - 获取UP主 242698964 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:34,183 - monitor.bilibili - INFO - 获取UP主 242698964 视频成功，共 5 个视频
+2026-08-06 09:09:34,188 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:34,189 - monitor.bilibili - INFO - 获取UP主 1031210771 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:35,558 - monitor.bilibili - INFO - 获取UP主 1031210771 视频成功，共 5 个视频
+2026-08-06 09:09:35,563 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:35,564 - monitor.bilibili - INFO - 获取UP主 3493292538858189 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:36,664 - monitor.bilibili - INFO - 获取UP主 3493292538858189 视频成功，共 5 个视频
+2026-08-06 09:09:36,670 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:36,672 - monitor.bilibili - INFO - 获取UP主 3493136342976651 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:38,012 - monitor.bilibili - INFO - 获取UP主 3493136342976651 视频成功，共 5 个视频
+2026-08-06 09:09:38,017 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:38,018 - monitor.bilibili - INFO - 获取UP主 560084575 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:39,193 - monitor.bilibili - INFO - 获取UP主 560084575 视频成功，共 5 个视频
+2026-08-06 09:09:39,199 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:39,201 - monitor.bilibili - INFO - 获取UP主 260736087 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:40,288 - monitor.bilibili - INFO - 获取UP主 260736087 视频成功，共 5 个视频
+2026-08-06 09:09:40,292 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:40,295 - monitor.bilibili - INFO - 获取UP主 102541140 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:41,425 - monitor.bilibili - INFO - 获取UP主 102541140 视频成功，共 5 个视频
+2026-08-06 09:09:41,431 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:41,432 - monitor.bilibili - INFO - 获取UP主 396990054 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:42,762 - monitor.bilibili - INFO - 获取UP主 396990054 视频成功，共 5 个视频
+2026-08-06 09:09:42,767 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:42,769 - monitor.bilibili - INFO - 获取UP主 382652733 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:43,891 - monitor.bilibili - INFO - 获取UP主 382652733 视频成功，共 5 个视频
+2026-08-06 09:09:43,896 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:43,898 - monitor.bilibili - INFO - 获取UP主 239688446 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:44,969 - monitor.bilibili - INFO - 获取UP主 239688446 视频成功，共 5 个视频
+2026-08-06 09:09:44,973 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:44,975 - monitor.bilibili - INFO - 获取UP主 3493115379845891 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:46,039 - monitor.bilibili - INFO - 获取UP主 3493115379845891 视频成功，共 5 个视频
+2026-08-06 09:09:46,045 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:46,046 - monitor.bilibili - INFO - 获取UP主 85844042 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:47,131 - monitor.bilibili - INFO - 获取UP主 85844042 视频成功，共 5 个视频
+2026-08-06 09:09:47,137 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:47,138 - monitor.bilibili - INFO - 获取UP主 521870525 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:48,250 - monitor.bilibili - INFO - 获取UP主 521870525 视频成功，共 5 个视频
+2026-08-06 09:09:48,255 - monitor.database - INFO - 查询到 1 条视频记录，总计 6 条
+2026-08-06 09:09:48,256 - monitor.bilibili - INFO - 获取UP主 482091317 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:49,448 - monitor.bilibili - INFO - 获取UP主 482091317 视频成功，共 5 个视频
+2026-08-06 09:09:49,448 - monitor.scheduler - INFO - UP主 有駜矣 发现 1 个新视频
+2026-08-06 09:09:49,449 - monitor.scheduler - INFO - 正在推送视频: 修仙取代武侠，不是口味变了，是一代人集体认输的信号！毛选资本论的洞察！
+2026-08-06 09:09:49,449 - monitor.feishu - INFO - 准备发送新视频通知: 修仙取代武侠，不是口味变了，是一代人集体认输的信号！毛选资本论的洞察！
+2026-08-06 09:09:49,449 - monitor.feishu - INFO - 正在发送飞书消息...
+2026-08-06 09:09:50,250 - monitor.feishu - INFO - 飞书消息发送成功
+2026-08-06 09:09:50,283 - monitor.feishu - INFO - 新视频通知发送成功: 修仙取代武侠，不是口味变了，是一代人集体认输的信号！毛选资本论的洞察！
+2026-08-06 09:09:50,284 - monitor.scheduler - INFO - 视频推送成功: BV1bvMk6ZEo2
+2026-08-06 09:09:50,284 - monitor.database - INFO - 添加视频记录: bvid=BV1bvMk6ZEo2, title=修仙取代武侠，不是口味变了，是一代人集体认输的信号！毛选资本论的洞察！
+2026-08-06 09:09:50,294 - monitor.database - INFO - 视频记录添加成功: id=1261, bvid=BV1bvMk6ZEo2
+2026-08-06 09:09:50,301 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:50,302 - monitor.bilibili - INFO - 获取UP主 251395733 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:50,566 - monitor.bilibili - INFO - 获取UP主 251395733 视频成功，共 5 个视频
+2026-08-06 09:09:50,571 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:50,573 - monitor.bilibili - INFO - 获取UP主 123895286 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:51,693 - monitor.bilibili - INFO - 获取UP主 123895286 视频成功，共 5 个视频
+2026-08-06 09:09:51,697 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:51,698 - monitor.bilibili - INFO - 获取UP主 2084495268 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:52,828 - monitor.bilibili - INFO - 获取UP主 2084495268 视频成功，共 5 个视频
+2026-08-06 09:09:52,832 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:52,834 - monitor.bilibili - INFO - 获取UP主 1590538073 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:53,946 - monitor.bilibili - INFO - 获取UP主 1590538073 视频成功，共 5 个视频
+2026-08-06 09:09:53,951 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:53,953 - monitor.bilibili - INFO - 获取UP主 1919530322 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:55,047 - monitor.bilibili - INFO - 获取UP主 1919530322 视频成功，共 5 个视频
+2026-08-06 09:09:55,051 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:55,052 - monitor.bilibili - INFO - 获取UP主 145040680 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:56,150 - monitor.bilibili - INFO - 获取UP主 145040680 视频成功，共 5 个视频
+2026-08-06 09:09:56,154 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:56,156 - monitor.bilibili - INFO - 获取UP主 3546909771827549 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:57,283 - monitor.bilibili - INFO - 获取UP主 3546909771827549 视频成功，共 5 个视频
+2026-08-06 09:09:57,287 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:57,289 - monitor.bilibili - INFO - 获取UP主 441429820 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:58,629 - monitor.bilibili - INFO - 获取UP主 441429820 视频成功，共 5 个视频
+2026-08-06 09:09:58,633 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:09:58,635 - monitor.bilibili - INFO - 获取UP主 383961698 的视频列表 (page=1, page_size=5)
+2026-08-06 09:09:59,764 - monitor.bilibili - INFO - 获取UP主 383961698 视频成功，共 5 个视频
+2026-08-06 09:09:59,769 - monitor.database - INFO - 查询到 0 条视频记录，总计 0 条
+2026-08-06 09:09:59,770 - monitor.scheduler - INFO - [用户 admin] UP主 ekkoo___ 无视频记录，获取最新5个视频
+2026-08-06 09:09:59,770 - monitor.bilibili - INFO - 获取UP主 333655823 的视频列表 (page=1, page_size=5)
+2026-08-06 09:10:00,886 - monitor.bilibili - INFO - UP主 333655823 暂无视频
+2026-08-06 09:10:00,886 - monitor.scheduler - INFO - UP主 ekkoo___ 暂无视频
+2026-08-06 09:10:00,891 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:10:00,892 - monitor.bilibili - INFO - 获取UP主 661624383 的视频列表 (page=1, page_size=5)
+2026-08-06 09:10:02,104 - monitor.bilibili - INFO - 获取UP主 661624383 视频成功，共 5 个视频
+2026-08-06 09:10:02,108 - monitor.database - INFO - 查询到 1 条视频记录，总计 5 条
+2026-08-06 09:10:02,110 - monitor.bilibili - INFO - 获取UP主 432028479 的视频列表 (page=1, page_size=5)

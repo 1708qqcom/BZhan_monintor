@@ -325,7 +325,7 @@ async function loadUserUps(userId) {
     console.log('[UserUps] 开始加载用户UP主列表, userId:', userId);
 
     try {
-        const response = await fetch(`/api/ups?user_id=${userId}`);
+        const response = await fetch(`/api/ups?user_id=${userId}&page_size=10000`);
 
         if (!response.ok) {
             const error = await response.json();

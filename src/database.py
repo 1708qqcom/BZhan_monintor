@@ -187,6 +187,57 @@ class Database:
                 ON push_history(pushed_at)
             """)
 
+            # 6. 稍后再看视频缓存表
+            logger.debug("创建 toview_videos 表...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS toview_videos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    bvid TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    author TEXT,
+                    mid INTEGER,
+                    pic TEXT,
+                    play INTEGER DEFAULT 0,
+                    duration TEXT,
+                    pubdate INTEGER,
+                    added_at INTEGER NOT NULL,
+                    synced_at INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    UNIQUE(user_id, bvid)
+                )
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_toview_user ON toview_videos(user_id)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_toview_synced ON toview_videos(synced_at)
+            """)
+
+            # 7. 稍后再看推送历史表
+            logger.debug("创建 toview_push_history 表...")
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS toview_push_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    push_type TEXT NOT NULL,
+                    pushed_at INTEGER NOT NULL,
+                    video_count INTEGER NOT NULL,
+                    video_list TEXT NOT NULL,
+                    success BOOLEAN NOT NULL,
+                    error_message TEXT,
+                    pushed_by INTEGER,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (pushed_by) REFERENCES users(id)
+                )
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_toview_history_user ON toview_push_history(user_id)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_toview_history_time ON toview_push_history(pushed_at)
+            """)
+
             conn.commit()
             logger.info("数据库表结构初始化完成")
 
