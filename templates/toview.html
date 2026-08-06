@@ -128,7 +128,11 @@ function createVideoCard(video, index) {
             <!-- 封面 -->
             <div class="relative h-40 bg-gray-100 flex items-center justify-center">
                 ${pic ? `
-                    <img src="${pic}" alt="${title}" class="w-full h-full object-cover"
+                    <img src="${pic}"
+                         alt="${title}"
+                         class="w-full h-full object-cover"
+                         referrerpolicy="no-referrer"
+                         loading="lazy"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                          onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
                     <div class="hidden w-full h-full items-center justify-center bg-gray-200">
