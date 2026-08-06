@@ -68,6 +68,9 @@ function formatDateTime(isoString) {
 /**
  * 显示全局错误提示
  *
+ * 显示时移除 hidden 与 translate-x-full 使其滑入；
+ * duration 后滑出，动画结束再 hidden，避免提示常驻屏幕外。
+ *
  * @param {string} message - 错误信息（支持HTML）
  * @param {number} duration - 显示时长（毫秒），默认5000ms
  */
@@ -77,20 +80,34 @@ function showError(message, duration = 5000) {
     const container = document.getElementById('global-error');
     const messageEl = document.getElementById('global-error-message');
 
-    if (container && messageEl) {
-        // 支持HTML内容（用于显示跳转链接）
-        messageEl.innerHTML = message;
-        container.classList.remove('hidden');
-
-        // 自动隐藏
-        setTimeout(() => {
-            container.classList.add('hidden');
-        }, duration);
+    if (!container || !messageEl) {
+        console.warn('[Global Error] 提示容器不存在，跳过显示');
+        return;
     }
+
+    // 支持HTML内容（用于显示跳转链接）
+    messageEl.innerHTML = message;
+
+    // 清除前一个隐藏定时器，避免连续触发时提前隐藏
+    if (container._hideTimer) {
+        clearTimeout(container._hideTimer);
+    }
+
+    // 显示并滑入
+    container.classList.remove('hidden', 'translate-x-full');
+
+    // 延后滑出并隐藏
+    container._hideTimer = setTimeout(() => {
+        container.classList.add('translate-x-full');
+        setTimeout(() => container.classList.add('hidden'), 300);
+    }, duration);
 }
 
 /**
  * 显示全局成功提示
+ *
+ * 显示时移除 hidden 与 translate-x-full 使其滑入；
+ * duration 后滑出，动画结束再 hidden。
  */
 function showSuccess(message, duration = 3000) {
     console.log('[Global Success]', message);
@@ -98,15 +115,26 @@ function showSuccess(message, duration = 3000) {
     const container = document.getElementById('global-success');
     const messageEl = document.getElementById('global-success-message');
 
-    if (container && messageEl) {
-        messageEl.textContent = message;
-        container.classList.remove('hidden');
-
-        // 自动隐藏
-        setTimeout(() => {
-            container.classList.add('hidden');
-        }, duration);
+    if (!container || !messageEl) {
+        console.warn('[Global Success] 提示容器不存在，跳过显示');
+        return;
     }
+
+    messageEl.textContent = message;
+
+    // 清除前一个隐藏定时器，避免连续触发时提前隐藏
+    if (container._hideTimer) {
+        clearTimeout(container._hideTimer);
+    }
+
+    // 显示并滑入
+    container.classList.remove('hidden', 'translate-x-full');
+
+    // 延后滑出并隐藏
+    container._hideTimer = setTimeout(() => {
+        container.classList.add('translate-x-full');
+        setTimeout(() => container.classList.add('hidden'), 300);
+    }, duration);
 }
 
 /**
