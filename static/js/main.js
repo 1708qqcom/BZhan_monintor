@@ -204,36 +204,77 @@ function showLoading(elementId) {
 
 // ==================== 导航栏交互 ====================
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('[Main] 页面加载完成，初始化导航栏');
+/**
+ * 切换移动端菜单显隐（带滑入/滑出动画）
+ *
+ * 菜单初始同时带 -translate-y-full（上移到视口外）与 hidden（display:none）。
+ * 打开时先解除 hidden，强制重排后再解除位移类，触发滑入；
+ * 关闭时先加回位移类滑出，动画结束后再 hidden，避免菜单常驻视口外。
+ *
+ * @param {HTMLElement} menu - 移动端菜单容器 (#mobile-menu)
+ * @param {boolean} willOpen - true 打开，false 关闭
+ */
+function toggleMobileMenu(menu, willOpen) {
+    if (willOpen) {
+        menu.classList.remove('hidden');
+        // 强制重排，确保后续 transform 变化能触发 transition
+        void menu.offsetHeight;
+        menu.classList.remove('-translate-y-full');
+        menu.classList.add('translate-y-0');
+    } else {
+        menu.classList.remove('translate-y-0');
+        menu.classList.add('-translate-y-full');
+        // 等待滑出动画（duration-300）结束后再 display:none
+        setTimeout(() => menu.classList.add('hidden'), 300);
+    }
+}
 
-    // 移动端汉堡菜单切换
+/**
+ * 初始化移动端汉堡菜单交互
+ *
+ * 职责：绑定按钮开/关 + 菜单项点击后关闭。
+ * 元素缺失时降级为告警日志，不抛异常，避免阻塞其余导航初始化。
+ */
+function initMobileMenu() {
     const menuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    if (menuButton && mobileMenu) {
-        menuButton.addEventListener('click', function() {
-            console.log('[Main] 切换移动端菜单');
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // 点击菜单项后关闭菜单
-        mobileMenu.querySelectorAll('a, button').forEach(item => {
-            item.addEventListener('click', function() {
-                mobileMenu.classList.add('hidden');
-            });
-        });
+    if (!menuButton || !mobileMenu) {
+        console.warn('[Nav] 移动端菜单元素缺失，跳过初始化');
+        return;
     }
 
-    // 标记当前页面的菜单项
+    menuButton.addEventListener('click', function () {
+        const willOpen = mobileMenu.classList.contains('hidden');
+        console.log('[Nav] 切换移动端菜单，willOpen =', willOpen);
+        toggleMobileMenu(mobileMenu, willOpen);
+    });
+
+    // 点击菜单内任一链接/按钮后关闭菜单（跳转或提交前复位视图）
+    mobileMenu.querySelectorAll('a, button').forEach(function (item) {
+        item.addEventListener('click', function () {
+            toggleMobileMenu(mobileMenu, false);
+        });
+    });
+}
+
+/**
+ * 高亮当前页面对应的导航链接
+ */
+function markCurrentNav() {
     const currentPath = window.location.pathname;
-    document.querySelectorAll('nav a').forEach(link => {
+    document.querySelectorAll('nav a').forEach(function (link) {
         if (link.getAttribute('href') === currentPath) {
             link.classList.remove('text-gray-500');
             link.classList.add('text-gray-900');
         }
     });
+}
 
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('[Main] 页面加载完成，初始化导航栏');
+    initMobileMenu();
+    markCurrentNav();
     console.log('[Main] 导航栏初始化完成');
 });
 

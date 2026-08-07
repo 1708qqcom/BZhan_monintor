@@ -22,6 +22,10 @@ from src.database import Database
 
 logger = logging.getLogger("monitor.scheduler")
 
+# 稍后再看定时推送使用的时区
+# 显式指定，避免依赖服务器系统时区（云服务器常为 UTC，会使配置的推送时间偏移 8 小时）
+PUSH_TIMEZONE = "Asia/Shanghai"
+
 
 class MonitorScheduler:
     """监控任务调度器"""
@@ -1116,13 +1120,17 @@ class MonitorScheduler:
 
     # ==================== 稍后再看定时推送 ====================
 
-    def setup_toview_push_scheduler(self) -> None:
+    def setup_toview_push_scheduler(self) -> bool:
         """
         设置稍后再看定时推送任务
 
         从数据库读取推送时间配置（默认 21:00）
         使用 APScheduler 的 CronTrigger 执行定时推送
         注意：此方法需要在 start() 之前调用
+
+        Returns:
+            True 表示调度器启动成功；False 表示失败（如 apscheduler 依赖缺失），
+            失败不影响主监控流程，仅定时推送不可用
         """
         try:
             from apscheduler.schedulers.background import BackgroundScheduler
@@ -1136,19 +1144,19 @@ class MonitorScheduler:
             # 解析时间
             try:
                 hour, minute = map(int, push_time.split(":"))
-                logger.info(f"设置稍后再看定时推送任务（每天 {push_time}）")
+                logger.info(f"设置稍后再看定时推送任务（每天 {push_time}，时区 {PUSH_TIMEZONE}）")
             except (ValueError, AttributeError) as e:
                 logger.warning(f"推送时间格式错误: {push_time}, 使用默认值 21:00, error={e}")
                 hour, minute = 21, 0
                 push_time = "21:00"
 
-            # 创建后台调度器
-            self.toview_scheduler = BackgroundScheduler()
+            # 创建后台调度器（显式指定时区，避免服务器系统时区为 UTC 导致触发时间偏移）
+            self.toview_scheduler = BackgroundScheduler(timezone=PUSH_TIMEZONE)
 
             # 添加定时任务
             self.toview_scheduler.add_job(
                 func=self._push_toview_all_users,
-                trigger=CronTrigger(hour=hour, minute=minute),
+                trigger=CronTrigger(hour=hour, minute=minute, timezone=PUSH_TIMEZONE),
                 id='toview_push',
                 name='稍后再看定时推送',
                 replace_existing=True
@@ -1156,10 +1164,17 @@ class MonitorScheduler:
 
             # 启动调度器
             self.toview_scheduler.start()
-            logger.info(f"稍后再看定时推送任务已启动，推送时间: {push_time}")
+            logger.info(f"稍后再看定时推送任务已启动，推送时间: {push_time}，时区: {PUSH_TIMEZONE}")
+            return True
 
         except Exception as e:
-            logger.error(f"设置稍后再看定时推送失败: {e}", exc_info=True)
+            # 显式标记未初始化，供 update_push_schedule 判断
+            self.toview_scheduler = None
+            logger.error(
+                f"设置稍后再看定时推送失败: {e}（定时推送不可用，手动推送不受影响）",
+                exc_info=True
+            )
+            return False
 
     def update_push_schedule(self, new_time: str) -> bool:
         """
@@ -1172,9 +1187,12 @@ class MonitorScheduler:
             更新成功返回 True，失败返回 False
         """
         try:
-            # 检查调度器是否已初始化
-            if not hasattr(self, 'toview_scheduler'):
-                logger.warning("推送调度器未初始化，无法动态更新")
+            # 检查调度器是否已初始化（setup 失败时会显式置 None）
+            if getattr(self, 'toview_scheduler', None) is None:
+                logger.error(
+                    "推送调度器未初始化，无法动态更新"
+                    "（定时推送不可用，请检查 apscheduler 依赖与服务启动日志）"
+                )
                 return False
 
             # 解析时间
@@ -1186,7 +1204,7 @@ class MonitorScheduler:
                 logger.error(f"时间格式错误: {new_time}, error={e}")
                 return False
 
-            logger.info(f"更新推送时间: {new_time}")
+            logger.info(f"更新推送时间: {new_time}，时区: {PUSH_TIMEZONE}")
 
             # 移除旧任务
             try:
@@ -1199,13 +1217,13 @@ class MonitorScheduler:
             from apscheduler.triggers.cron import CronTrigger
             self.toview_scheduler.add_job(
                 func=self._push_toview_all_users,
-                trigger=CronTrigger(hour=hour, minute=minute),
+                trigger=CronTrigger(hour=hour, minute=minute, timezone=PUSH_TIMEZONE),
                 id='toview_push',
                 name='稍后再看定时推送',
                 replace_existing=True
             )
 
-            logger.info(f"推送时间已更新为 {new_time}，下次推送: {hour:02d}:{minute:02d}")
+            logger.info(f"推送时间已更新为 {new_time}，时区: {PUSH_TIMEZONE}，下次推送: {hour:02d}:{minute:02d}")
             return True
 
         except Exception as e:

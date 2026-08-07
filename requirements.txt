@@ -13,3 +13,6 @@ Jinja2>=3.1.0
 
 # Session 管理
 itsdangerous>=2.0.0
+
+# 定时任务调度（稍后再看定时推送，import 名 apscheduler，须卡 3.x，4.x API 不兼容）
+APScheduler>=3.10,<4.0

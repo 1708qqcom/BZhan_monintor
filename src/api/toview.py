@@ -495,19 +495,35 @@ async def update_push_config(request: Request, body: PushTimeConfigRequest):
         # 3. 更新调度器（如果调度器已初始化）
         # 注意：这里需要访问 web.py 中的调度器实例
         # 通过 request.app.state.scheduler 访问
+        scheduler_updated = False
         if hasattr(request.app.state, "scheduler"):
             try:
                 scheduler = request.app.state.scheduler
                 if hasattr(scheduler, "update_push_schedule"):
-                    scheduler.update_push_schedule(body.push_time)
-                    logger.info(f"调度器推送时间已更新: {body.push_time}")
+                    scheduler_updated = scheduler.update_push_schedule(body.push_time)
+                    if scheduler_updated:
+                        logger.info(f"调度器推送时间已更新: {body.push_time}")
+                    else:
+                        logger.error(
+                            f"调度器推送时间更新失败: {body.push_time}"
+                            "（调度器未运行，配置已保存，重启服务后生效）"
+                        )
             except Exception as e:
-                logger.error(f"更新调度器失败: {e}, 下次启动时生效", exc_info=True)
+                logger.error(f"更新调度器异常: {e}, 配置已保存，下次启动时生效", exc_info=True)
                 # 不抛出异常，配置已保存，下次启动时生效
+        else:
+            logger.warning("调度器未绑定到 app.state，推送时间仅保存到数据库，重启服务后生效")
+
+        # 4. 返回结果（配置已保存即为成功；调度器是否热更新通过字段区分）
+        if scheduler_updated:
+            message = f"推送时间已更新为 {body.push_time}"
+        else:
+            message = f"推送时间已保存为 {body.push_time}，但调度器未运行，重启服务后生效"
 
         return {
             "success": True,
-            "message": f"推送时间已更新为 {body.push_time}"
+            "message": message,
+            "scheduler_updated": scheduler_updated
         }
 
     except HTTPException:

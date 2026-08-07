@@ -130,10 +130,16 @@ def _start_monitor_thread(db: Database) -> None:
 
         scheduler.set_state_callback(_on_state_change)
 
-        # 6.5 设置稍后再看定时推送
+        # 6.5 设置稍后再看定时推送（失败不影响主监控，仅定时推送不可用）
         try:
-            scheduler.setup_toview_push_scheduler()
-            logger.info("稍后再看定时推送调度器已初始化")
+            toview_scheduler_ok = scheduler.setup_toview_push_scheduler()
+            if toview_scheduler_ok:
+                logger.info("稍后再看定时推送调度器已初始化")
+            else:
+                logger.error(
+                    "稍后再看定时推送调度器初始化失败，定时推送不可用"
+                    "（手动推送不受影响），详见上文错误日志"
+                )
         except Exception as e:
             logger.error(f"初始化稍后再看推送调度器失败: {e}", exc_info=True)
 
