@@ -352,7 +352,7 @@ class Database:
             # 构造分页
             if page is not None:
                 offset = (page - 1) * page_size
-                pagination_clause = f"LIMIT ? OFFSET ?"
+                pagination_clause = "LIMIT ? OFFSET ?"
                 params.extend([page_size, offset])
             else:
                 pagination_clause = ""

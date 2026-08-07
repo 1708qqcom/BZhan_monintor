@@ -1,0 +1,46 @@
+# CD 流水线：CI 通过后自动 SSH 部署到云服务器
+# 触发条件：CI workflow 在 main 分支上成功完成
+# 部署策略：增量更新（git pull + 重启 + 健康检查 + 失败回滚）
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+# 同一时刻只允许一次部署，避免并发更新冲突
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 部署到云服务器
+    runs-on: ubuntu-latest
+    # 仅当上游 CI 成功时才部署；CI 失败/取消则跳过
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: 通过 SSH 执行增量更新
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          # 脚本非零退出即判定部署失败，Action 标红
+          script_stop: true
+          # 服务器端执行增量更新：备份运行时 -> 拉代码 -> 恢复 -> 重启 -> 健康检查
+          # 失败时 deploy.sh 内部自动回滚到上一个提交
+          script: |
+            set -euo pipefail
+            cd /my_web/BZhan_monintor
+            sudo bash deploy/deploy.sh update
+
+      - name: 部署结果
+        if: always()
+        run: |
+          echo "部署任务结束"
+          echo "如需排查：sudo journalctl -u bilibili-monitor -n 50"

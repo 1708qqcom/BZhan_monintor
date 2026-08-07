@@ -6,7 +6,6 @@ Pydantic 数据模型定义
 - 数据验证
 - 序列化配置
 """
-from datetime import datetime
 from typing import Optional, List, Any
 
 from pydantic import BaseModel, Field

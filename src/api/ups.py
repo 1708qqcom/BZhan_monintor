@@ -15,7 +15,6 @@ from src.database import Database
 from src.models import (
     UpResponse,
     UpCreateRequest,
-    UpListResponse,
     PaginatedUpResponse,
     ErrorResponse,
     SuccessResponse,
@@ -355,7 +354,7 @@ async def remove_up(
             logger.warning(f"UP主不存在或无权删除: up_id={up_id}")
             raise HTTPException(
                 status_code=404,
-                detail=f"UP主不存在或无权删除"
+                detail="UP主不存在或无权删除"
             )
 
         logger.info(f"UP主已删除: up_id={up_id}")

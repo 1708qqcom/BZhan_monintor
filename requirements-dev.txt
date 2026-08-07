@@ -1,0 +1,8 @@
+# 开发/CI 依赖（不进入生产环境）
+# 与 requirements.txt 解耦，CI 中通过 -r requirements-dev.txt 单独安装
+
+# 单元测试
+pytest>=8.0.0
+
+# 静态检查（Lint）
+ruff>=0.6.0

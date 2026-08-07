@@ -1,0 +1,26 @@
+# 项目工具配置：ruff（Lint）+ pytest（测试）
+# 仅配置工具行为，不影响运行时逻辑
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = [
+    "Archive",
+    "scripts",
+    "debug_video_data.py",
+]
+
+[tool.ruff.lint]
+# 渐进式 lint 策略：
+#   - E9  语法错误（必须为 0，硬阻塞）
+#   - F   pyflakes 真实错误：未用导入/变量、重复定义、空 f-string 等
+# 风格类规则（E*/W*/I）暂不启用，避免历史代码大量违规阻塞流水线，
+# 待存量清理后逐步收紧。
+select = ["E9", "F"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

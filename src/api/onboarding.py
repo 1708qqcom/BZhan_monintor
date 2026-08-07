@@ -7,7 +7,6 @@
 - POST /api/onboarding/skip-step - 跳过步骤
 """
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 

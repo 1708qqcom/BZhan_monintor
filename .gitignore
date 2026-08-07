@@ -30,3 +30,6 @@
 
 # # 备份文件
 # *.backup_*
+
+# Node.js 前端构建依赖（不提交；产物 static/css/tailwind.css 需提交）
+node_modules/

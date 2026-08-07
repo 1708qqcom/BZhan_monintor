@@ -16,7 +16,7 @@ import logging
 import threading
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -231,7 +231,6 @@ if _monitor_state.get("scheduler"):
 # 注册顺序：Auth → Log → Session → CORS
 # 实际执行顺序：Auth → Log → Session → CORS
 
-from starlette.middleware.base import BaseHTTPMiddleware
 
 # 认证白名单
 AUTH_WHITELIST = [
@@ -1030,4 +1029,3 @@ def run_web_server(host: str = "0.0.0.0", port: int = 3231):
 
 
 # 导入datetime用于health_check
-from datetime import datetime

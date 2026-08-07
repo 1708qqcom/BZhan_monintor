@@ -13,7 +13,6 @@
 """
 import logging
 import sqlite3
-from typing import Optional
 
 from src.bilibili import BilibiliClient
 from src.database import Database
@@ -65,7 +64,7 @@ def sync_followed_ups(
         client = BilibiliClient(cookies=cookies)
 
         # 2. 调用B站API获取关注列表
-        logger.info(f"[SyncService] 调用 B站API 获取关注列表...")
+        logger.info("[SyncService] 调用 B站API 获取关注列表...")
         ups = client.get_followed_ups(max_count=max_count)
 
         if not ups:

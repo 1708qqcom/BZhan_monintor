@@ -2,16 +2,12 @@
 调度器单元测试
 """
 import json
-import os
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from src.scheduler import MonitorScheduler
-from src.exceptions import CookieExpiredError
 
 
 class TestLoadHistory:
@@ -238,7 +234,7 @@ class TestCheckNewVideos:
             "updated_at": None,
         }
 
-        new_videos = scheduler.check_new_videos(123, "测试UP主")
+        new_videos = scheduler.check_new_videos(123, "测试UP主", mock_client)
 
         assert len(new_videos) == 1
         assert new_videos[0]["bvid"] == "BV1new"
@@ -253,7 +249,7 @@ class TestCheckNewVideos:
             feishu_notifier=MagicMock(),
         )
 
-        result = scheduler.check_new_videos(123, "测试UP主")
+        result = scheduler.check_new_videos(123, "测试UP主", mock_client)
 
         assert result == []
 
@@ -267,7 +263,7 @@ class TestCheckNewVideos:
             feishu_notifier=MagicMock(),
         )
 
-        result = scheduler.check_new_videos(123, "测试UP主")
+        result = scheduler.check_new_videos(123, "测试UP主", mock_client)
 
         assert result == []
 
@@ -338,41 +334,30 @@ class TestPushVideo:
 class TestRunMonitorCycle:
     """测试监控循环"""
 
-    def test_run_cycle_raises_on_expired_cookie(self):
-        """Cookie过期时抛出异常"""
-        mock_client = MagicMock()
-        mock_client.check_cookie_valid.return_value = False
-
+    def test_run_cycle_without_database_returns_safely(self):
+        """未启用数据库时安全返回，不抛异常（多用户架构依赖 DB）"""
         scheduler = MonitorScheduler(
-            bilibili_client=mock_client,
+            bilibili_client=MagicMock(),
             feishu_notifier=MagicMock(),
+            database=None,
         )
 
-        with pytest.raises(CookieExpiredError):
-            scheduler.run_monitor_cycle()
-
-    def test_run_cycle_first_run_only_records(self):
-        """首次运行只记录不推送"""
-        mock_client = MagicMock()
-        mock_client.check_cookie_valid.return_value = True
-        mock_client.get_followed_ups.return_value = [
-            {"mid": 123, "uname": "测试UP主"}
-        ]
-        mock_client.get_up_videos.return_value = [
-            {"bvid": "BV1test", "title": "测试视频", "pubdate": 1722571200}
-        ]
-
-        mock_feishu = MagicMock()
-
-        scheduler = MonitorScheduler(
-            bilibili_client=mock_client,
-            feishu_notifier=mock_feishu,
-        )
-        scheduler.video_history = {"videos": {}, "updated_at": None}
-
+        # 未启用数据库时应提前返回，不抛异常
         scheduler.run_monitor_cycle()
 
-        # 首次运行不推送
-        mock_feishu.send_new_video_notification.assert_not_called()
-        # 但会记录
-        assert "BV1test" in scheduler.video_history["videos"]
+    def test_run_cycle_no_valid_users_skips(self):
+        """无有效B站登录用户时跳过本次循环，不抛异常"""
+        mock_db = MagicMock()
+        mock_db.get_config.return_value = {}
+        mock_db.get_all_users_with_valid_auth.return_value = []
+
+        scheduler = MonitorScheduler(
+            bilibili_client=MagicMock(),
+            feishu_notifier=MagicMock(),
+            database=mock_db,
+        )
+
+        # 无有效用户时应跳过，不抛异常
+        scheduler.run_monitor_cycle()
+
+        mock_db.get_all_users_with_valid_auth.assert_called_once()

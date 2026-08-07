@@ -11,7 +11,6 @@
 - 用户配置（每个用户独立）：feishu_webhook_url
 """
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel

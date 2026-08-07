@@ -7,8 +7,7 @@
 - 消息构造逻辑
 """
 import unittest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime
+from unittest.mock import Mock, patch
 
 import requests
 

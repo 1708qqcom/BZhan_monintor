@@ -1,0 +1,13 @@
+{
+  "name": "monitor-onlinevideo-frontend",
+  "version": "2.2.0",
+  "private": true,
+  "description": "Tailwind CSS 预编译构建。产物 static/css/tailwind.css 提交仓库，服务器无需 Node。",
+  "scripts": {
+    "build": "tailwindcss -i src/input.css -o static/css/tailwind.css --minify",
+    "watch": "tailwindcss -i src/input.css -o static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

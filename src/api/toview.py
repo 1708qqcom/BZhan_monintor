@@ -485,7 +485,7 @@ async def update_push_config(request: Request, body: PushTimeConfigRequest):
             logger.warning(f"时间格式错误: {body.push_time}, error={e}")
             raise HTTPException(
                 status_code=400,
-                detail=f"时间格式错误，请使用 HH:MM 格式（如 21:00）"
+                detail="时间格式错误，请使用 HH:MM 格式（如 21:00）"
             )
 
         # 2. 更新数据库配置
