@@ -204,11 +204,13 @@ async def lifespan(app: FastAPI):
         logger.error(f"启动监控线程失败: {e}", exc_info=True)
         # 不抛出异常，允许Web服务继续运行
 
-    # 将调度器实例保存到 app.state（供 API 访问）
+    # 将调度器实例绑定到 app.state（供 toview 等模块通过 request.app.state.scheduler 访问）
+    # 必须在 _start_monitor_thread 之后执行：此时调度器已创建，且 lifespan 运行期 app 已存在
     if _monitor_state.get("scheduler"):
-        # 注意：lifespan 是生成器，app 还未创建，需要在后面设置
-        # 这里先跳过，在创建 app 后设置
-        pass
+        app.state.scheduler = _monitor_state["scheduler"]
+        logger.info("调度器实例已绑定到 app.state")
+    else:
+        logger.warning("监控调度器未启动，app.state.scheduler 未绑定（定时推送不可用）")
 
     yield
 
@@ -225,12 +227,6 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
-
-# 设置调度器实例到 app.state（供 API 访问）
-if _monitor_state.get("scheduler"):
-    app.state.scheduler = _monitor_state["scheduler"]
-    logger.info("调度器实例已绑定到 app.state")
-
 
 # ==================== 中间件配置 ====================
 # 注意：BaseHTTPMiddleware 的执行顺序与注册顺序相同（FIFO）
